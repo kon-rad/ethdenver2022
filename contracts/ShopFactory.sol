@@ -17,4 +17,8 @@ contract ShopFactory is Ownable {
         allShops.push(address(shop));
         return address(shop);
     }
+
+    function fetchAllShops() public view returns (address[]) {
+        return allShops;
+    }
 }

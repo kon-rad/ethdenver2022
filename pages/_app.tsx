@@ -5,6 +5,7 @@ import type { AppProps } from 'next/app'
 import { getProvider } from '../utils/web3';
 import Layout from '../components/layout';
 import { SEO } from '../components/seo'
+import "../styles/Home.module.css";
 
 // /* CSS HEX */
 // --persian-blue: #072ac8ff;
@@ -14,6 +15,10 @@ import { SEO } from '../components/seo'
 // --mikado-yellow: #ffc600ff;
 
 const theme = extendTheme({
+  config: {
+    useSystemColorMode: true,
+    initialColorMode: "dark"
+  },
   colors: {
     brand: {
       100: "#072ac8ff",

@@ -14,7 +14,6 @@ import {
 const ListHeader = ({ children }: { children: ReactNode }) => {
     return (
         <Text
-            color="gray.800"
             fontWeight={'500'}
             fontSize={'lg'}
             mb={2}
@@ -27,7 +26,7 @@ const ListHeader = ({ children }: { children: ReactNode }) => {
 export default function Footer() {
     return (
         <>
-            <Box bg={'brand.gradienta'} color={'gray.800'}>
+            <Box bg={'brand.gradienta'}>
                 <Container as={Stack} maxW={'6xl'} py={10}>
                     <SimpleGrid
                         templateColumns={{
@@ -43,8 +42,8 @@ export default function Footer() {
                                     src="/resources/images/logo.png"
                                 />
                             </Box>
-                            <Text fontSize={'sm'} color="gray.800">
-                                © 2021 Diamond Lab. All rights
+                            <Text fontSize={'sm'}>
+                                © 2022 dCom. All rights
                                 reserved
                             </Text>
                         </Stack>

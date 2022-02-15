@@ -1,17 +1,19 @@
-import type { NextPage } from 'next'
-import { Container, Box, Text } from '@chakra-ui/react';
-import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
+import type { NextPage } from "next";
+import { Container, Flex, Box, Text } from "@chakra-ui/react";
+import Head from "next/head";
+import Image from "next/image";
+import styles from "../styles/Home.module.css";
+import Hero from "../components/hero";
 
 const Home: NextPage = () => {
   return (
-    <Container>
-      <Box m={'6'}>
-        <Text fontSize="xl">dShop</Text>
-      </Box>
-    </Container>
-  )
-}
+    <div>
+      <Hero />
+      <Flex align="center">
+        <Box p={"6"}></Box>
+      </Flex>
+    </div>
+  );
+};
 
-export default Home
+export default Home;

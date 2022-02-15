@@ -7,17 +7,17 @@ import { AddIcon } from '@chakra-ui/icons'
 
 const Header = () => {
     return (
-        <Flex as="header" p={4} alignItems="center" bg="brand.gradienta">
+        <Flex as="header" p={4} alignItems="center">
             <LinkBox cursor="pointer">
                 <NextLink href="/" passHref={true}>
-                    <Text fontWeight="bold" fontSize="2xl" color="brand.darkslategray">dShop</Text>
+                    <Text fontWeight="bold" fontSize="2xl"color="brand.400">dCom</Text>
                 </NextLink>
             </LinkBox>
             <Spacer />
             <Box mr={4}>
                 <LinkBox>
                     <NextLink href="/mint" passHref={true}>
-                        <Button>create a shop</Button>
+                        <Button bg="gray.700" color="brand.400">create a shop</Button>
                     </NextLink>
                 </LinkBox>
             </Box>
