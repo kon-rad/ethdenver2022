@@ -16,7 +16,7 @@ const Header = () => {
             <Spacer />
             <Box mr={4}>
                 <LinkBox>
-                    <NextLink href="/mint" passHref={true}>
+                    <NextLink href="/create" passHref={true}>
                         <Button bg="gray.700" color="brand.400">create a shop</Button>
                     </NextLink>
                 </LinkBox>
