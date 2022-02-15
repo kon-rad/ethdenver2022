@@ -6,14 +6,21 @@ import { getProvider } from '../utils/web3';
 import Layout from '../components/layout';
 import { SEO } from '../components/seo'
 
+// /* CSS HEX */
+// --persian-blue: #072ac8ff;
+// --dodger-blue: #1e96fcff;
+// --uranian-blue: #a2d6f9ff;
+// --cadmium-yellow: #fcf300ff;
+// --mikado-yellow: #ffc600ff;
 
 const theme = extendTheme({
   colors: {
     brand: {
-      100: "#81B29A",
-      200: "#FFD82B",
-      300: "#FFEE2E",
-      400: "#D0C557"
+      100: "#072ac8ff",
+      200: "#1e96fcff",
+      300: "#a2d6f9ff",
+      400: "#fcf300ff",
+      500: "#ffc600ff"
     },
   },
 })

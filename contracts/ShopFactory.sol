@@ -11,10 +11,10 @@ contract ShopFactory is Ownable {
 
     event ShopCreated(address indexed shopAddress, string indexed name);
 
-    function createShop(string memory name, string memory description, string memory location, string memory phone) external returns (address) {
-        string shop = new Shop(msg.sender, name, description, location, phone);
+    function createShop(string memory name, string memory description, string memory location, string memory phone, string memory image) external returns (address) {
+        Shop shop = new Shop(msg.sender, name, description, location, phone, image);
         emit ShopCreated(address(shop), name);
         allShops.push(address(shop));
-        return shop;
+        return address(shop);
     }
 }

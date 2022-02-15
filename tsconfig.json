@@ -27,7 +27,7 @@
     "./typechain"
   ],
   "files": [
-    "./hardhat.config.ts"
+    "hardhat.config-temp.ts"
   ],
   "exclude": [
     "node_modules"
