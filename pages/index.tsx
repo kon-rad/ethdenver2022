@@ -29,9 +29,11 @@ const Home: NextPage = () => {
   return (
     <div>
       <Hero />
-      <Flex align="center">
-        <Box p={"6"}>
-          {shops.map((addr: any) => <ShopCard data={addr} />)}
+      <Flex align="center" justify="center">
+        <Box p={"6"} >
+          <Flex align="center" justify="center" direction="column">
+            {shops.map((addr: any) => <ShopCard address={addr} />)}
+          </Flex>
         </Box>
       </Flex>
     </div>
