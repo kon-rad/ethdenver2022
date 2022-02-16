@@ -21,7 +21,6 @@ const Home: NextPage = () => {
     const provider = new ethers.providers.JsonRpcProvider();
     const factoryContract = new ethers.Contract(shopFactoryAddress, ShopFactory.abi, provider);
 
-    
     const data = await factoryContract.fetchAllShops();
     console.log('data: ', data);
     setShops(data);

@@ -13,13 +13,7 @@ async function main() {
   // manually to make sure everything is compiled
   // await hre.run('compile');
 
-  // We get the contract to deploy
-  // const Shop = await ethers.getContractFactory("Shop");
-  // const shop = await Shop.deploy();
 
-  // await shop.deployed();
-
-  // console.log("Shop deployed to:", shop.address);
 
 
   const ShopFactory = await ethers.getContractFactory("ShopFactory");
