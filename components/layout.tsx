@@ -11,7 +11,7 @@ const Layout = (props: Props) => {
     return (
         <Box>
             <Header />
-            <Box mt={24} mb={48}>
+            <Box mb={48}>
                 {props.children}
             </Box>
             <Footer/>

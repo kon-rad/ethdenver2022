@@ -1,4 +1,4 @@
-import { Box, Text, Flex, Image } from "@chakra-ui/react";
+import { Box, Text, Flex, Image, Spacer } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Shop from "../artifacts/contracts/Shop.sol/Shop.json";
@@ -32,19 +32,18 @@ const ShopCard = (props: Props) => {
       p="4"
       borderColor="brand.400"
     >
-      <Link href={`/${encodeURIComponent(props.address)}`}>Go to Shop</Link>
-
       <Flex>
         <Box width="200px" m="2">
-          <Image src={image} width="200px" height="200px" />
+          <Image borderRadius="12px" src={image} width="200px" height="200px" />
         </Box>
         <Box>
           <Text fontSize="2xl" color="black.700">
             {name}
           </Text>
           <Text color="gray.600">{desc}</Text>
-          owner: {owner}
         </Box>
+          <Spacer/>
+          <Link href={`/${encodeURIComponent(props.address)}`}>Go to Shop</Link>
       </Flex>
     </Box>
   );

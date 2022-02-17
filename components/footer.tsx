@@ -39,7 +39,9 @@ export default function Footer() {
                             <Box>
                                 <Image
                                     borderRadius="xl"
-                                    src="/resources/images/logo.png"
+                                    src="/images/logo.jpeg"
+                                    w="100px"
+                                    h="100px"
                                 />
                             </Box>
                             <Text fontSize={'sm'}>

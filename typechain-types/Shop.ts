@@ -49,7 +49,7 @@ export declare namespace Shop {
     itemIds: BigNumberish[];
     itemQty: BigNumberish[];
     total: BigNumberish;
-    isDone: boolean;
+    isValid: boolean;
   };
 
   export type TransStructOutput = [
@@ -63,7 +63,7 @@ export declare namespace Shop {
     itemIds: BigNumber[];
     itemQty: BigNumber[];
     total: BigNumber;
-    isDone: boolean;
+    isValid: boolean;
   };
 }
 
@@ -74,17 +74,14 @@ export interface ShopInterface extends utils.Interface {
     "createItem(string,string,string,uint256)": FunctionFragment;
     "description()": FunctionFragment;
     "fetchCatalogItems()": FunctionFragment;
-    "fetchPendingTransactions()": FunctionFragment;
-    "fulfillTransaction(uint256)": FunctionFragment;
+    "fetchTransactions()": FunctionFragment;
     "image()": FunctionFragment;
-    "initTransaction(uint256[],uint256[])": FunctionFragment;
     "location()": FunctionFragment;
+    "makeTransaction(uint256[],uint256[])": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
     "phone()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "shopOwner()": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
+    "transactions(uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -104,30 +101,21 @@ export interface ShopInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "fetchPendingTransactions",
+    functionFragment: "fetchTransactions",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "fulfillTransaction",
-    values: [BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "image", values?: undefined): string;
+  encodeFunctionData(functionFragment: "location", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "initTransaction",
+    functionFragment: "makeTransaction",
     values: [BigNumberish[], BigNumberish[]]
   ): string;
-  encodeFunctionData(functionFragment: "location", values?: undefined): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "phone", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "shopOwner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
+    functionFragment: "transactions",
+    values: [BigNumberish]
   ): string;
 
   decodeFunctionResult(functionFragment: "catalog", data: BytesLike): Result;
@@ -141,39 +129,28 @@ export interface ShopInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "fetchPendingTransactions",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "fulfillTransaction",
+    functionFragment: "fetchTransactions",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "image", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "location", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "initTransaction",
+    functionFragment: "makeTransaction",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "location", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "phone", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "shopOwner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
+    functionFragment: "transactions",
     data: BytesLike
   ): Result;
 
   events: {
     "ItemCreated(uint256,string,string,string,uint256)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "ItemCreated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
 
 export type ItemCreatedEvent = TypedEvent<
@@ -188,14 +165,6 @@ export type ItemCreatedEvent = TypedEvent<
 >;
 
 export type ItemCreatedEventFilter = TypedEventFilter<ItemCreatedEvent>;
-
-export type OwnershipTransferredEvent = TypedEvent<
-  [string, string],
-  { previousOwner: string; newOwner: string }
->;
-
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface Shop extends BaseContract {
   contractName: "Shop";
@@ -253,24 +222,19 @@ export interface Shop extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[Shop.ItemStructOutput[]]>;
 
-    fetchPendingTransactions(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    fulfillTransaction(
-      transId: BigNumberish,
+    fetchTransactions(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     image(overrides?: CallOverrides): Promise<[string]>;
 
-    initTransaction(
+    location(overrides?: CallOverrides): Promise<[string]>;
+
+    makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    location(overrides?: CallOverrides): Promise<[string]>;
 
     name(overrides?: CallOverrides): Promise<[string]>;
 
@@ -278,16 +242,16 @@ export interface Shop extends BaseContract {
 
     phone(overrides?: CallOverrides): Promise<[string]>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    shopOwner(overrides?: CallOverrides): Promise<[string]>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    transactions(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber, boolean] & {
+        transId: BigNumber;
+        total: BigNumber;
+        isValid: boolean;
+      }
+    >;
   };
 
   catalog(
@@ -318,24 +282,19 @@ export interface Shop extends BaseContract {
     overrides?: CallOverrides
   ): Promise<Shop.ItemStructOutput[]>;
 
-  fetchPendingTransactions(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  fulfillTransaction(
-    transId: BigNumberish,
+  fetchTransactions(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   image(overrides?: CallOverrides): Promise<string>;
 
-  initTransaction(
+  location(overrides?: CallOverrides): Promise<string>;
+
+  makeTransaction(
     itemIds: BigNumberish[],
     itemQty: BigNumberish[],
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  location(overrides?: CallOverrides): Promise<string>;
 
   name(overrides?: CallOverrides): Promise<string>;
 
@@ -343,16 +302,16 @@ export interface Shop extends BaseContract {
 
   phone(overrides?: CallOverrides): Promise<string>;
 
-  renounceOwnership(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  shopOwner(overrides?: CallOverrides): Promise<string>;
-
-  transferOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  transactions(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, BigNumber, boolean] & {
+      transId: BigNumber;
+      total: BigNumber;
+      isValid: boolean;
+    }
+  >;
 
   callStatic: {
     catalog(
@@ -383,24 +342,19 @@ export interface Shop extends BaseContract {
       overrides?: CallOverrides
     ): Promise<Shop.ItemStructOutput[]>;
 
-    fetchPendingTransactions(
+    fetchTransactions(
       overrides?: CallOverrides
     ): Promise<Shop.TransStructOutput[]>;
 
-    fulfillTransaction(
-      transId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     image(overrides?: CallOverrides): Promise<string>;
 
-    initTransaction(
+    location(overrides?: CallOverrides): Promise<string>;
+
+    makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    location(overrides?: CallOverrides): Promise<string>;
 
     name(overrides?: CallOverrides): Promise<string>;
 
@@ -408,14 +362,16 @@ export interface Shop extends BaseContract {
 
     phone(overrides?: CallOverrides): Promise<string>;
 
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    shopOwner(overrides?: CallOverrides): Promise<string>;
-
-    transferOwnership(
-      newOwner: string,
+    transactions(
+      arg0: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [BigNumber, BigNumber, boolean] & {
+        transId: BigNumber;
+        total: BigNumber;
+        isValid: boolean;
+      }
+    >;
   };
 
   filters: {
@@ -433,15 +389,6 @@ export interface Shop extends BaseContract {
       image?: null,
       price?: null
     ): ItemCreatedEventFilter;
-
-    "OwnershipTransferred(address,address)"(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): OwnershipTransferredEventFilter;
-    OwnershipTransferred(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): OwnershipTransferredEventFilter;
   };
 
   estimateGas: {
@@ -459,24 +406,19 @@ export interface Shop extends BaseContract {
 
     fetchCatalogItems(overrides?: CallOverrides): Promise<BigNumber>;
 
-    fetchPendingTransactions(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    fulfillTransaction(
-      transId: BigNumberish,
+    fetchTransactions(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     image(overrides?: CallOverrides): Promise<BigNumber>;
 
-    initTransaction(
+    location(overrides?: CallOverrides): Promise<BigNumber>;
+
+    makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    location(overrides?: CallOverrides): Promise<BigNumber>;
 
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -484,15 +426,9 @@ export interface Shop extends BaseContract {
 
     phone(overrides?: CallOverrides): Promise<BigNumber>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    shopOwner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    transactions(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
@@ -514,24 +450,19 @@ export interface Shop extends BaseContract {
 
     fetchCatalogItems(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    fetchPendingTransactions(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    fulfillTransaction(
-      transId: BigNumberish,
+    fetchTransactions(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     image(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    initTransaction(
+    location(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    location(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -539,15 +470,9 @@ export interface Shop extends BaseContract {
 
     phone(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    shopOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    transactions(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

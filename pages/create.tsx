@@ -5,6 +5,8 @@ import { Box, Flex, Text, Input, Button } from "@chakra-ui/react";
 import { shopFactoryAddress } from "../config";
 import ShopFactory from "../artifacts/contracts/ShopFactory.sol/ShopFactory.json";
 import { handleImageUpload } from '../utils/ipfs';
+import { toast } from "react-toastify";
+import Router from 'next/router'
 
 const Create = () => {
   const [name, setName] = useState<string>("");
@@ -31,6 +33,16 @@ const Create = () => {
       fileUrl
     );
     await transaction.wait();
+    toast(`You successfully created ${name}!`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+    });
+    Router.push("/");
   };
   return (
     <Box>
