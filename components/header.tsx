@@ -10,7 +10,7 @@ const Header = () => {
         <Flex as="header" p={4} alignItems="center">
             <LinkBox cursor="pointer">
                 <NextLink href="/" passHref={true}>
-                    <Text fontWeight="bold" fontSize="2xl"color="brand.400">dCom</Text>
+                    <Text fontWeight="bold" fontSize="2xl"color="brand.400">deCom</Text>
                 </NextLink>
             </LinkBox>
             <Spacer />

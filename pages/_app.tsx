@@ -6,6 +6,10 @@ import { getProvider } from '../utils/web3';
 import Layout from '../components/layout';
 import { SEO } from '../components/seo'
 import "../styles/Home.module.css";
+import { Web3Provider, ExternalProvider } from '@ethersproject/providers';
+// import { SupportedChainContextProvider } from './contexts/supportedChain';
+
+
 
 // /* CSS HEX */
 // --persian-blue: #072ac8ff;
@@ -33,12 +37,14 @@ const theme = extendTheme({
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <Web3ReactProvider  getLibrary={getProvider}>
+      {/* <SupportedChainContextProvider> */}
       <ChakraProvider theme={theme}>
         <SEO />
         <Layout>
           <Component {...pageProps} />
         </Layout>
       </ChakraProvider>
+      {/* </SupportedChainContextProvider> */}
     </Web3ReactProvider>
   )
 }

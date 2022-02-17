@@ -4,9 +4,7 @@ import Web3Modal from "web3modal";
 import { Box, Flex, Text, Input, Button } from "@chakra-ui/react";
 import { shopFactoryAddress } from "../config";
 import ShopFactory from "../artifacts/contracts/ShopFactory.sol/ShopFactory.json";
-import { create as ipfsHttpClient } from "ipfs-http-client";
-
-const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
+import { handleImageUpload } from '../utils/ipfs';
 
 const Create = () => {
   const [name, setName] = useState<string>("");
@@ -34,24 +32,6 @@ const Create = () => {
     );
     await transaction.wait();
   };
-
-  async function handleImageUpload(e) {
-    if (!e || !e.target || !e.target.files || !e.target.files[0]) {
-      setFileUrl(null);
-      return;
-    }
-    const file = e.target.files[0];
-    try {
-      // nft.storage was returning 500 type error - it was reported on discord that it was down
-      const added = await client.add(file, {
-        progress: (prog) => console.log(`received: ${prog}`),
-      });
-      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
-      setFileUrl(url);
-    } catch (error) {
-      console.log(`Error uploading file: ${error}`);
-    }
-  }
   return (
     <Box>
       <Flex align="center" direction="column">
