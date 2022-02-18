@@ -5,12 +5,15 @@ import Hero from "../components/hero";
 import { ethers } from 'ethers';
 import axios from 'axios';
 import ShopCard from '../components/shopCard';
+import { useWeb3React } from '@web3-react/core'
 
 import { shopFactoryAddress } from '../config';
 
 import ShopFactory from '../artifacts/contracts/ShopFactory.sol/ShopFactory.json';
 
 const Home: NextPage = () => {
+
+  const web3React = useWeb3React();
   const [shops, setShops] = useState<string[]>([]);
   useEffect(() => {
     fetchShops();
@@ -18,7 +21,7 @@ const Home: NextPage = () => {
 
   const fetchShops = async () => {
     /* create a generic provider and query for unsold market items */
-    const provider = new ethers.providers.JsonRpcProvider();
+    const provider = web3React.library;
     const factoryContract = new ethers.Contract(shopFactoryAddress, ShopFactory.abi, provider);
 
     const data = await factoryContract.fetchAllShops();

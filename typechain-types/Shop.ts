@@ -223,8 +223,8 @@ export interface Shop extends BaseContract {
     ): Promise<[Shop.ItemStructOutput[]]>;
 
     fetchTransactions(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: CallOverrides
+    ): Promise<[Shop.TransStructOutput[]]>;
 
     image(overrides?: CallOverrides): Promise<[string]>;
 
@@ -283,8 +283,8 @@ export interface Shop extends BaseContract {
   ): Promise<Shop.ItemStructOutput[]>;
 
   fetchTransactions(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: CallOverrides
+  ): Promise<Shop.TransStructOutput[]>;
 
   image(overrides?: CallOverrides): Promise<string>;
 
@@ -406,9 +406,7 @@ export interface Shop extends BaseContract {
 
     fetchCatalogItems(overrides?: CallOverrides): Promise<BigNumber>;
 
-    fetchTransactions(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    fetchTransactions(overrides?: CallOverrides): Promise<BigNumber>;
 
     image(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -450,9 +448,7 @@ export interface Shop extends BaseContract {
 
     fetchCatalogItems(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    fetchTransactions(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    fetchTransactions(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     image(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

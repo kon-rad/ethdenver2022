@@ -14,9 +14,10 @@ import Shop from "../artifacts/contracts/Shop.sol/Shop.json";
 
 const Cart = () => {
   const web3React = useWeb3React();
-  const { cart, cartMetaData, cartShopAddress } = useAppState();
+  const { cart, cartMetaData, cartShopAddress, setCart, setCartMetaData } = useAppState();
   const handleCheckout = async () => {
     console.log("checkout ");
+    
     const provider = web3React.library;
     if (!provider) {
       toast.error(`You must sign in with Metamask!`, {
@@ -40,10 +41,25 @@ const Cart = () => {
         cartItems,
         itemQuantities,
         {
-            value: ethValue,
+            value: String(getCartTotal(cart, cartMetaData)),
         }
       );
-      await transaction.wait();
+      const transId = await transaction.wait();
+      toast(`You successfully completed the transaction!`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      setCart([]);
+      setCartMetaData({});
+      console.log("transId: ", transId);
+    //   Router.push(`/${encodeURIComponent(
+    //       cartShopAddress
+    //     )}/transaction/${encodeURIComponent(transId.toNumber())}`);
     } catch (e) {
       toast.error(`Error: ${e.message}`, {
         position: "top-right",
@@ -56,16 +72,6 @@ const Cart = () => {
       });
       return;
     }
-    toast(`You successfully completed the transaction!`, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
-    // Router.push("/");
   };
   return (
     <Box>
@@ -79,7 +85,7 @@ const Cart = () => {
               <CartItem data={item} />
             ))}
           </Flex>
-          <Text fontSize="2xl">Total: ETH {getCartTotal(cart, cartMetaData)}</Text>
+          <Text fontSize="2xl">Total MATIC: {getCartTotal(cart, cartMetaData)}</Text>
           <Flex mt="8" justify="center">
             <Button backgroundColor={"brand.600"} onClick={handleCheckout}>
               Check Out

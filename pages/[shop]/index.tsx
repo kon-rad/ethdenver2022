@@ -14,7 +14,13 @@ import {
   ModalCloseButton,
   useDisclosure,
   Input,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
 } from "@chakra-ui/react";
+import { toast } from 'react-toastify';
 import { useRouter } from "next/router";
 import { useWeb3React } from "@web3-react/core";
 import Web3Modal from "web3modal";
@@ -22,6 +28,7 @@ import { ethers } from "ethers";
 import CatalogItem from "../../components/catalogItem";
 import Shop from "../../artifacts/contracts/Shop.sol/Shop.json";
 import { handleImageUpload } from "../../utils/ipfs";
+import TransactionItem from "../../components/transactionItem";
 
 interface Props {}
 
@@ -44,25 +51,26 @@ const ShopPage = (props: Props) => {
   const [itemPrice, setItemPrice] = useState<string>("");
 
   const [items, setItems] = useState<any>([]);
+  const [transactions, setTransactions] = useState<any>([]);
 
-  const web3 = useWeb3React();
+  const web3React = useWeb3React();
 
   const router = useRouter();
   useEffect(() => {
     getShopData();
   }, []);
   useEffect(() => {
-    setIsOwner(web3.account === owner);
+    setIsOwner(web3React.account === owner);
     console.log("addr changed isOwner: ", isOwner);
-  }, [web3.account, web3, owner]);
-  console.log("addr: ", web3.account);
+  }, [web3React.account, web3React, owner]);
+  console.log("addr: ", web3React.account);
 
   const getShopData = async () => {
     if (!router.query.shop) return;
 
-    const provider = new ethers.providers.JsonRpcProvider();
+    const provider = web3React.library;
 
-    console.log("getting shop data ", web3.library);
+    console.log("getting shop data ", provider);
     const shopContract = new ethers.Contract(
       router.query.shop,
       Shop.abi,
@@ -74,25 +82,50 @@ const ShopPage = (props: Props) => {
     setOwner(await shopContract.owner());
 
     setItems(await shopContract.fetchCatalogItems());
-    console.log('shop data is set');
+    setTransactions(await shopContract.fetchTransactions());
+    console.log("shop data is set");
   };
 
-  console.log("addr 2: & owner ", web3.account, owner, isOwner);
+  console.log("addr 2: & owner ", web3React.account, owner, isOwner);
   const handleCreate = async () => {
-    console.log("add item ");
-    const web3Modal = new Web3Modal();
-    const connection = await web3Modal.connect();
+    try {
+      const provider = web3React.library;
+      const signer = provider.getSigner();
 
-    const provider = new ethers.providers.Web3Provider(connection);
-    const signer = provider.getSigner();
+      const shopContract = new ethers.Contract(
+        router.query.shop,
+        Shop.abi,
+        signer
+      );
+      await shopContract.createItem(
+        itemName,
+        itemDesc,
+        itemImage,
+        ethers.BigNumber.from(itemPrice)
+      );
+      await getShopData();
 
-    const shopContract = new ethers.Contract(
-      router.query.shop,
-      Shop.abi,
-      signer
-    );
-    await shopContract.createItem(itemName, itemDesc, itemImage, itemPrice);
-    await getShopData();
+      toast(`You successfully created ${itemName}!`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      onClose();
+    } catch (e: any) {
+      toast.error(`Error: ${e.message}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
   };
   const handleEdit = () => {
     console.log("edit ");
@@ -110,11 +143,10 @@ const ShopPage = (props: Props) => {
               <Image src={image} width="200px" height="200px" />
             </Box>
             <Box>
-              <Text fontSize="2xl" color="black.700">
-                {name}
-              </Text>
+              {" "}
+              <Text fontSize="6xl">{name}</Text>
               <Text color="gray.600">{desc}</Text>
-              owner: {owner}
+              <Text color="gray.600">owner: {owner.slice(0, 5)}...</Text>
               <Flex m={"4"}>
                 {isOwner && (
                   <Button mr={"4"} onClick={onOpen}>
@@ -125,13 +157,33 @@ const ShopPage = (props: Props) => {
               </Flex>
             </Box>
           </Flex>
-          <Text fontSize="6xl">{name}</Text>
+
+          <Tabs>
+            <TabList>
+              <Tab>Menu</Tab>
+              <Tab>Transactions</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <Flex justify={"center"} align={"center"} direction={"column"}>
+                  {items.map((elem: any) => (
+                    <CatalogItem data={elem} shopAddress={router.query.shop} />
+                  ))}
+                </Flex>
+              </TabPanel>
+              <TabPanel>
+                <Flex justify={"center"} align={"center"} direction={"column"}>
+                  {transactions.map((elem: any) => (
+                    <TransactionItem
+                      data={elem}
+                      shopAddress={router.query.shop}
+                    />
+                  ))}
+                </Flex>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
         </Box>
-      </Flex>
-      <Flex justify={"center"} align={"center"} direction={"column"}>
-        {items.map((elem: any) => (
-          <CatalogItem data={elem} shopAddress={router.query.shop}/>
-        ))}
       </Flex>
 
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -159,13 +211,14 @@ const ShopPage = (props: Props) => {
               onChange={(e: any) => setItemPrice(e.target.value)}
               mt={4}
             />
-            <input
-              mt={"4"}
-              type="file"
-              name="Asset"
-              className="mr-2"
-              onChange={(e: any) => uploadImage(e)}
-            />
+            <Box mt={"4"}>
+              <input
+                type="file"
+                name="Asset"
+                className="mr-2"
+                onChange={(e: any) => uploadImage(e)}
+              />
+            </Box>
           </ModalBody>
 
           <ModalFooter>

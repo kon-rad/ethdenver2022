@@ -1,1 +1,1 @@
-export const shopFactoryAddress = '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9';
+export const shopFactoryAddress = '0x464dAae98ab0B63C83D852b98a708b3e7216B221';

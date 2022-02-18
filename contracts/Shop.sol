@@ -108,7 +108,7 @@ contract Shop {
         return transId;
     }
 
-    function fetchTransactions() public returns (Trans[] memory) {
+    function fetchTransactions() public view returns (Trans[] memory) {
         return transactions;
     }
 }

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
-import { Box, Flex, Text, Input, Button } from "@chakra-ui/react";
+import { Box, Flex, Image, Text, Input, Button } from "@chakra-ui/react";
 import { shopFactoryAddress } from "../config";
 import ShopFactory from "../artifacts/contracts/ShopFactory.sol/ShopFactory.json";
-import { handleImageUpload } from '../utils/ipfs';
+import { handleImageUpload } from "../utils/ipfs";
 import { toast } from "react-toastify";
-import Router from 'next/router'
+import Router from "next/router";
 
 const Create = () => {
   const [name, setName] = useState<string>("");
@@ -34,15 +34,18 @@ const Create = () => {
     );
     await transaction.wait();
     toast(`You successfully created ${name}!`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
     });
     Router.push("/");
+  };
+  const handleImageSelect = async (e: any) => {
+    setFileUrl(await handleImageUpload(e));
   };
   return (
     <Box>
@@ -59,6 +62,15 @@ const Create = () => {
           borderColor="Background.400"
           p="12"
         >
+          <Flex justify="center">
+            <Image
+              mb="4"
+              borderRadius="12px"
+              src={fileUrl}
+              width="200px"
+              height="200px"
+            />
+          </Flex>
           <Input
             mb="2"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -95,7 +107,7 @@ const Create = () => {
             type="file"
             name="Asset"
             className="mr-2"
-            onChange={handleImageUpload}
+            onChange={handleImageSelect}
           />
         </Box>
         <Box p="12">

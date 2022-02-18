@@ -3,7 +3,8 @@ const getCartQty = (cart) => {
 }
 
 const getCartTotal = (cart, cartMetaData) => {
-    return cart.reduce((prev: number, item: any) => prev += (item.qty * cartMetaData[item.itemId].price), 0);
+    console.log(cart, cartMetaData);
+    return cart.reduce((prev: number, item: any) => prev += (item.qty * (cartMetaData[item.itemId] ? cartMetaData[item.itemId].price : 0)), 0);
 }
 
 export { getCartQty, getCartTotal };

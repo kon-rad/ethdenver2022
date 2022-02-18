@@ -3,10 +3,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Shop from "../artifacts/contracts/Shop.sol/Shop.json";
 import { ethers } from "ethers";
+import { useWeb3React } from '@web3-react/core'
 interface Props {
   address: string;
 }
 const ShopCard = (props: Props) => {
+  const web3React = useWeb3React();
   const [owner, setOwner] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [desc, setDesc] = useState<string>("");
@@ -16,7 +18,7 @@ const ShopCard = (props: Props) => {
   }, []);
 
   const getShopData = async () => {
-    const provider = new ethers.providers.JsonRpcProvider();
+    const provider = web3React.library;
     const shopContract = new ethers.Contract(props.address, Shop.abi, provider);
     setName(await shopContract.name());
     setDesc(await shopContract.description());
