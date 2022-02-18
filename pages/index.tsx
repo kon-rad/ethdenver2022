@@ -17,7 +17,7 @@ const Home: NextPage = () => {
   const [shops, setShops] = useState<string[]>([]);
   useEffect(() => {
     fetchShops();
-  }, []);
+  }, [web3React.account, web3React.library]);
 
   const fetchShops = async () => {
     /* create a generic provider and query for unsold market items */

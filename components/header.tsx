@@ -24,7 +24,7 @@ const Header = () => {
             <Image
               borderRadius="12px"
               mr="4"
-              src="/images/logo.jpeg"
+              src="/images/logo.png"
               width="40px"
               height="40px"
             />

@@ -62,14 +62,19 @@ const Create = () => {
           borderColor="Background.400"
           p="12"
         >
-          <Flex justify="center">
-            <Image
-              mb="4"
+          <Flex justify="center" height="200px" mb="4">
+            <Box
               borderRadius="12px"
-              src={fileUrl}
+              border="solid"
+              borderColor="brand.400"
               width="200px"
               height="200px"
-            />
+              mb="4"
+            >
+              {fileUrl ? (
+                <Image src={fileUrl} width="200px" height="200px" />
+              ) : <Box textAlign="center">image</Box>}
+            </Box>
           </Flex>
           <Input
             mb="2"

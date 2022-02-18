@@ -140,7 +140,7 @@ const ShopPage = (props: Props) => {
         <Box m="6" width="600px" textAlign="center">
           <Flex>
             <Box width="200px" m="2">
-              <Image src={image} width="200px" height="200px" />
+              <Image borderRadius="12px" src={image} width="200px" height="200px" />
             </Box>
             <Box>
               {" "}
