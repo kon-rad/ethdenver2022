@@ -1,6 +1,8 @@
 import { Box, Text, Flex, Image, Button, Input } from "@chakra-ui/react";
 import { useState } from "react";
 import { useAppState } from "../context/appState";
+import web3 from 'web3';
+import { BigNumber } from 'bignumber.js';
 
 interface ItemType {
   name: string;
@@ -58,7 +60,7 @@ const CatalogItem = (props: Props) => {
         name: props.data.name,
         description: props.data.description,
         image: props.data.image,
-        price: props.data.price.toNumber(),
+        price: new BigNumber(web3.utils.fromWei(props.data.price.toString(), 'ether')),
       },
     });
   };
@@ -85,7 +87,7 @@ const CatalogItem = (props: Props) => {
             {props.data.description}
           </Text>
           <Text fontSize="md" mb={"2"}>
-            Eth: {props.data.price.toNumber()}
+            MATIC: {web3.utils.fromWei(props.data.price.toString(), 'ether')}
           </Text>
           {props.data.inStock && (
             <>

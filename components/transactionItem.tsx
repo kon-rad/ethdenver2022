@@ -1,6 +1,7 @@
 import { Spacer, Flex, Box, Text } from "@chakra-ui/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import web3 from 'web3';
 
 interface Prop {
   data: any;

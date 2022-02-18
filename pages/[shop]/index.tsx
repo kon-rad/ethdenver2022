@@ -5,6 +5,7 @@ import {
   Flex,
   Button,
   Image,
+  Link,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -20,15 +21,16 @@ import {
   Tab,
   TabPanel,
 } from "@chakra-ui/react";
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { toast } from 'react-toastify';
 import { useRouter } from "next/router";
 import { useWeb3React } from "@web3-react/core";
-import Web3Modal from "web3modal";
 import { ethers } from "ethers";
 import CatalogItem from "../../components/catalogItem";
 import Shop from "../../artifacts/contracts/Shop.sol/Shop.json";
 import { handleImageUpload } from "../../utils/ipfs";
 import TransactionItem from "../../components/transactionItem";
+import web3 from 'web3';
 
 interface Props {}
 
@@ -101,7 +103,7 @@ const ShopPage = (props: Props) => {
         itemName,
         itemDesc,
         itemImage,
-        ethers.BigNumber.from(itemPrice)
+        web3.utils.toWei(itemPrice, "ether")
       );
       await getShopData();
 
@@ -133,6 +135,9 @@ const ShopPage = (props: Props) => {
   const uploadImage = async (e: any) => {
     setItemImage(await handleImageUpload(e));
   };
+  if (!router.query.shop) {
+    return (<h1>Try navigating to this page from the home page</h1>)
+  }
 
   return (
     <Box>
@@ -146,7 +151,11 @@ const ShopPage = (props: Props) => {
               {" "}
               <Text fontSize="6xl">{name}</Text>
               <Text color="gray.600">{desc}</Text>
-              <Text color="gray.600">owner: {owner.slice(0, 5)}...</Text>
+              <Flex mb={'2'} direction="column">
+
+              <Link  target={'_blank'} mb={'2'} href={`${process.env.NEXT_PUBLIC_ETHERSCAN}${owner}`} color="gray.600" isExternal><ExternalLinkIcon />owner: {owner.slice(0, 5)}...</Link>
+              <Link target={'_blank'}mb={'2'} href={`${process.env.NEXT_PUBLIC_ETHERSCAN}${router.query.shop}`} color="gray.600" isExternal><ExternalLinkIcon />shop address: {router.query.shop.slice(0, 5)}...</Link>
+              </Flex>
               <Flex m={"4"}>
                 {isOwner && (
                   <Button mr={"4"} onClick={onOpen}>
@@ -192,7 +201,9 @@ const ShopPage = (props: Props) => {
           <ModalHeader>Create a new catalog item</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Image src={itemImage} width="200px" height="200px" />
+            <Flex justify="center">
+            <Image borderRadius="12px" src={itemImage ? itemImage : '/images/placeholder-image.png'} width="200px" height="200px" />
+            </Flex>
             <Input
               placeholder="item name"
               value={itemName}

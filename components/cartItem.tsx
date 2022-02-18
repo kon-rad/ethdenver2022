@@ -1,13 +1,18 @@
 import { Box, Flex, Image, Spacer, Text, Button, Input } from "@chakra-ui/react";
 import { CloseIcon } from "@chakra-ui/icons";
 import { useAppState } from "../context/appState";
+import { useState, useEffect } from 'react';
 
 interface Props {
   data: any;
 }
 
 const CartItem = (props: Props) => {
+const [localQty, setLocalQty] = useState<number|null>(null);
   const { cartMetaData } = useAppState();
+  useEffect(() =>{
+      setLocalQty(props.data.qty)
+  }, [props.data.qty])
 
   return (
     <Box key={props.data.itemId} mb="6">
@@ -25,7 +30,7 @@ const CartItem = (props: Props) => {
         <Text fontSize="md" mr="4">
           Qty:
         </Text>
-        <Input width="80px" mr="4" value={props.data.qty} />
+        <Input width="80px" mr="4" value={localQty} />
         <Button mr="4">update</Button>
         <Button backgroundColor="red.400">
           <CloseIcon />

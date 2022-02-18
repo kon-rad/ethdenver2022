@@ -32,7 +32,7 @@ const Cart = () => {
       return;
     }
     try {
-      const ethValue = web3.utils.toWei(String(getCartTotal(cart, cartMetaData)), "ether");
+      const ethValue = web3.utils.toWei(getCartTotal(cart, cartMetaData).toString(), "ether");
       const signer = provider.getSigner();
       const contract = new ethers.Contract(cartShopAddress, Shop.abi, signer);
       const cartItems = cart.map((item: any) => item.itemId);
@@ -41,9 +41,10 @@ const Cart = () => {
         cartItems,
         itemQuantities,
         {
-            value: String(getCartTotal(cart, cartMetaData)),
+            value: ethValue,
         }
       );
+
       const transId = await transaction.wait();
       toast(`You successfully completed the transaction!`, {
         position: "top-right",
@@ -80,12 +81,12 @@ const Cart = () => {
           <Text mb="6" textAlign="center" fontSize="6xl">
             Shopping Cart
           </Text>
-          <Flex>
+          <Flex direction="column">
             {cart.map((item: any) => (
               <CartItem data={item} />
             ))}
           </Flex>
-          <Text fontSize="2xl">Total MATIC: {getCartTotal(cart, cartMetaData)}</Text>
+          <Text fontSize="2xl">Total MATIC: {getCartTotal(cart, cartMetaData).toString()}</Text>
           <Flex mt="8" justify="center">
             <Button backgroundColor={"brand.600"} onClick={handleCheckout}>
               Check Out

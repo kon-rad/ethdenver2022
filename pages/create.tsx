@@ -67,13 +67,11 @@ const Create = () => {
               borderRadius="12px"
               border="solid"
               borderColor="brand.400"
-              width="200px"
-              height="200px"
+              width="204px"
+              height="204px"
               mb="4"
             >
-              {fileUrl ? (
-                <Image src={fileUrl} width="200px" height="200px" />
-              ) : <Box textAlign="center">image</Box>}
+            <Image src={fileUrl ? fileUrl : '/images/placeholder-image.png'} width="200px" height="200px" borderRadius="12px"/>
             </Box>
           </Flex>
           <Input
