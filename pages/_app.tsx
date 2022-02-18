@@ -20,7 +20,7 @@ import { AppStateProvider } from "../context/appState";
 
 const theme = extendTheme({
   config: {
-    useSystemColorMode: true,
+    useSystemColorMode: false,
     initialColorMode: "dark",
   },
   colors: {
