@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import { useEffect, useState } from "react";
-import { Container, Flex, Box, Text } from "@chakra-ui/react";
+import { Container, Flex, Box, Text, useMediaQuery } from "@chakra-ui/react";
 import Hero from "../components/hero";
 import { ethers } from "ethers";
 import axios from "axios";
@@ -18,6 +18,7 @@ const Home: NextPage = () => {
   useEffect(() => {
     fetchShops();
   }, [web3React.account, web3React.library]);
+  const [isMobile] = useMediaQuery('(max-width: 600px)')
 
   const fetchShops = async () => {
     const provider = web3React.library;

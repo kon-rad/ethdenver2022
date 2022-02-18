@@ -11,7 +11,7 @@ const Hero = () => {
                         Easily create an online store 
                         and take payments instantly
                     </Text>
-                    <Flex width="600px" justify="center" align="center">
+                    <Flex justify="center" align="center">
                         <Input color="white" borderColor="white" width="300px" mr="4" placeholder="search for merchants" />
                         <Button backgroundColor="brand.400" color="black"><Search2Icon /></Button>
                     </Flex>

@@ -30,6 +30,7 @@ const CatalogItem = (props: Props) => {
   } = useAppState();
   console.log("cart: ", cart);
   const handleAddToCart = () => {
+      debugger;
     const id = props.data.itemId.toNumber();
 
     if (props.shopAddress !== cartShopAddress) {
@@ -98,7 +99,7 @@ const CatalogItem = (props: Props) => {
                 value={qty}
                 mr={"4"}
               />
-              <Button onClick={handleAddToCart}>Add to Cart</Button>
+              <Button m={'2'} onClick={handleAddToCart}>Add to Cart</Button>
             </>
           )}
         </Box>

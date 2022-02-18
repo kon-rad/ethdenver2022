@@ -22,7 +22,7 @@ const TransactionItem = (props: Prop) => {
           id#: {props.data.transId.toNumber()}
         </Text>
         <Text fontSize="xl" mr="4">
-          total: MATIC {props.data.total.toNumber()}
+          total: MATIC {web3.utils.fromWei(props.data.total.toString(), 'ether')}
         </Text>
       </Flex>
       <Spacer />

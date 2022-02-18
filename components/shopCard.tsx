@@ -1,9 +1,17 @@
-import { Box, Text, Flex, Image, Spacer } from "@chakra-ui/react";
+import {
+  useMediaQuery,
+  Box,
+  Text,
+  Flex,
+  Image,
+  Spacer,
+  Button
+} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Shop from "../artifacts/contracts/Shop.sol/Shop.json";
 import { ethers } from "ethers";
-import { useWeb3React } from '@web3-react/core'
+import { useWeb3React } from "@web3-react/core";
 interface Props {
   address: string;
 }
@@ -13,9 +21,11 @@ const ShopCard = (props: Props) => {
   const [name, setName] = useState<string>("");
   const [desc, setDesc] = useState<string>("");
   const [image, setImage] = useState<string>("");
+  const [isMobile] = useMediaQuery("(max-width: 600px)");
   useEffect(() => {
     getShopData();
   }, []);
+  console.log("isMobile: ", isMobile);
 
   const getShopData = async () => {
     const provider = web3React.library;
@@ -28,7 +38,7 @@ const ShopCard = (props: Props) => {
   return (
     <Box
       mb="4"
-      width="600px"
+      width={isMobile ? "100%" : "600px"}
       border="solid"
       borderRadius="6px"
       p="4"
@@ -44,8 +54,10 @@ const ShopCard = (props: Props) => {
           </Text>
           <Text color="gray.600">{desc}</Text>
         </Box>
-          <Spacer/>
-          <Link href={`/${encodeURIComponent(props.address)}`}>Go to Shop</Link>
+        <Spacer />
+        <Link href={`/${encodeURIComponent(props.address)}`}>
+            <Button backgroundColor="brand.400" color="gray.900">
+                Go</Button></Link>
       </Flex>
     </Box>
   );

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Box, Flex, Text, Button } from "@chakra-ui/react";
+import { Box, Flex, Text, Button, Link, useMediaQuery } from "@chakra-ui/react";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { useAppState } from "../context/appState";
 import CartItem from "../components/cartItem";
 import Web3Modal from "web3modal";
@@ -7,17 +8,20 @@ import { toast } from "react-toastify";
 import { ethers } from "ethers";
 import Router from "next/router";
 import { useWeb3React } from "@web3-react/core";
-import { getCartTotal } from '../utils/cart';
-import web3 from 'web3';
+import { getCartTotal } from "../utils/cart";
+import web3 from "web3";
 
 import Shop from "../artifacts/contracts/Shop.sol/Shop.json";
 
 const Cart = () => {
+  const [isMobile] = useMediaQuery("(max-width: 600px)");
+  const [transactionHash, setTransactionHash] = useState<string>("");
   const web3React = useWeb3React();
-  const { cart, cartMetaData, cartShopAddress, setCart, setCartMetaData } = useAppState();
+  const { cart, cartMetaData, cartShopAddress, setCart, setCartMetaData } =
+    useAppState();
   const handleCheckout = async () => {
     console.log("checkout ");
-    
+
     const provider = web3React.library;
     if (!provider) {
       toast.error(`You must sign in with Metamask!`, {
@@ -32,7 +36,10 @@ const Cart = () => {
       return;
     }
     try {
-      const ethValue = web3.utils.toWei(getCartTotal(cart, cartMetaData).toString(), "ether");
+      const ethValue = web3.utils.toWei(
+        getCartTotal(cart, cartMetaData).toString(),
+        "ether"
+      );
       const signer = provider.getSigner();
       const contract = new ethers.Contract(cartShopAddress, Shop.abi, signer);
       const cartItems = cart.map((item: any) => item.itemId);
@@ -41,11 +48,11 @@ const Cart = () => {
         cartItems,
         itemQuantities,
         {
-            value: ethValue,
+          value: ethValue,
         }
       );
 
-      const transId = await transaction.wait();
+      const transData = await transaction.wait();
       toast(`You successfully completed the transaction!`, {
         position: "top-right",
         autoClose: 5000,
@@ -57,10 +64,11 @@ const Cart = () => {
       });
       setCart([]);
       setCartMetaData({});
-      console.log("transId: ", transId);
-    //   Router.push(`/${encodeURIComponent(
-    //       cartShopAddress
-    //     )}/transaction/${encodeURIComponent(transId.toNumber())}`);
+      setTransactionHash(transData.transactionHash);
+      console.log("transData: ", transData.transactionHash);
+      //   Router.push(`/${encodeURIComponent(
+      //       cartShopAddress
+      //     )}/transaction/${encodeURIComponent(transId.toNumber())}`);
     } catch (e) {
       toast.error(`Error: ${e.message}`, {
         position: "top-right",
@@ -77,21 +85,46 @@ const Cart = () => {
   return (
     <Box>
       <Flex justify="center">
-        <Box width="600px">
+        <Box width={isMobile ? "80%" : "600px"}>
           <Text mb="6" textAlign="center" fontSize="6xl">
             Shopping Cart
           </Text>
-          <Flex direction="column">
-            {cart.map((item: any) => (
-              <CartItem data={item} />
-            ))}
-          </Flex>
-          <Text fontSize="2xl">Total MATIC: {getCartTotal(cart, cartMetaData).toString()}</Text>
-          <Flex mt="8" justify="center">
-            <Button backgroundColor={"brand.600"} onClick={handleCheckout}>
-              Check Out
-            </Button>
-          </Flex>
+          {transactionHash ? (
+            <Flex direction="column" justify="center" align="center">
+              <Text fontSize="2xl" color={"brand.400"}>
+                Transaction Completed!
+              </Text>
+
+              <Link
+                isExternal
+                href={`https://mumbai.polygonscan.com/tx/${transactionHash}`}
+                target={"_blank"}
+              >
+                <Flex align="center">
+                  <ExternalLinkIcon mr="3" fontSize="xl" color={"brand.400"} />
+                  <Text fontSize="2xl" color={"brand.400"}>
+                    View transaction on Etherscan
+                  </Text>
+                </Flex>
+              </Link>
+            </Flex>
+          ) : (
+            <Box>
+              <Flex direction="column">
+                {cart.map((item: any) => (
+                  <CartItem data={item} />
+                ))}
+              </Flex>
+              <Text m={"2"} fontSize="2xl">
+                Total MATIC: {getCartTotal(cart, cartMetaData).toString()}
+              </Text>
+              <Flex mt="8" justify="center">
+                <Button backgroundColor={"brand.600"} onClick={handleCheckout}>
+                  Check Out
+                </Button>
+              </Flex>
+            </Box>
+          )}
         </Box>
       </Flex>
     </Box>

@@ -20,6 +20,7 @@ import {
   TabPanels,
   Tab,
   TabPanel,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { toast } from 'react-toastify';
@@ -54,6 +55,7 @@ const ShopPage = (props: Props) => {
 
   const [items, setItems] = useState<any>([]);
   const [transactions, setTransactions] = useState<any>([]);
+  const [isMobile] = useMediaQuery('(max-width: 600px)')
 
   const web3React = useWeb3React();
 
@@ -142,11 +144,11 @@ const ShopPage = (props: Props) => {
   return (
     <Box>
       <Flex justify={"center"} align={"center"} direction={"column"}>
-        <Box m="6" width="600px" textAlign="center">
-          <Flex>
-            <Box width="200px" m="2">
-              <Image borderRadius="12px" src={image} width="200px" height="200px" />
-            </Box>
+        <Box m="6" width={isMobile ? "100%" : "600px"} textAlign="center">
+          <Flex justify="center" align="center" direction={isMobile ? "column" : "row"}>
+            {/* <Box width={isMobile ? "90%" : "200px"} m="2"> */}
+              <Image borderRadius="12px" src={image} width={isMobile ? "90%" : "200px"} height={isMobile ? "90%" : "200px"} />
+            {/* </Box> */}
             <Box>
               {" "}
               <Text fontSize="6xl">{name}</Text>
