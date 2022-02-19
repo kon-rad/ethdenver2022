@@ -22,8 +22,8 @@ import {
   TabPanel,
   useMediaQuery,
 } from "@chakra-ui/react";
-import { ExternalLinkIcon } from '@chakra-ui/icons';
-import { toast } from 'react-toastify';
+import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
@@ -31,7 +31,7 @@ import CatalogItem from "../../components/catalogItem";
 import Shop from "../../artifacts/contracts/Shop.sol/Shop.json";
 import { handleImageUpload } from "../../utils/ipfs";
 import TransactionItem from "../../components/transactionItem";
-import web3 from 'web3';
+import web3 from "web3";
 
 interface Props {}
 
@@ -55,7 +55,7 @@ const ShopPage = (props: Props) => {
 
   const [items, setItems] = useState<any>([]);
   const [transactions, setTransactions] = useState<any>([]);
-  const [isMobile] = useMediaQuery('(max-width: 600px)')
+  const [isMobile] = useMediaQuery("(max-width: 600px)");
 
   const web3React = useWeb3React();
 
@@ -138,25 +138,52 @@ const ShopPage = (props: Props) => {
     setItemImage(await handleImageUpload(e));
   };
   if (!router.query.shop) {
-    return (<h1>Try navigating to this page from the home page</h1>)
+    return <h1>Try navigating to this page from the home page</h1>;
   }
 
   return (
     <Box>
       <Flex justify={"center"} align={"center"} direction={"column"}>
         <Box m="6" width={isMobile ? "100%" : "600px"} textAlign="center">
-          <Flex justify="center" align="center" direction={isMobile ? "column" : "row"}>
+          <Flex
+            justify="center"
+            align="center"
+            direction={isMobile ? "column" : "row"}
+          >
             {/* <Box width={isMobile ? "90%" : "200px"} m="2"> */}
-              <Image borderRadius="12px" src={image} width={isMobile ? "90%" : "200px"} height={isMobile ? "90%" : "200px"} />
+            <Image
+              borderRadius="12px"
+              src={image}
+              width={isMobile ? "90%" : "200px"}
+              height={isMobile ? "90%" : "200px"}
+            />
             {/* </Box> */}
             <Box>
               {" "}
               <Text fontSize="6xl">{name}</Text>
               <Text color="gray.600">{desc}</Text>
-              <Flex mb={'2'} direction="column">
-
-              <Link  target={'_blank'} mb={'2'} href={`${process.env.NEXT_PUBLIC_ETHERSCAN}${owner}`} color="gray.600" isExternal><ExternalLinkIcon />owner: {owner.slice(0, 5)}...</Link>
-              <Link target={'_blank'}mb={'2'} href={`${process.env.NEXT_PUBLIC_ETHERSCAN}${router.query.shop}`} color="gray.600" isExternal><ExternalLinkIcon />shop address: {router.query.shop.slice(0, 5)}...</Link>
+              <Text color="yello.700">stars: {4.75}</Text>
+              <Flex mb={"2"} direction="column">
+                <Link
+                  target={"_blank"}
+                  mb={"2"}
+                  href={`${process.env.NEXT_PUBLIC_ETHERSCAN}${owner}`}
+                  color="gray.600"
+                  isExternal
+                >
+                  <ExternalLinkIcon />
+                  owner: {owner.slice(0, 5)}...
+                </Link>
+                <Link
+                  target={"_blank"}
+                  mb={"2"}
+                  href={`${process.env.NEXT_PUBLIC_ETHERSCAN}${router.query.shop}`}
+                  color="gray.600"
+                  isExternal
+                >
+                  <ExternalLinkIcon />
+                  shop address: {router.query.shop.slice(0, 5)}...
+                </Link>
               </Flex>
               <Flex m={"4"}>
                 {isOwner && (
@@ -204,7 +231,12 @@ const ShopPage = (props: Props) => {
           <ModalCloseButton />
           <ModalBody>
             <Flex justify="center">
-            <Image borderRadius="12px" src={itemImage ? itemImage : '/images/placeholder-image.png'} width="200px" height="200px" />
+              <Image
+                borderRadius="12px"
+                src={itemImage ? itemImage : "/images/placeholder-image.png"}
+                width="200px"
+                height="200px"
+              />
             </Flex>
             <Input
               placeholder="item name"

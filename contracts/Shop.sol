@@ -42,6 +42,9 @@ contract Shop {
         uint256[] itemQty;
         uint256 total;
         bool isValid;
+        address client;
+        uint256 review;
+        bool isReviewed;
     }
 
     event ItemCreated (
@@ -128,11 +131,20 @@ contract Shop {
             itemIds,
             itemQty,
             total,
-            true
+            true,
+            msg.sender,
+            0,
+            false
         ));
         _transIds.increment();
 
         return transId;
+    }
+
+    function giveReview(uint256 stars, uint256 transId) public {
+        require(transactions[transId].client == msg.sender, "Sender is not client");
+        transactions[transId].review = stars;
+        transactions[transId].isReviewed = true;
     }
 
     function fetchTransactions() public view returns (Trans[] memory) {

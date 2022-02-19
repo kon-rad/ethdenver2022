@@ -53,12 +53,18 @@ export declare namespace Shop {
     itemQty: BigNumberish[];
     total: BigNumberish;
     isValid: boolean;
+    client: string;
+    review: BigNumberish;
+    isReviewed: boolean;
   };
 
   export type TransStructOutput = [
     BigNumber,
     BigNumber[],
     BigNumber[],
+    BigNumber,
+    boolean,
+    string,
     BigNumber,
     boolean
   ] & {
@@ -67,6 +73,9 @@ export declare namespace Shop {
     itemQty: BigNumber[];
     total: BigNumber;
     isValid: boolean;
+    client: string;
+    review: BigNumber;
+    isReviewed: boolean;
   };
 }
 
@@ -80,6 +89,7 @@ export interface ShopInterface extends utils.Interface {
     "fetchCatalogItems()": FunctionFragment;
     "fetchTransactions()": FunctionFragment;
     "freeTransactions()": FunctionFragment;
+    "giveReview(uint256,uint256)": FunctionFragment;
     "governor()": FunctionFragment;
     "image()": FunctionFragment;
     "location()": FunctionFragment;
@@ -121,6 +131,10 @@ export interface ShopInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "freeTransactions",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "giveReview",
+    values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "governor", values?: undefined): string;
   encodeFunctionData(functionFragment: "image", values?: undefined): string;
@@ -172,6 +186,7 @@ export interface ShopInterface extends utils.Interface {
     functionFragment: "freeTransactions",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "giveReview", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "governor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "image", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "location", data: BytesLike): Result;
@@ -288,6 +303,12 @@ export interface Shop extends BaseContract {
 
     freeTransactions(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    giveReview(
+      stars: BigNumberish,
+      transId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     governor(overrides?: CallOverrides): Promise<[string]>;
 
     image(overrides?: CallOverrides): Promise<[string]>;
@@ -325,10 +346,13 @@ export interface Shop extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, boolean] & {
+      [BigNumber, BigNumber, boolean, string, BigNumber, boolean] & {
         transId: BigNumber;
         total: BigNumber;
         isValid: boolean;
+        client: string;
+        review: BigNumber;
+        isReviewed: boolean;
       }
     >;
 
@@ -377,6 +401,12 @@ export interface Shop extends BaseContract {
 
   freeTransactions(overrides?: CallOverrides): Promise<BigNumber>;
 
+  giveReview(
+    stars: BigNumberish,
+    transId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   governor(overrides?: CallOverrides): Promise<string>;
 
   image(overrides?: CallOverrides): Promise<string>;
@@ -414,10 +444,13 @@ export interface Shop extends BaseContract {
     arg0: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber, boolean] & {
+    [BigNumber, BigNumber, boolean, string, BigNumber, boolean] & {
       transId: BigNumber;
       total: BigNumber;
       isValid: boolean;
+      client: string;
+      review: BigNumber;
+      isReviewed: boolean;
     }
   >;
 
@@ -461,6 +494,12 @@ export interface Shop extends BaseContract {
 
     freeTransactions(overrides?: CallOverrides): Promise<BigNumber>;
 
+    giveReview(
+      stars: BigNumberish,
+      transId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     governor(overrides?: CallOverrides): Promise<string>;
 
     image(overrides?: CallOverrides): Promise<string>;
@@ -496,10 +535,13 @@ export interface Shop extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, boolean] & {
+      [BigNumber, BigNumber, boolean, string, BigNumber, boolean] & {
         transId: BigNumber;
         total: BigNumber;
         isValid: boolean;
+        client: string;
+        review: BigNumber;
+        isReviewed: boolean;
       }
     >;
 
@@ -546,6 +588,12 @@ export interface Shop extends BaseContract {
     fetchTransactions(overrides?: CallOverrides): Promise<BigNumber>;
 
     freeTransactions(overrides?: CallOverrides): Promise<BigNumber>;
+
+    giveReview(
+      stars: BigNumberish,
+      transId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     governor(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -614,6 +662,12 @@ export interface Shop extends BaseContract {
     fetchTransactions(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     freeTransactions(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    giveReview(
+      stars: BigNumberish,
+      transId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     governor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
