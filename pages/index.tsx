@@ -87,7 +87,7 @@ const Home: NextPage = () => {
       ShopFactory.abi,
       signer
     );
-    await factoryContract.selfDesctruct();
+    await factoryContract.selfDestruct();
   };
 
   return (

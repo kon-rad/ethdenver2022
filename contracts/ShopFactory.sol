@@ -52,15 +52,13 @@ contract ShopFactory is Ownable {
         allShops.pop();
     }
 
-    receive() external payable {    
-        // owner().transfer(msg.value);
+    receive() external payable {}
+
+    function withdraw() onlyOwner public {
+       payable(address(msg.sender)).transfer(address(this).balance);
     }
 
-     function withdraw() onlyOwner public {
-        payable(address(msg.sender)).transfer(address(this).balance);
-     }
-
-     function getBalance() public view returns (uint256) {
-        return address(this).balance;
-     }
+    function getBalance() public view returns (uint256) {
+       return address(this).balance;
+    }
 }

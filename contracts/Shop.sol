@@ -73,7 +73,6 @@ contract Shop {
     }
 
     function createItem(string memory _name, string memory _description, string memory _image, uint256 _price) public onlyOwner payable {
-
         require(_itemIds.current() < 100, "Must be fewer than 100 items");
         uint256 itemId = _itemIds.current();
         Item memory newItem = Item(

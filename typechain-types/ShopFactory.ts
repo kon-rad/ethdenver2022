@@ -28,7 +28,7 @@ export interface ShopFactoryInterface extends utils.Interface {
     "getBalance()": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
-    "selfDesctruct()": FunctionFragment;
+    "selfDestruct()": FunctionFragment;
     "setShopPrice(uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "withdraw()": FunctionFragment;
@@ -57,7 +57,7 @@ export interface ShopFactoryInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "selfDesctruct",
+    functionFragment: "selfDestruct",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -84,7 +84,7 @@ export interface ShopFactoryInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "selfDesctruct",
+    functionFragment: "selfDestruct",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -175,7 +175,7 @@ export interface ShopFactory extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    selfDesctruct(
+    selfDestruct(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -220,7 +220,7 @@ export interface ShopFactory extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  selfDesctruct(
+  selfDestruct(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -260,7 +260,7 @@ export interface ShopFactory extends BaseContract {
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
-    selfDesctruct(overrides?: CallOverrides): Promise<void>;
+    selfDestruct(overrides?: CallOverrides): Promise<void>;
 
     setShopPrice(
       _price: BigNumberish,
@@ -322,7 +322,7 @@ export interface ShopFactory extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    selfDesctruct(
+    selfDestruct(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -371,7 +371,7 @@ export interface ShopFactory extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    selfDesctruct(
+    selfDestruct(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
