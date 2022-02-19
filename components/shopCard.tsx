@@ -25,7 +25,6 @@ const ShopCard = (props: Props) => {
   useEffect(() => {
     getShopData();
   }, []);
-  console.log("isMobile: ", isMobile);
 
   const getShopData = async () => {
     const provider = web3React.library;

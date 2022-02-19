@@ -26,6 +26,7 @@ export declare namespace Shop {
     image: string;
     price: BigNumberish;
     inStock: boolean;
+    isDeleted: boolean;
   };
 
   export type ItemStructOutput = [
@@ -34,6 +35,7 @@ export declare namespace Shop {
     string,
     string,
     BigNumber,
+    boolean,
     boolean
   ] & {
     itemId: BigNumber;
@@ -42,6 +44,7 @@ export declare namespace Shop {
     image: string;
     price: BigNumber;
     inStock: boolean;
+    isDeleted: boolean;
   };
 
   export type TransStruct = {
@@ -72,16 +75,23 @@ export interface ShopInterface extends utils.Interface {
   functions: {
     "catalog(uint256)": FunctionFragment;
     "createItem(string,string,string,uint256)": FunctionFragment;
+    "deleteItem(uint256)": FunctionFragment;
     "description()": FunctionFragment;
     "fetchCatalogItems()": FunctionFragment;
     "fetchTransactions()": FunctionFragment;
+    "freeTransactions()": FunctionFragment;
+    "governor()": FunctionFragment;
     "image()": FunctionFragment;
     "location()": FunctionFragment;
     "makeTransaction(uint256[],uint256[])": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
     "phone()": FunctionFragment;
+    "selfDestruct()": FunctionFragment;
+    "setFreeTransactions(uint256)": FunctionFragment;
+    "setInStock(uint256,bool)": FunctionFragment;
     "transactions(uint256)": FunctionFragment;
+    "transactionsCount()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -93,6 +103,10 @@ export interface ShopInterface extends utils.Interface {
     values: [string, string, string, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "deleteItem",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "description",
     values?: undefined
   ): string;
@@ -104,6 +118,11 @@ export interface ShopInterface extends utils.Interface {
     functionFragment: "fetchTransactions",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "freeTransactions",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "governor", values?: undefined): string;
   encodeFunctionData(functionFragment: "image", values?: undefined): string;
   encodeFunctionData(functionFragment: "location", values?: undefined): string;
   encodeFunctionData(
@@ -114,12 +133,29 @@ export interface ShopInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "phone", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "selfDestruct",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setFreeTransactions",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setInStock",
+    values: [BigNumberish, boolean]
+  ): string;
+  encodeFunctionData(
     functionFragment: "transactions",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transactionsCount",
+    values?: undefined
   ): string;
 
   decodeFunctionResult(functionFragment: "catalog", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "createItem", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "deleteItem", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "description",
     data: BytesLike
@@ -132,6 +168,11 @@ export interface ShopInterface extends utils.Interface {
     functionFragment: "fetchTransactions",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "freeTransactions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "governor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "image", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "location", data: BytesLike): Result;
   decodeFunctionResult(
@@ -142,7 +183,20 @@ export interface ShopInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "phone", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "selfDestruct",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setFreeTransactions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "setInStock", data: BytesLike): Result;
+  decodeFunctionResult(
     functionFragment: "transactions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transactionsCount",
     data: BytesLike
   ): Result;
 
@@ -198,21 +252,27 @@ export interface Shop extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, string, string, string, BigNumber, boolean] & {
+      [BigNumber, string, string, string, BigNumber, boolean, boolean] & {
         itemId: BigNumber;
         name: string;
         description: string;
         image: string;
         price: BigNumber;
         inStock: boolean;
+        isDeleted: boolean;
       }
     >;
 
     createItem(
-      name: string,
-      description: string,
-      image: string,
-      price: BigNumberish,
+      _name: string,
+      _description: string,
+      _image: string,
+      _price: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    deleteItem(
+      itemId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -225,6 +285,10 @@ export interface Shop extends BaseContract {
     fetchTransactions(
       overrides?: CallOverrides
     ): Promise<[Shop.TransStructOutput[]]>;
+
+    freeTransactions(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    governor(overrides?: CallOverrides): Promise<[string]>;
 
     image(overrides?: CallOverrides): Promise<[string]>;
 
@@ -242,6 +306,21 @@ export interface Shop extends BaseContract {
 
     phone(overrides?: CallOverrides): Promise<[string]>;
 
+    selfDestruct(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setFreeTransactions(
+      _freeTransactions: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setInStock(
+      itemId: BigNumberish,
+      _inStock: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     transactions(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -252,27 +331,37 @@ export interface Shop extends BaseContract {
         isValid: boolean;
       }
     >;
+
+    transactionsCount(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { _value: BigNumber }>;
   };
 
   catalog(
     arg0: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, string, string, string, BigNumber, boolean] & {
+    [BigNumber, string, string, string, BigNumber, boolean, boolean] & {
       itemId: BigNumber;
       name: string;
       description: string;
       image: string;
       price: BigNumber;
       inStock: boolean;
+      isDeleted: boolean;
     }
   >;
 
   createItem(
-    name: string,
-    description: string,
-    image: string,
-    price: BigNumberish,
+    _name: string,
+    _description: string,
+    _image: string,
+    _price: BigNumberish,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  deleteItem(
+    itemId: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -285,6 +374,10 @@ export interface Shop extends BaseContract {
   fetchTransactions(
     overrides?: CallOverrides
   ): Promise<Shop.TransStructOutput[]>;
+
+  freeTransactions(overrides?: CallOverrides): Promise<BigNumber>;
+
+  governor(overrides?: CallOverrides): Promise<string>;
 
   image(overrides?: CallOverrides): Promise<string>;
 
@@ -302,6 +395,21 @@ export interface Shop extends BaseContract {
 
   phone(overrides?: CallOverrides): Promise<string>;
 
+  selfDestruct(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setFreeTransactions(
+    _freeTransactions: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setInStock(
+    itemId: BigNumberish,
+    _inStock: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   transactions(
     arg0: BigNumberish,
     overrides?: CallOverrides
@@ -313,28 +421,33 @@ export interface Shop extends BaseContract {
     }
   >;
 
+  transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
+
   callStatic: {
     catalog(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, string, string, string, BigNumber, boolean] & {
+      [BigNumber, string, string, string, BigNumber, boolean, boolean] & {
         itemId: BigNumber;
         name: string;
         description: string;
         image: string;
         price: BigNumber;
         inStock: boolean;
+        isDeleted: boolean;
       }
     >;
 
     createItem(
-      name: string,
-      description: string,
-      image: string,
-      price: BigNumberish,
+      _name: string,
+      _description: string,
+      _image: string,
+      _price: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    deleteItem(itemId: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     description(overrides?: CallOverrides): Promise<string>;
 
@@ -345,6 +458,10 @@ export interface Shop extends BaseContract {
     fetchTransactions(
       overrides?: CallOverrides
     ): Promise<Shop.TransStructOutput[]>;
+
+    freeTransactions(overrides?: CallOverrides): Promise<BigNumber>;
+
+    governor(overrides?: CallOverrides): Promise<string>;
 
     image(overrides?: CallOverrides): Promise<string>;
 
@@ -362,6 +479,19 @@ export interface Shop extends BaseContract {
 
     phone(overrides?: CallOverrides): Promise<string>;
 
+    selfDestruct(overrides?: CallOverrides): Promise<void>;
+
+    setFreeTransactions(
+      _freeTransactions: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setInStock(
+      itemId: BigNumberish,
+      _inStock: boolean,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     transactions(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -372,6 +502,8 @@ export interface Shop extends BaseContract {
         isValid: boolean;
       }
     >;
+
+    transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {
@@ -395,10 +527,15 @@ export interface Shop extends BaseContract {
     catalog(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     createItem(
-      name: string,
-      description: string,
-      image: string,
-      price: BigNumberish,
+      _name: string,
+      _description: string,
+      _image: string,
+      _price: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    deleteItem(
+      itemId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -407,6 +544,10 @@ export interface Shop extends BaseContract {
     fetchCatalogItems(overrides?: CallOverrides): Promise<BigNumber>;
 
     fetchTransactions(overrides?: CallOverrides): Promise<BigNumber>;
+
+    freeTransactions(overrides?: CallOverrides): Promise<BigNumber>;
+
+    governor(overrides?: CallOverrides): Promise<BigNumber>;
 
     image(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -424,10 +565,27 @@ export interface Shop extends BaseContract {
 
     phone(overrides?: CallOverrides): Promise<BigNumber>;
 
+    selfDestruct(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setFreeTransactions(
+      _freeTransactions: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setInStock(
+      itemId: BigNumberish,
+      _inStock: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     transactions(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -437,10 +595,15 @@ export interface Shop extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     createItem(
-      name: string,
-      description: string,
-      image: string,
-      price: BigNumberish,
+      _name: string,
+      _description: string,
+      _image: string,
+      _price: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    deleteItem(
+      itemId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -449,6 +612,10 @@ export interface Shop extends BaseContract {
     fetchCatalogItems(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     fetchTransactions(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    freeTransactions(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    governor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     image(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -466,9 +633,26 @@ export interface Shop extends BaseContract {
 
     phone(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    selfDestruct(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setFreeTransactions(
+      _freeTransactions: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setInStock(
+      itemId: BigNumberish,
+      _inStock: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     transactions(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    transactionsCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

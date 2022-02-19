@@ -1,21 +1,22 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
-import { Box, Flex, Image, Text, Input, Button } from "@chakra-ui/react";
+import { Box, Flex, Image, Text, Input, Button, useMediaQuery } from "@chakra-ui/react";
 import { shopFactoryAddress } from "../config";
 import ShopFactory from "../artifacts/contracts/ShopFactory.sol/ShopFactory.json";
 import { handleImageUpload } from "../utils/ipfs";
 import { toast } from "react-toastify";
 import Router from "next/router";
+import web3 from 'web3';
 
 const Create = () => {
+  const [isMobile] = useMediaQuery('(max-width: 600px)')
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [location, setLocation] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [fileUrl, setFileUrl] = useState<string>("");
   const handleSubmit = async () => {
-    console.log("submit");
     const web3Modal = new Web3Modal();
     const connection = await web3Modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
@@ -25,6 +26,7 @@ const Create = () => {
       ShopFactory.abi,
       signer
     );
+    // const sendValue = web3.utils.toWei('10', 'ether');
     const transaction = await contract.createShop(
       name,
       description,
@@ -56,7 +58,7 @@ const Create = () => {
           </Text>
         </Box>
         <Box
-          maxWidth="600px"
+          maxWidth={isMobile ? '100%' : "600px"}
           border="solid"
           borderRadius="8px"
           borderColor="Background.400"
@@ -112,6 +114,8 @@ const Create = () => {
             className="mr-2"
             onChange={handleImageSelect}
           />
+          {/* <Text mt={'4'}fontSize="2xl">One time set up fee: MATIC 10</Text>
+          <Text color={'gray.400'} fontSize="xl">This fee goes to fund further development of the decommerce.finance application and to prevent spam.</Text> */}
         </Box>
         <Box p="12">
           <Button color="brand.400" onClick={handleSubmit}>

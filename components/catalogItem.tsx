@@ -30,7 +30,6 @@ const CatalogItem = (props: Props) => {
   } = useAppState();
   console.log("cart: ", cart);
   const handleAddToCart = () => {
-      debugger;
     const id = props.data.itemId.toNumber();
 
     if (props.shopAddress !== cartShopAddress) {

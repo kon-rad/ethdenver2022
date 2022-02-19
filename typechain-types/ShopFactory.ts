@@ -9,6 +9,7 @@ import {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -22,10 +23,15 @@ export interface ShopFactoryInterface extends utils.Interface {
   functions: {
     "allShops(uint256)": FunctionFragment;
     "createShop(string,string,string,string,string)": FunctionFragment;
+    "deleteShop(address)": FunctionFragment;
     "fetchAllShops()": FunctionFragment;
+    "getBalance()": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "selfDesctruct()": FunctionFragment;
+    "setShopPrice(uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
+    "withdraw()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -36,8 +42,13 @@ export interface ShopFactoryInterface extends utils.Interface {
     functionFragment: "createShop",
     values: [string, string, string, string, string]
   ): string;
+  encodeFunctionData(functionFragment: "deleteShop", values: [string]): string;
   encodeFunctionData(
     functionFragment: "fetchAllShops",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getBalance",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -46,25 +57,45 @@ export interface ShopFactoryInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "selfDesctruct",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setShopPrice",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [string]
   ): string;
+  encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "allShops", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "createShop", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "deleteShop", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "fetchAllShops",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getBalance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "selfDesctruct",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setShopPrice",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
@@ -126,10 +157,17 @@ export interface ShopFactory extends BaseContract {
       location: string,
       phone: string,
       image: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    deleteShop(
+      deleteAddr: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     fetchAllShops(overrides?: CallOverrides): Promise<[string[]]>;
+
+    getBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -137,8 +175,21 @@ export interface ShopFactory extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    selfDesctruct(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setShopPrice(
+      _price: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     transferOwnership(
       newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    withdraw(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -151,10 +202,17 @@ export interface ShopFactory extends BaseContract {
     location: string,
     phone: string,
     image: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  deleteShop(
+    deleteAddr: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   fetchAllShops(overrides?: CallOverrides): Promise<string[]>;
+
+  getBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -162,8 +220,21 @@ export interface ShopFactory extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  selfDesctruct(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setShopPrice(
+    _price: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   transferOwnership(
     newOwner: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  withdraw(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -179,16 +250,29 @@ export interface ShopFactory extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    deleteShop(deleteAddr: string, overrides?: CallOverrides): Promise<void>;
+
     fetchAllShops(overrides?: CallOverrides): Promise<string[]>;
+
+    getBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
+    selfDesctruct(overrides?: CallOverrides): Promise<void>;
+
+    setShopPrice(
+      _price: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     transferOwnership(
       newOwner: string,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    withdraw(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -220,10 +304,17 @@ export interface ShopFactory extends BaseContract {
       location: string,
       phone: string,
       image: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    deleteShop(
+      deleteAddr: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     fetchAllShops(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -231,8 +322,21 @@ export interface ShopFactory extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    selfDesctruct(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setShopPrice(
+      _price: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     transferOwnership(
       newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    withdraw(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -249,10 +353,17 @@ export interface ShopFactory extends BaseContract {
       location: string,
       phone: string,
       image: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    deleteShop(
+      deleteAddr: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     fetchAllShops(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -260,8 +371,21 @@ export interface ShopFactory extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    selfDesctruct(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setShopPrice(
+      _price: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     transferOwnership(
       newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdraw(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
