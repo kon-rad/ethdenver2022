@@ -1,4 +1,4 @@
-import { Text, Box, Input, Flex, Button } from '@chakra-ui/react';
+import { Text, Box, Input, Flex, Button, Image } from '@chakra-ui/react';
 import { Search2Icon } from '@chakra-ui/icons';
 
 const Hero = () => {
@@ -15,6 +15,8 @@ const Hero = () => {
                         <Input color="white" borderColor="white" width="300px" mr="4" placeholder="search for merchants" />
                         <Button backgroundColor="brand.400" color="black"><Search2Icon /></Button>
                     </Flex>
+                    <Text mt="6">Built on </Text>
+                    <Image src="/images/polygon-logo.svg" />
                 </Flex>
             </Box>
         </div>
