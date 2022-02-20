@@ -4,8 +4,6 @@ pragma solidity ^0.8.4;
 import '@openzeppelin/contracts/utils/Counters.sol';
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-import "hardhat/console.sol";
-
 contract Shop {
     using SafeMath for uint256;
     using Counters for Counters.Counter;

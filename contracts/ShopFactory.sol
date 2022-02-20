@@ -37,8 +37,6 @@ contract ShopFactory is Ownable {
         shop.selfDestruct();
         for (uint256 i = 0; i < allShops.length; i++) {
             if (allShops[i] == deleteAddr) {
-                console.log("found address shop");
-                console.log(deleteAddr, allShops[i]);
                 removeShopAtIndex(i);
                 break;
             }

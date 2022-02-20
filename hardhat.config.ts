@@ -38,6 +38,10 @@ const config: any = {
       url: "https://rpc-mumbai.maticvigil.com",
       accounts: [process.env.PRIVATE_KEY || '']
     },
+    matic: {
+      url: process.env.ALCHEMY_URL,
+      accounts: [process.env.PRIVATE_KEY || ''],
+    }
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
