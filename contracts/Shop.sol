@@ -24,6 +24,11 @@ contract Shop {
 
     Trans[] public transactions;
 
+    Counters.Counter private affiliateId;
+    Affiliate[] public proposedAffArr;
+    mapping(address => Item) proposedAffiliates;
+    mapping(address => Item) affiliates;
+
     struct Item {
         uint256 itemId;
         string name;
@@ -32,6 +37,12 @@ contract Shop {
         uint256 price;
         bool inStock;
         bool isDeleted;
+    }
+
+    struct Affiliate {
+        uint256 percentage;
+        address affiliateAddress;
+        uint256 id;
     }
 
     struct Trans {
@@ -108,7 +119,72 @@ contract Shop {
         }
     }
 
-    function makeTransaction(uint256[] memory itemIds, uint256[] memory itemQty) public payable returns (uint256 transactionId) {
+    function proposeAffilate(uint256 percentage, address affiliate) public {
+        affiliateId.increment();
+        uint256 _id = affiliateId.current();
+        proposedAffiliates[msg.sender] = Affiliate({
+            affiliateAddress: msg.sender,
+            percentage: percentage,
+            id: _id
+        });
+        proposedAffArr.push(proposedAffiliates[msg.sender]);
+    }
+
+    function getProposedAffiliates() public onlyOwner returns (Affiliate[] memory) {
+        return proposedAffArr;
+    }
+
+    function approveAffiliate(uint256 id, address affAddr) public onlyOwner {
+        affiliates[affAddr] = proposedAffiliates[affAddr];
+        uint256 affId = proposedAffiliates[affAddr].id;
+        
+        delete proposedAffArr[affId];
+        proposedAffArr[affId] = proposedAffArr[proposedAffArr.length - 1];
+        delete proposedAffiliates[affAddr];
+    }
+
+    function makeAffTransaction(uint256[] memory itemIds, uint256[] memory itemQty, address affAddr)
+        public payable returns (uint256 transactionId)
+    {
+        Affiliate storage aff = affiliates[affAddr];
+        require(aff, "Affiliate must be approved");
+        uint256 total = 0;
+        for (uint256 i = 0; i < itemIds.length; i++) {
+            total += catalog[itemIds[i]].price * itemQty[i];
+        }
+        require(msg.value >= total, "Required value not met");
+        transactionsCount.increment();
+        if (transactionsCount.current() > freeTransactions) {
+            uint256 govShare = total.div(100);
+            uint256 affShare = total.div(100).mult(aff.percentage);
+            uint256 shopShare = total.sub(govShare).sub(affShare);
+            payable(address(governor)).transfer(govShare);
+            payable(address(owner)).transfer(shopShare);
+            payable(address(aff.affilateAddress)).transfer(affShare);
+        } else {
+            payable(address(owner)).transfer(total);
+        }
+        uint256 transId = _transIds.current();
+        transactions.push(Trans({
+            transId: transId,
+            itemIds: itemIds,
+            itemQty: itemQty,
+            total: total,
+            isValid: true,
+            client: msg.sender,
+            review: 0,
+            isReviewed: false,
+            affilate: affAddr,
+            affPercentage: aff.percentage
+        }));
+        _transIds.increment();
+
+        return transId;
+    }
+
+    function makeTransaction(uint256[] memory itemIds, uint256[] memory itemQty)
+        public payable returns (uint256 transactionId)
+    {
         uint256 total = 0;
         for (uint256 i = 0; i < itemIds.length; i++) {
             total += catalog[itemIds[i]].price * itemQty[i];
@@ -124,16 +200,18 @@ contract Shop {
             payable(address(owner)).transfer(total);
         }
         uint256 transId = _transIds.current();
-        transactions.push(Trans(
-            transId,
-            itemIds,
-            itemQty,
-            total,
-            true,
-            msg.sender,
-            0,
-            false
-        ));
+        transactions.push(Trans({
+            transId: transId,
+            itemIds: itemIds,
+            itemQty: itemQty,
+            total: total,
+            isValid: true,
+            client: msg.sender,
+            review: 0,
+            isReviewed: false,
+            affilate: 0,
+            affPercentage: 0
+        }));
         _transIds.increment();
 
         return transId;

@@ -12,11 +12,12 @@ import { Web3Provider, ExternalProvider } from "@ethersproject/providers";
 import { AppStateProvider } from "../context/appState";
 
 // /* CSS HEX */
-// --persian-blue: #072ac8ff;
-// --dodger-blue: #1e96fcff;
-// --uranian-blue: #a2d6f9ff;
-// --cadmium-yellow: #fcf300ff;
-// --mikado-yellow: #ffc600ff;
+// https://coolors.co/202a25-5f4bb6-86a5d9-26f0f1-c4ebc8
+// --dark-jungle-green: #202a25ff;
+// --plump-purple: #5f4bb6ff;
+// --little-boy-blue: #86a5d9ff;
+// --fluorescent-blue: #26f0f1ff;
+// --tea-green: #c4ebc8ff;
 
 const theme = extendTheme({
   config: {
@@ -25,11 +26,11 @@ const theme = extendTheme({
   },
   colors: {
     brand: {
-      100: "#072ac8ff",
-      200: "#1e96fcff",
-      300: "#a2d6f9ff",
-      400: "#fcf300ff",
-      500: "#ffc600ff",
+      100: "#202a25ff",
+      200: "#5f4bb6ff",
+      300: "#86a5d9ff",
+      400: "#26f0f1ff",
+      500: "#c4ebc8ff",
       600: "#ea3546", // red
     },
   },
