@@ -32,7 +32,9 @@ import Shop from "../../artifacts/contracts/Shop.sol/Shop.json";
 import { handleImageUpload } from "../../utils/ipfs";
 import TransactionItem from "../../components/transactionItem";
 import web3 from "web3";
-import { getProposedAffiliates } from '../../utils/shop';
+import { formatAddress } from "../../utils/web3";
+import { getAffiliates, makeAffiliateProposal, updateAffiliate } from "../../utils/shop";
+import { BigNumber } from "bignumber.js";
 
 interface Props {}
 
@@ -48,6 +50,9 @@ const ShopPage = (props: Props) => {
   const [desc, setDesc] = useState<string>("");
   const [image, setImage] = useState<string>("");
   const [isOwner, setIsOwner] = useState<boolean>(false);
+  const [proposedAffiliates, setProposedAffiliates] = useState([]);
+  const [activeAffiliates, setActiveAffiliates] = useState([]);
+  const [percent, setPercent] = useState("3");
 
   const [itemName, setItemName] = useState<string>("");
   const [itemDesc, setItemDesc] = useState<string>("");
@@ -60,6 +65,8 @@ const ShopPage = (props: Props) => {
 
   const web3React = useWeb3React();
 
+  const provider = web3React.library;
+
   const router = useRouter();
   useEffect(() => {
     getShopData();
@@ -70,15 +77,19 @@ const ShopPage = (props: Props) => {
   }, [web3React.account, web3React, owner]);
   useEffect(() => {
     if (isOwner) {
-      getProposedAffiliates(setProposedAffiliates);
+      getAffiliates(
+        web3React,
+        setProposedAffiliates,
+        setActiveAffiliates,
+        Shop.abi,
+        router.query.shop
+      );
     }
-  }, [isOwner])
+  }, [isOwner]);
   console.log("addr: ", web3React.account);
 
   const getShopData = async () => {
     if (!router.query.shop) return;
-
-    const provider = web3React.library;
 
     console.log("getting shop data ", provider);
     const shopContract = new ethers.Contract(
@@ -99,7 +110,6 @@ const ShopPage = (props: Props) => {
   console.log("addr 2: & owner ", web3React.account, owner, isOwner);
   const handleCreate = async () => {
     try {
-      const provider = web3React.library;
       const signer = provider.getSigner();
 
       const shopContract = new ethers.Contract(
@@ -146,15 +156,55 @@ const ShopPage = (props: Props) => {
   if (!router.query.shop) {
     return <h1>Try navigating to this page from the home page</h1>;
   }
+  const renderAffiliate = (aff: any, isApproved: bool) => {
+    return (
+      <Box>
+        affiliate {formatAddress(aff.affAddr)} percentage:{" "}
+        {aff.percentage?.toString()}{" "}
+        <Button
+          onClick={() =>
+            updateAffiliate(aff.affAddr, provider, router.query.shop, Shop.abi, isApproved)
+          }
+        >
+          {isApproved ? "Cancel" : "Approve"}
+        </Button>
+      </Box>
+    );
+  };
   const renderAffiliateTab = () => {
     if (isOwner) {
       return (
         <Box>
-          {getProposedAffiliates}
+          <Text>Proposals:</Text>
+            {proposedAffiliates.map(renderAffiliate)}
+          <Text>Active:</Text>
+            {activeAffiliates.map(renderActiveAffiliate)}
         </Box>
-      )
+        );
     }
-  }
+    return (
+      <Box>
+        <Text fontSize="xl">Become an Affiliate: </Text>
+        <Input
+          placeholder="percentage"
+          value={percent}
+          onChange={(e) => setPercent(e.target.value)}
+        />
+        <Button
+          onClick={() =>
+            makeAffiliateProposal(
+              provider,
+              router.query.shop,
+              Shop.abi,
+              percent
+            )
+          }
+        >
+          submit
+        </Button>
+      </Box>
+    );
+  };
 
   return (
     <Box>

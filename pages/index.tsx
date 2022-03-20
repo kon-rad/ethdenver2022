@@ -14,7 +14,7 @@ const Home: NextPage = () => {
   const [deleteId, setDeleteId] = useState<string>("");
   const [isGov, setIsGov] = useState<boolean>(false);
   useEffect(() => {
-    fetchShops(setShops, setBalance);
+    fetchShops(web3React, setShops, setBalance);
     setIsGov(process.env.NEXT_PUBLIC_GOV === web3React.account);
     console.log('process.env.NEXT_PUBLIC_GOV', process.env.NEXT_PUBLIC_GOV);
     
@@ -28,15 +28,15 @@ const Home: NextPage = () => {
         <Box p={"6"}>
         {isGov && (
           <Flex direction="column">
-            <Button m="2" onClick={handleWithdraw}>withdraw balance: {balance} </Button>
-            <Button m="2" onClick={handleSelfDestruct}>self destruct</Button>
+            <Button m="2" onClick={() => handleWithdraw(web3React)}>withdraw balance: {balance} </Button>
+            <Button m="2" onClick={() => handleSelfDestruct(web3React)}>self destruct</Button>
             <Input value={deleteId} onChange={(e: any) => setDeleteId(e.target.value)} />
-            <Button m="2" onClick={() => handleDelete(deleteId)}>delete shop</Button>
+            <Button m="2" onClick={() => handleDelete(web3React, deleteId)}>delete shop</Button>
           </Flex>
         )}
           <Flex align="center" justify="center" direction="column">
-            {shops.map((addr: any) => (
-              <ShopCard address={addr} />
+            {shops.map((addr: any, i: number) => (
+              <ShopCard key={`shop_${i}`} address={addr} />
             ))}
           </Flex>
         </Box>

@@ -26,6 +26,7 @@ contract Shop {
 
     Counters.Counter private affiliateId;
     Affiliate[] public proposedAffArr;
+    Affiliate[] public approvedAffArr;
     mapping(address => Affiliate) proposedAffiliates;
     mapping(address => Affiliate) affiliates;
 
@@ -121,8 +122,9 @@ contract Shop {
         }
     }
 
-    function proposeAffiliate(uint percentage, address affiliate) public {
-        affiliateId.increment();
+    // ================================= // AFFILIATES // ================================= //
+
+    function proposeAffiliate(uint percentage) public {
         uint _id = affiliateId.current();
         Affiliate memory pAff = Affiliate({
             affAddr: msg.sender,
@@ -131,18 +133,39 @@ contract Shop {
         });
         proposedAffiliates[msg.sender] = pAff;
         proposedAffArr.push(pAff);
+        affiliateId.increment();
     }
 
-    function getProposedAffiliates() public onlyOwner returns (Affiliate[] memory) {
+    function getProposedAffiliates() public view onlyOwner returns (Affiliate[] memory) {
         return proposedAffArr;
     }
 
-    function approveAffiliate(uint id, address affAddr) public onlyOwner {
+    function getApprovedAffiliates() public view returns (Affiliate[] memory) {
+        return approvedAffArr;
+    }
+
+    function cancelAffiliate(address affAddr) public onlyOwner {
+        for (uint i; i < approvedAffArr.length; i++) {
+            if (approvedAffArr[i].affAddr == affAddr) {
+                delete approvedAffArr[i];
+                if (i != approvedAffArr.length - 1) {
+                    approvedAffArr[i] == approvedAffArr[approvedAffArr.length - 1];
+                }
+                break;
+            }
+        }
+        delete affiliates[affId];
+    }
+
+    function approveAffiliate(address affAddr) public onlyOwner {
         affiliates[affAddr] = proposedAffiliates[affAddr];
         uint affId = proposedAffiliates[affAddr].id;
         
+        approvedAffArr.push(affiliates[affAddr]);
         delete proposedAffArr[affId];
-        proposedAffArr[affId] = proposedAffArr[proposedAffArr.length - 1];
+        if (proposedAffArr.length > 0) {
+            proposedAffArr[affId] = proposedAffArr[proposedAffArr.length - 1];
+        }
         delete proposedAffiliates[affAddr];
     }
 
@@ -184,6 +207,8 @@ contract Shop {
 
         return transId;
     }
+
+    // ================================= // TRANSACTION // ================================= //
 
     function makeTransaction(uint[] memory itemIds, uint[] memory itemQty)
         public payable returns (uint transactionId)
