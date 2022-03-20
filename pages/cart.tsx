@@ -17,7 +17,7 @@ const Cart = () => {
   const [isMobile] = useMediaQuery("(max-width: 600px)");
   const [transactionHash, setTransactionHash] = useState<string>("");
   const web3React = useWeb3React();
-  const { cart, cartMetaData, cartShopAddress, setCart, setCartMetaData } =
+  const { cart, cartMetaData, cartShopAddress, setCart, setCartMetaData, affiliate } =
     useAppState();
   const handleCheckout = async () => {
     console.log("checkout ");
@@ -44,13 +44,25 @@ const Cart = () => {
       const contract = new ethers.Contract(cartShopAddress, Shop.abi, signer);
       const cartItems = cart.map((item: any) => item.itemId);
       const itemQuantities = cart.map((item: any) => item.qty);
-      const transaction = await contract.makeTransaction(
-        cartItems,
-        itemQuantities,
-        {
-          value: ethValue,
-        }
-      );
+      let transaction;
+      if (affiliate) {
+        transaction = await contract.makeAffTransaction(
+          cartItems,
+          itemQuantities,
+          affiliate,
+          {
+            value: ethValue,
+          }
+        );
+      } else {
+        transaction = await contract.makeTransaction(
+          cartItems,
+          itemQuantities,
+          {
+            value: ethValue,
+          }
+        );
+      }
 
       const transData = await transaction.wait();
       toast(`You successfully completed the transaction!`, {

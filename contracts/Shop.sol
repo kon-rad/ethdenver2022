@@ -125,6 +125,7 @@ contract Shop {
     // ================================= // AFFILIATES // ================================= //
 
     function proposeAffiliate(uint percentage) public {
+        require(affilates[msg.sender] == 0, "Sender is an affiliate already");
         uint _id = affiliateId.current();
         Affiliate memory pAff = Affiliate({
             affAddr: msg.sender,
@@ -136,7 +137,7 @@ contract Shop {
         affiliateId.increment();
     }
 
-    function getProposedAffiliates() public view onlyOwner returns (Affiliate[] memory) {
+    function getProposedAffiliates() public view returns (Affiliate[] memory) {
         return proposedAffArr;
     }
 
@@ -149,12 +150,12 @@ contract Shop {
             if (approvedAffArr[i].affAddr == affAddr) {
                 delete approvedAffArr[i];
                 if (i != approvedAffArr.length - 1) {
-                    approvedAffArr[i] == approvedAffArr[approvedAffArr.length - 1];
+                    approvedAffArr[i] = approvedAffArr[approvedAffArr.length - 1];
                 }
                 break;
             }
         }
-        delete affiliates[affId];
+        delete affiliates[affAddr];
     }
 
     function approveAffiliate(address affAddr) public onlyOwner {

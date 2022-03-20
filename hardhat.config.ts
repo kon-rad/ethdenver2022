@@ -34,6 +34,14 @@ const config: any = {
     //   url: 'https://rpc-mumbai.matic.today',
     //   accounts: [privateKey],
     // },
+    alfajores: {
+      url: "https://alfajores-forno.celo-testnet.org",
+      accounts: {
+        mnemonic: process.env.MNEMONIC,
+        path: "m/44'/52752'/0'/0"
+      },
+      chainId: 44787
+    },
     mumbai: {
       url: "https://rpc-mumbai.maticvigil.com",
       accounts: [process.env.PRIVATE_KEY || '']

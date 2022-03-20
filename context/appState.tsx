@@ -6,6 +6,7 @@ const AppStateProvider = ({ children }: any) => {
     const [cart, setCart] = useState<any>([]);
     const [cartMetaData, setCartMetaData] = useState<any>({});
     const [cartShopAddress, setCartShopAddress] = useState<string>("");
+    const [affiliate, setAffiliate] = useState<string>("");
 
     const appState = {
         cart,
@@ -14,6 +15,8 @@ const AppStateProvider = ({ children }: any) => {
         setCartMetaData,
         cartShopAddress,
         setCartShopAddress,
+        affiliate,
+        setAffiliate
     }
     return (
         <AppContext.Provider value={appState}>

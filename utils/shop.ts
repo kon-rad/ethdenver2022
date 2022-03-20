@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { toast } from "react-toastify";
 
 export const getAffiliates = async (
   web3React: any,
@@ -7,6 +8,7 @@ export const getAffiliates = async (
   shopAbi: any,
   shopAddress: string,
 ) => {
+    console.log("getAffiliates is called");
   const provider = web3React.library;
   const signer = provider.getSigner();
 
@@ -17,8 +19,8 @@ export const getAffiliates = async (
   );
 
   const proposed = await factoryContract.getProposedAffiliates();
-  const active = await factoryContract.getActiveAffiliates();
-  console.log("getProposedAffiliates proposed: ", proposed);
+  const active = await factoryContract.getApprovedAffiliates();
+  console.log("getAffiliates results: ", proposed, active);
   setProposedAffiliates(proposed);
   setActiveAffiliates(active);
 };
@@ -29,21 +31,49 @@ export const makeAffiliateProposal = async (
   shopAbi: any,
   percentage: string
 ) => {
-  console.log("makeAffiliateProposal");
   const signer = provider.getSigner();
 
   const shopContract = new ethers.Contract(shopAddress, shopAbi, signer);
   await shopContract.proposeAffiliate(percentage);
+
+  toast(`You successfully proposed affiliate status for ${percentage}%!`, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+  });
 };
 
 export const updateAffiliate = async (affAddr: string, provider: any, shopAddress: string, shopAbi: any, isApproved: boolean) => {
-    console.log("approveAffiliate");
     const signer = provider.getSigner();
   
     const shopContract = new ethers.Contract(shopAddress, shopAbi, signer);
     if (isApproved) {
         await shopContract.cancelAffiliate(affAddr);
+
+        toast(`You successfully cancelled affiliate ${affAddr}!`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
     } else {
         await shopContract.approveAffiliate(affAddr);
+
+      toast(`You successfully approved affiliate ${affAddr}!`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
 }

@@ -70,22 +70,18 @@ const ShopPage = (props: Props) => {
   const router = useRouter();
   useEffect(() => {
     getShopData();
+    getAffiliates(
+      web3React,
+      setProposedAffiliates,
+      setActiveAffiliates,
+      Shop.abi,
+      router.query.shop
+    );
   }, []);
   useEffect(() => {
     setIsOwner(web3React.account === owner);
     console.log("addr changed isOwner: ", isOwner);
   }, [web3React.account, web3React, owner]);
-  useEffect(() => {
-    if (isOwner) {
-      getAffiliates(
-        web3React,
-        setProposedAffiliates,
-        setActiveAffiliates,
-        Shop.abi,
-        router.query.shop
-      );
-    }
-  }, [isOwner]);
   console.log("addr: ", web3React.account);
 
   const getShopData = async () => {
@@ -156,11 +152,11 @@ const ShopPage = (props: Props) => {
   if (!router.query.shop) {
     return <h1>Try navigating to this page from the home page</h1>;
   }
-  const renderAffiliate = (aff: any, isApproved: bool) => {
+  const renderAffiliate = (aff: any, isApproved: boolean) => {
     return (
-      <Box>
-        affiliate {formatAddress(aff.affAddr)} percentage:{" "}
-        {aff.percentage?.toString()}{" "}
+      <Flex mb="2" direction="row" align="center" key={aff.affAddr}>
+        <Text mr="4">affiliate {formatAddress(aff.affAddr)}</Text> 
+        <Text mr="4">percentage:{" "} {aff.percentage?.toString()}{"%"}</Text> 
         <Button
           onClick={() =>
             updateAffiliate(aff.affAddr, provider, router.query.shop, Shop.abi, isApproved)
@@ -168,44 +164,77 @@ const ShopPage = (props: Props) => {
         >
           {isApproved ? "Cancel" : "Approve"}
         </Button>
-      </Box>
+      </Flex>
     );
   };
   const renderAffiliateTab = () => {
     if (isOwner) {
       return (
-        <Box>
-          <Text>Proposals:</Text>
-            {proposedAffiliates.map(renderAffiliate)}
-          <Text>Active:</Text>
-            {activeAffiliates.map(renderActiveAffiliate)}
-        </Box>
+        <Flex flexDirection="column" justify="center">
+          <Text fontSize="2xl" fontWeight="bold" mb="2">Proposals:</Text>
+            {proposedAffiliates.filter((aff: any) => aff.percentage?.toString() != '0').map((aff: any) => renderAffiliate(aff, false))}
+          <Text fontSize="2xl" fontWeight="bold" mb="2">Active:</Text>
+            {activeAffiliates.filter((aff: any) => aff.percentage?.toString() != '0').map((aff: any) => renderAffiliate(aff, true))}
+        </Flex>
         );
     }
     return (
       <Box>
+
+        <Box>
+          <Text>Proposals:</Text>
+            {
+              proposedAffiliates
+                .filter((aff: any) => aff.affAddr == web3React.account)
+                .map((aff: any) => {
+                  return (
+                    <Box>
+                      <Text fontWeight="bold" fontSize="xl">Your Affiliate proposal for {aff.percentage?.toString()}% is pending</Text>
+                    </Box>
+                  )
+                })
+            }
+          <Text>Active:</Text>
+            {
+              activeAffiliates
+                .filter((aff: any) => aff.affAddr == web3React.account)
+                .map((aff: any) => {
+                  return (
+                    <Box>
+                      <Text fontWeight="bold" fontSize="xl">Your Affiliate Link for {aff.percentage?.toString()}%: <a href={`${window.location.href}/${web3React.account}`}>{window.location.href}/{web3React.account}</a></Text>
+                    </Box>
+                  )
+                })
+            }
+        </Box>
+      
         <Text fontSize="xl">Become an Affiliate: </Text>
-        <Input
-          placeholder="percentage"
-          value={percent}
-          onChange={(e) => setPercent(e.target.value)}
-        />
-        <Button
-          onClick={() =>
-            makeAffiliateProposal(
-              provider,
-              router.query.shop,
-              Shop.abi,
-              percent
-            )
-          }
-        >
-          submit
-        </Button>
+        <Flex direction="column" justify="center">
+          <Text mb="2">Proposal for a % of each affiliate sale:</Text>
+          <Input
+            placeholder="percentage"
+            value={percent}
+            onChange={(e) => setPercent(e.target.value)}
+            mb="4"
+          />
+          <Button
+            onClick={() =>
+              makeAffiliateProposal(
+                provider,
+                router.query.shop,
+                Shop.abi,
+                percent
+              )
+            }
+          >
+            submit
+          </Button>
+        </Flex>
       </Box>
     );
   };
 
+  console.log("activeAffiliates: ", activeAffiliates, proposedAffiliates);
   return (
     <Box>
       <Flex justify={"center"} align={"center"} direction={"column"}>
@@ -221,6 +250,7 @@ const ShopPage = (props: Props) => {
               src={image}
               width={isMobile ? "90%" : "200px"}
               height={isMobile ? "90%" : "200px"}
+              mr="6"
             />
             {/* </Box> */}
             <Box>
