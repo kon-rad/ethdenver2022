@@ -5,7 +5,7 @@ import '@openzeppelin/contracts/utils/Counters.sol';
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract Shop {
-    using SafeMath for uint256;
+    using SafeMath for uint;
     using Counters for Counters.Counter;
 
     string public name;
@@ -16,7 +16,7 @@ contract Shop {
     Item[] public catalog;
     address payable public owner;
     address payable public governor;
-    uint256 public freeTransactions = 1000;
+    uint public freeTransactions = 1000;
 
     Counters.Counter private _itemIds;
     Counters.Counter private _transIds;
@@ -26,42 +26,44 @@ contract Shop {
 
     Counters.Counter private affiliateId;
     Affiliate[] public proposedAffArr;
-    mapping(address => Item) proposedAffiliates;
-    mapping(address => Item) affiliates;
+    mapping(address => Affiliate) proposedAffiliates;
+    mapping(address => Affiliate) affiliates;
 
     struct Item {
-        uint256 itemId;
+        uint itemId;
         string name;
         string description;
         string image;
-        uint256 price;
+        uint price;
         bool inStock;
         bool isDeleted;
     }
 
     struct Affiliate {
-        uint256 percentage;
-        address affiliateAddress;
-        uint256 id;
+        uint percentage;
+        address affAddr;
+        uint id;
     }
 
     struct Trans {
-        uint256 transId;
-        uint256[] itemIds;
-        uint256[] itemQty;
-        uint256 total;
+        uint transId;
+        uint[] itemIds;
+        uint[] itemQty;
+        uint total;
         bool isValid;
         address client;
-        uint256 review;
+        uint review;
         bool isReviewed;
+        address affilate;
+        uint affPercentage;
     }
 
     event ItemCreated (
-        uint256 itemId,
+        uint itemId,
         string name,
         string description,
         string image,
-        uint256 price
+        uint price
     );
 
     constructor(address _owner, string memory _name, string memory _description, string memory _location, string memory _phone, string memory _image) {
@@ -84,9 +86,9 @@ contract Shop {
         _;
     }
 
-    function createItem(string memory _name, string memory _description, string memory _image, uint256 _price) public onlyOwner payable {
+    function createItem(string memory _name, string memory _description, string memory _image, uint _price) public onlyOwner payable {
         require(_itemIds.current() < 100, "Must be fewer than 100 items");
-        uint256 itemId = _itemIds.current();
+        uint itemId = _itemIds.current();
         Item memory newItem = Item(
             itemId,
             _name,
@@ -102,7 +104,7 @@ contract Shop {
         emit ItemCreated(itemId, _name, _description, _image, _price);
     }
 
-    function setInStock(uint256 itemId, bool _inStock) public onlyOwner {
+    function setInStock(uint itemId, bool _inStock) public onlyOwner {
         catalog[itemId].inStock = _inStock;
     }
 
@@ -110,8 +112,8 @@ contract Shop {
         return catalog;
     }
 
-    function deleteItem(uint256 itemId) public onlyOwner {
-        for (uint256 i = 0; i < catalog.length; i++) {
+    function deleteItem(uint itemId) public onlyOwner {
+        for (uint i = 0; i < catalog.length; i++) {
             if (catalog[i].itemId == itemId) {
                 catalog[i].isDeleted = true;
                 break;
@@ -119,52 +121,53 @@ contract Shop {
         }
     }
 
-    function proposeAffilate(uint256 percentage, address affiliate) public {
+    function proposeAffiliate(uint percentage, address affiliate) public {
         affiliateId.increment();
-        uint256 _id = affiliateId.current();
-        proposedAffiliates[msg.sender] = Affiliate({
-            affiliateAddress: msg.sender,
+        uint _id = affiliateId.current();
+        Affiliate memory pAff = Affiliate({
+            affAddr: msg.sender,
             percentage: percentage,
             id: _id
         });
-        proposedAffArr.push(proposedAffiliates[msg.sender]);
+        proposedAffiliates[msg.sender] = pAff;
+        proposedAffArr.push(pAff);
     }
 
     function getProposedAffiliates() public onlyOwner returns (Affiliate[] memory) {
         return proposedAffArr;
     }
 
-    function approveAffiliate(uint256 id, address affAddr) public onlyOwner {
+    function approveAffiliate(uint id, address affAddr) public onlyOwner {
         affiliates[affAddr] = proposedAffiliates[affAddr];
-        uint256 affId = proposedAffiliates[affAddr].id;
+        uint affId = proposedAffiliates[affAddr].id;
         
         delete proposedAffArr[affId];
         proposedAffArr[affId] = proposedAffArr[proposedAffArr.length - 1];
         delete proposedAffiliates[affAddr];
     }
 
-    function makeAffTransaction(uint256[] memory itemIds, uint256[] memory itemQty, address affAddr)
-        public payable returns (uint256 transactionId)
+    function makeAffTransaction(uint[] memory itemIds, uint[] memory itemQty, address affAddr)
+        public payable returns (uint transactionId)
     {
-        Affiliate storage aff = affiliates[affAddr];
-        require(aff, "Affiliate must be approved");
-        uint256 total = 0;
-        for (uint256 i = 0; i < itemIds.length; i++) {
+        Affiliate memory aff = affiliates[affAddr];
+        require(aff.id != 0, "Affiliate must be approved");
+        uint total = 0;
+        for (uint i = 0; i < itemIds.length; i++) {
             total += catalog[itemIds[i]].price * itemQty[i];
         }
         require(msg.value >= total, "Required value not met");
         transactionsCount.increment();
         if (transactionsCount.current() > freeTransactions) {
-            uint256 govShare = total.div(100);
-            uint256 affShare = total.div(100).mult(aff.percentage);
-            uint256 shopShare = total.sub(govShare).sub(affShare);
+            uint govShare = total.div(100);
+            uint affShare = total.div(100).mul(aff.percentage);
+            uint shopShare = total.sub(govShare).sub(affShare);
             payable(address(governor)).transfer(govShare);
             payable(address(owner)).transfer(shopShare);
-            payable(address(aff.affilateAddress)).transfer(affShare);
+            payable(address(aff.affAddr)).transfer(affShare);
         } else {
             payable(address(owner)).transfer(total);
         }
-        uint256 transId = _transIds.current();
+        uint transId = _transIds.current();
         transactions.push(Trans({
             transId: transId,
             itemIds: itemIds,
@@ -182,24 +185,24 @@ contract Shop {
         return transId;
     }
 
-    function makeTransaction(uint256[] memory itemIds, uint256[] memory itemQty)
-        public payable returns (uint256 transactionId)
+    function makeTransaction(uint[] memory itemIds, uint[] memory itemQty)
+        public payable returns (uint transactionId)
     {
-        uint256 total = 0;
-        for (uint256 i = 0; i < itemIds.length; i++) {
+        uint total = 0;
+        for (uint i = 0; i < itemIds.length; i++) {
             total += catalog[itemIds[i]].price * itemQty[i];
         }
         require(msg.value >= total, "Required value not met");
         transactionsCount.increment();
         if (transactionsCount.current() > freeTransactions) {
-            uint256 govShare = total.div(100);
-            uint256 shopShare = total.sub(govShare);
+            uint govShare = total.div(100);
+            uint shopShare = total.sub(govShare);
             payable(address(governor)).transfer(govShare);
             payable(address(owner)).transfer(shopShare);
         } else {
             payable(address(owner)).transfer(total);
         }
-        uint256 transId = _transIds.current();
+        uint transId = _transIds.current();
         transactions.push(Trans({
             transId: transId,
             itemIds: itemIds,
@@ -209,7 +212,7 @@ contract Shop {
             client: msg.sender,
             review: 0,
             isReviewed: false,
-            affilate: 0,
+            affilate: address(0),
             affPercentage: 0
         }));
         _transIds.increment();
@@ -217,7 +220,7 @@ contract Shop {
         return transId;
     }
 
-    function giveReview(uint256 stars, uint256 transId) public {
+    function giveReview(uint stars, uint transId) public {
         require(transactions[transId].client == msg.sender, "Sender is not client");
         transactions[transId].review = stars;
         transactions[transId].isReviewed = true;
@@ -231,7 +234,7 @@ contract Shop {
         selfdestruct(payable(governor));
     }
 
-    function setFreeTransactions(uint256 _freeTransactions) public onlyGovernor {
+    function setFreeTransactions(uint _freeTransactions) public onlyGovernor {
         freeTransactions = _freeTransactions;
     }
 }

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 import { Box, Flex, Image, Text, Input, Button, useMediaQuery } from "@chakra-ui/react";
-import { shopFactoryAddress } from "../config";
 import ShopFactory from "../artifacts/contracts/ShopFactory.sol/ShopFactory.json";
 import { handleImageUpload } from "../utils/ipfs";
 import { toast } from "react-toastify";
@@ -22,7 +21,7 @@ const Create = () => {
     const provider = new ethers.providers.Web3Provider(connection);
     const signer = provider.getSigner();
     const contract = new ethers.Contract(
-      shopFactoryAddress,
+      process.env.NEXT_PUBLIC_FACTORY_ADDRESS,
       ShopFactory.abi,
       signer
     );

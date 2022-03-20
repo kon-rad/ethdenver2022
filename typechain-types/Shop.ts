@@ -56,6 +56,8 @@ export declare namespace Shop {
     client: string;
     review: BigNumberish;
     isReviewed: boolean;
+    affilate: string;
+    affPercentage: BigNumberish;
   };
 
   export type TransStructOutput = [
@@ -66,7 +68,9 @@ export declare namespace Shop {
     boolean,
     string,
     BigNumber,
-    boolean
+    boolean,
+    string,
+    BigNumber
   ] & {
     transId: BigNumber;
     itemIds: BigNumber[];
@@ -76,12 +80,27 @@ export declare namespace Shop {
     client: string;
     review: BigNumber;
     isReviewed: boolean;
+    affilate: string;
+    affPercentage: BigNumber;
+  };
+
+  export type AffiliateStruct = {
+    percentage: BigNumberish;
+    affAddr: string;
+    id: BigNumberish;
+  };
+
+  export type AffiliateStructOutput = [BigNumber, string, BigNumber] & {
+    percentage: BigNumber;
+    affAddr: string;
+    id: BigNumber;
   };
 }
 
 export interface ShopInterface extends utils.Interface {
   contractName: "Shop";
   functions: {
+    "approveAffiliate(uint256,address)": FunctionFragment;
     "catalog(uint256)": FunctionFragment;
     "createItem(string,string,string,uint256)": FunctionFragment;
     "deleteItem(uint256)": FunctionFragment;
@@ -89,14 +108,18 @@ export interface ShopInterface extends utils.Interface {
     "fetchCatalogItems()": FunctionFragment;
     "fetchTransactions()": FunctionFragment;
     "freeTransactions()": FunctionFragment;
+    "getProposedAffiliates()": FunctionFragment;
     "giveReview(uint256,uint256)": FunctionFragment;
     "governor()": FunctionFragment;
     "image()": FunctionFragment;
     "location()": FunctionFragment;
+    "makeAffTransaction(uint256[],uint256[],address)": FunctionFragment;
     "makeTransaction(uint256[],uint256[])": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
     "phone()": FunctionFragment;
+    "proposeAffiliate(uint256,address)": FunctionFragment;
+    "proposedAffArr(uint256)": FunctionFragment;
     "selfDestruct()": FunctionFragment;
     "setFreeTransactions(uint256)": FunctionFragment;
     "setInStock(uint256,bool)": FunctionFragment;
@@ -104,6 +127,10 @@ export interface ShopInterface extends utils.Interface {
     "transactionsCount()": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "approveAffiliate",
+    values: [BigNumberish, string]
+  ): string;
   encodeFunctionData(
     functionFragment: "catalog",
     values: [BigNumberish]
@@ -133,6 +160,10 @@ export interface ShopInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getProposedAffiliates",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "giveReview",
     values: [BigNumberish, BigNumberish]
   ): string;
@@ -140,12 +171,24 @@ export interface ShopInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "image", values?: undefined): string;
   encodeFunctionData(functionFragment: "location", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "makeAffTransaction",
+    values: [BigNumberish[], BigNumberish[], string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "makeTransaction",
     values: [BigNumberish[], BigNumberish[]]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "phone", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proposeAffiliate",
+    values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "proposedAffArr",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "selfDestruct",
     values?: undefined
@@ -167,6 +210,10 @@ export interface ShopInterface extends utils.Interface {
     values?: undefined
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "approveAffiliate",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "catalog", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "createItem", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deleteItem", data: BytesLike): Result;
@@ -186,10 +233,18 @@ export interface ShopInterface extends utils.Interface {
     functionFragment: "freeTransactions",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "getProposedAffiliates",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "giveReview", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "governor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "image", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "location", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "makeAffTransaction",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "makeTransaction",
     data: BytesLike
@@ -197,6 +252,14 @@ export interface ShopInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "phone", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeAffiliate",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proposedAffArr",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "selfDestruct",
     data: BytesLike
@@ -263,6 +326,12 @@ export interface Shop extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    approveAffiliate(
+      id: BigNumberish,
+      affAddr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     catalog(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -303,6 +372,10 @@ export interface Shop extends BaseContract {
 
     freeTransactions(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    getProposedAffiliates(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     giveReview(
       stars: BigNumberish,
       transId: BigNumberish,
@@ -315,6 +388,13 @@ export interface Shop extends BaseContract {
 
     location(overrides?: CallOverrides): Promise<[string]>;
 
+    makeAffTransaction(
+      itemIds: BigNumberish[],
+      itemQty: BigNumberish[],
+      affAddr: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
@@ -326,6 +406,23 @@ export interface Shop extends BaseContract {
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     phone(overrides?: CallOverrides): Promise<[string]>;
+
+    proposeAffiliate(
+      percentage: BigNumberish,
+      affiliate: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    proposedAffArr(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, string, BigNumber] & {
+        percentage: BigNumber;
+        affAddr: string;
+        id: BigNumber;
+      }
+    >;
 
     selfDestruct(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -346,13 +443,24 @@ export interface Shop extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, boolean, string, BigNumber, boolean] & {
+      [
+        BigNumber,
+        BigNumber,
+        boolean,
+        string,
+        BigNumber,
+        boolean,
+        string,
+        BigNumber
+      ] & {
         transId: BigNumber;
         total: BigNumber;
         isValid: boolean;
         client: string;
         review: BigNumber;
         isReviewed: boolean;
+        affilate: string;
+        affPercentage: BigNumber;
       }
     >;
 
@@ -360,6 +468,12 @@ export interface Shop extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { _value: BigNumber }>;
   };
+
+  approveAffiliate(
+    id: BigNumberish,
+    affAddr: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   catalog(
     arg0: BigNumberish,
@@ -401,6 +515,10 @@ export interface Shop extends BaseContract {
 
   freeTransactions(overrides?: CallOverrides): Promise<BigNumber>;
 
+  getProposedAffiliates(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   giveReview(
     stars: BigNumberish,
     transId: BigNumberish,
@@ -413,6 +531,13 @@ export interface Shop extends BaseContract {
 
   location(overrides?: CallOverrides): Promise<string>;
 
+  makeAffTransaction(
+    itemIds: BigNumberish[],
+    itemQty: BigNumberish[],
+    affAddr: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   makeTransaction(
     itemIds: BigNumberish[],
     itemQty: BigNumberish[],
@@ -424,6 +549,23 @@ export interface Shop extends BaseContract {
   owner(overrides?: CallOverrides): Promise<string>;
 
   phone(overrides?: CallOverrides): Promise<string>;
+
+  proposeAffiliate(
+    percentage: BigNumberish,
+    affiliate: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  proposedAffArr(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, string, BigNumber] & {
+      percentage: BigNumber;
+      affAddr: string;
+      id: BigNumber;
+    }
+  >;
 
   selfDestruct(
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -444,19 +586,36 @@ export interface Shop extends BaseContract {
     arg0: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber, boolean, string, BigNumber, boolean] & {
+    [
+      BigNumber,
+      BigNumber,
+      boolean,
+      string,
+      BigNumber,
+      boolean,
+      string,
+      BigNumber
+    ] & {
       transId: BigNumber;
       total: BigNumber;
       isValid: boolean;
       client: string;
       review: BigNumber;
       isReviewed: boolean;
+      affilate: string;
+      affPercentage: BigNumber;
     }
   >;
 
   transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
+    approveAffiliate(
+      id: BigNumberish,
+      affAddr: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     catalog(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -494,6 +653,10 @@ export interface Shop extends BaseContract {
 
     freeTransactions(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getProposedAffiliates(
+      overrides?: CallOverrides
+    ): Promise<Shop.AffiliateStructOutput[]>;
+
     giveReview(
       stars: BigNumberish,
       transId: BigNumberish,
@@ -506,6 +669,13 @@ export interface Shop extends BaseContract {
 
     location(overrides?: CallOverrides): Promise<string>;
 
+    makeAffTransaction(
+      itemIds: BigNumberish[],
+      itemQty: BigNumberish[],
+      affAddr: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
@@ -517,6 +687,23 @@ export interface Shop extends BaseContract {
     owner(overrides?: CallOverrides): Promise<string>;
 
     phone(overrides?: CallOverrides): Promise<string>;
+
+    proposeAffiliate(
+      percentage: BigNumberish,
+      affiliate: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    proposedAffArr(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, string, BigNumber] & {
+        percentage: BigNumber;
+        affAddr: string;
+        id: BigNumber;
+      }
+    >;
 
     selfDestruct(overrides?: CallOverrides): Promise<void>;
 
@@ -535,13 +722,24 @@ export interface Shop extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, boolean, string, BigNumber, boolean] & {
+      [
+        BigNumber,
+        BigNumber,
+        boolean,
+        string,
+        BigNumber,
+        boolean,
+        string,
+        BigNumber
+      ] & {
         transId: BigNumber;
         total: BigNumber;
         isValid: boolean;
         client: string;
         review: BigNumber;
         isReviewed: boolean;
+        affilate: string;
+        affPercentage: BigNumber;
       }
     >;
 
@@ -566,6 +764,12 @@ export interface Shop extends BaseContract {
   };
 
   estimateGas: {
+    approveAffiliate(
+      id: BigNumberish,
+      affAddr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     catalog(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     createItem(
@@ -589,6 +793,10 @@ export interface Shop extends BaseContract {
 
     freeTransactions(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getProposedAffiliates(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     giveReview(
       stars: BigNumberish,
       transId: BigNumberish,
@@ -601,6 +809,13 @@ export interface Shop extends BaseContract {
 
     location(overrides?: CallOverrides): Promise<BigNumber>;
 
+    makeAffTransaction(
+      itemIds: BigNumberish[],
+      itemQty: BigNumberish[],
+      affAddr: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
@@ -612,6 +827,17 @@ export interface Shop extends BaseContract {
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     phone(overrides?: CallOverrides): Promise<BigNumber>;
+
+    proposeAffiliate(
+      percentage: BigNumberish,
+      affiliate: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    proposedAffArr(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     selfDestruct(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -637,6 +863,12 @@ export interface Shop extends BaseContract {
   };
 
   populateTransaction: {
+    approveAffiliate(
+      id: BigNumberish,
+      affAddr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     catalog(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -663,6 +895,10 @@ export interface Shop extends BaseContract {
 
     freeTransactions(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    getProposedAffiliates(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     giveReview(
       stars: BigNumberish,
       transId: BigNumberish,
@@ -675,6 +911,13 @@ export interface Shop extends BaseContract {
 
     location(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    makeAffTransaction(
+      itemIds: BigNumberish[],
+      itemQty: BigNumberish[],
+      affAddr: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
@@ -686,6 +929,17 @@ export interface Shop extends BaseContract {
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     phone(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    proposeAffiliate(
+      percentage: BigNumberish,
+      affiliate: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    proposedAffArr(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     selfDestruct(
       overrides?: Overrides & { from?: string | Promise<string> }

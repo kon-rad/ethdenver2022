@@ -32,6 +32,7 @@ import Shop from "../../artifacts/contracts/Shop.sol/Shop.json";
 import { handleImageUpload } from "../../utils/ipfs";
 import TransactionItem from "../../components/transactionItem";
 import web3 from "web3";
+import { getProposedAffiliates } from '../../utils/shop';
 
 interface Props {}
 
@@ -67,6 +68,11 @@ const ShopPage = (props: Props) => {
     setIsOwner(web3React.account === owner);
     console.log("addr changed isOwner: ", isOwner);
   }, [web3React.account, web3React, owner]);
+  useEffect(() => {
+    if (isOwner) {
+      getProposedAffiliates(setProposedAffiliates);
+    }
+  }, [isOwner])
   console.log("addr: ", web3React.account);
 
   const getShopData = async () => {
@@ -140,6 +146,15 @@ const ShopPage = (props: Props) => {
   if (!router.query.shop) {
     return <h1>Try navigating to this page from the home page</h1>;
   }
+  const renderAffiliateTab = () => {
+    if (isOwner) {
+      return (
+        <Box>
+          {getProposedAffiliates}
+        </Box>
+      )
+    }
+  }
 
   return (
     <Box>
@@ -200,6 +215,7 @@ const ShopPage = (props: Props) => {
             <TabList>
               <Tab>Menu</Tab>
               <Tab>Transactions</Tab>
+              <Tab>Affiliates</Tab>
             </TabList>
             <TabPanels>
               <TabPanel>
@@ -217,6 +233,11 @@ const ShopPage = (props: Props) => {
                       shopAddress={router.query.shop}
                     />
                   ))}
+                </Flex>
+              </TabPanel>
+              <TabPanel>
+                <Flex justify={"center"} align={"center"} direction={"column"}>
+                  {renderAffiliateTab()}
                 </Flex>
               </TabPanel>
             </TabPanels>
