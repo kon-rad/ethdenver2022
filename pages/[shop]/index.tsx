@@ -201,7 +201,7 @@ const ShopPage = (props: Props) => {
                 .map((aff: any) => {
                   return (
                     <Box>
-                      <Text fontWeight="bold" fontSize="xl">Your Affiliate Link for {aff.percentage?.toString()}%: <a href={`${window.location.href}/${web3React.account}`}>{window.location.href}/{web3React.account}</a></Text>
+                      <Text fontWeight="bold" fontSize="xl"> <a href={`${window.location.href}/${web3React.account}`}>Here is your affiliate link for {aff.percentage?.toString()}%:</a></Text>
                     </Box>
                   )
                 })

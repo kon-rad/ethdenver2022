@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import { toast } from "react-toastify";
+import { formatAddress } from '../utils/web3';
 
 export const getAffiliates = async (
   web3React: any,
@@ -54,7 +55,7 @@ export const updateAffiliate = async (affAddr: string, provider: any, shopAddres
     if (isApproved) {
         await shopContract.cancelAffiliate(affAddr);
 
-        toast(`You successfully cancelled affiliate ${affAddr}!`, {
+        toast(`You successfully cancelled affiliate ${formatAddress(affAddr)}!`, {
           position: "top-right",
           autoClose: 5000,
           hideProgressBar: false,
@@ -66,7 +67,7 @@ export const updateAffiliate = async (affAddr: string, provider: any, shopAddres
     } else {
         await shopContract.approveAffiliate(affAddr);
 
-      toast(`You successfully approved affiliate ${affAddr}!`, {
+      toast(`You successfully approved affiliate ${formatAddress(affAddr)}!`, {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,

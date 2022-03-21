@@ -45,24 +45,17 @@ const Cart = () => {
       const cartItems = cart.map((item: any) => item.itemId);
       const itemQuantities = cart.map((item: any) => item.qty);
       let transaction;
-      if (affiliate) {
-        transaction = await contract.makeAffTransaction(
-          cartItems,
-          itemQuantities,
-          affiliate,
-          {
-            value: ethValue,
-          }
-        );
-      } else {
-        transaction = await contract.makeTransaction(
-          cartItems,
-          itemQuantities,
-          {
-            value: ethValue,
-          }
-        );
-      }
+      let affParam = affiliate ? affiliate : '0x0000000000000000000000000000000000000000';
+      console.log('Cart - affiliate: ', affiliate, affParam);
+
+      transaction = await contract.makeTransaction(
+        cartItems,
+        itemQuantities,
+        affParam,
+        {
+          value: ethValue,
+        }
+      );
 
       const transData = await transaction.wait();
       toast(`You successfully completed the transaction!`, {
@@ -94,6 +87,7 @@ const Cart = () => {
       return;
     }
   };
+  console.log('Cart - affiliate - render: ', affiliate);
   return (
     <Box>
       <Flex justify="center">

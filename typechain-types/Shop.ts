@@ -116,8 +116,7 @@ export interface ShopInterface extends utils.Interface {
     "governor()": FunctionFragment;
     "image()": FunctionFragment;
     "location()": FunctionFragment;
-    "makeAffTransaction(uint256[],uint256[],address)": FunctionFragment;
-    "makeTransaction(uint256[],uint256[])": FunctionFragment;
+    "makeTransaction(uint256[],uint256[],address)": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
     "phone()": FunctionFragment;
@@ -186,12 +185,8 @@ export interface ShopInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "image", values?: undefined): string;
   encodeFunctionData(functionFragment: "location", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "makeAffTransaction",
-    values: [BigNumberish[], BigNumberish[], string]
-  ): string;
-  encodeFunctionData(
     functionFragment: "makeTransaction",
-    values: [BigNumberish[], BigNumberish[]]
+    values: [BigNumberish[], BigNumberish[], string]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -268,10 +263,6 @@ export interface ShopInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "governor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "image", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "location", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "makeAffTransaction",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "makeTransaction",
     data: BytesLike
@@ -434,16 +425,10 @@ export interface Shop extends BaseContract {
 
     location(overrides?: CallOverrides): Promise<[string]>;
 
-    makeAffTransaction(
-      itemIds: BigNumberish[],
-      itemQty: BigNumberish[],
-      affAddr: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
+      affAddr: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -595,16 +580,10 @@ export interface Shop extends BaseContract {
 
   location(overrides?: CallOverrides): Promise<string>;
 
-  makeAffTransaction(
-    itemIds: BigNumberish[],
-    itemQty: BigNumberish[],
-    affAddr: string,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   makeTransaction(
     itemIds: BigNumberish[],
     itemQty: BigNumberish[],
+    affAddr: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -745,16 +724,10 @@ export interface Shop extends BaseContract {
 
     location(overrides?: CallOverrides): Promise<string>;
 
-    makeAffTransaction(
-      itemIds: BigNumberish[],
-      itemQty: BigNumberish[],
-      affAddr: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
+      affAddr: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -893,16 +866,10 @@ export interface Shop extends BaseContract {
 
     location(overrides?: CallOverrides): Promise<BigNumber>;
 
-    makeAffTransaction(
-      itemIds: BigNumberish[],
-      itemQty: BigNumberish[],
-      affAddr: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
+      affAddr: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1007,16 +974,10 @@ export interface Shop extends BaseContract {
 
     location(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    makeAffTransaction(
-      itemIds: BigNumberish[],
-      itemQty: BigNumberish[],
-      affAddr: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
+      affAddr: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

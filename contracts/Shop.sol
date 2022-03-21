@@ -125,7 +125,9 @@ contract Shop {
     // ================================= // AFFILIATES // ================================= //
 
     function proposeAffiliate(uint percentage) public {
-        require(affilates[msg.sender] == 0, "Sender is an affiliate already");
+        require(affiliates[msg.sender].percentage == 0, "Sender is an affiliate already");
+        require(percentage > 0, "Percentage must be greater than zero");
+        require(percentage < 100, "Percentage must be less than 100");
         uint _id = affiliateId.current();
         Affiliate memory pAff = Affiliate({
             affAddr: msg.sender,
@@ -169,51 +171,17 @@ contract Shop {
         }
         delete proposedAffiliates[affAddr];
     }
-
-    function makeAffTransaction(uint[] memory itemIds, uint[] memory itemQty, address affAddr)
-        public payable returns (uint transactionId)
-    {
-        Affiliate memory aff = affiliates[affAddr];
-        require(aff.id != 0, "Affiliate must be approved");
-        uint total = 0;
-        for (uint i = 0; i < itemIds.length; i++) {
-            total += catalog[itemIds[i]].price * itemQty[i];
-        }
-        require(msg.value >= total, "Required value not met");
-        transactionsCount.increment();
-        if (transactionsCount.current() > freeTransactions) {
-            uint govShare = total.div(100);
-            uint affShare = total.div(100).mul(aff.percentage);
-            uint shopShare = total.sub(govShare).sub(affShare);
-            payable(address(governor)).transfer(govShare);
-            payable(address(owner)).transfer(shopShare);
-            payable(address(aff.affAddr)).transfer(affShare);
-        } else {
-            payable(address(owner)).transfer(total);
-        }
-        uint transId = _transIds.current();
-        transactions.push(Trans({
-            transId: transId,
-            itemIds: itemIds,
-            itemQty: itemQty,
-            total: total,
-            isValid: true,
-            client: msg.sender,
-            review: 0,
-            isReviewed: false,
-            affilate: affAddr,
-            affPercentage: aff.percentage
-        }));
-        _transIds.increment();
-
-        return transId;
-    }
-
+    
     // ================================= // TRANSACTION // ================================= //
 
-    function makeTransaction(uint[] memory itemIds, uint[] memory itemQty)
+    function makeTransaction(uint[] memory itemIds, uint[] memory itemQty, address affAddr)
         public payable returns (uint transactionId)
     {
+        Affiliate memory aff;
+        if (affAddr != address(0)) {
+            aff = affiliates[affAddr];
+            require(aff.affAddr != address(0), "Affiliate must be approved");
+        }
         uint total = 0;
         for (uint i = 0; i < itemIds.length; i++) {
             total += catalog[itemIds[i]].price * itemQty[i];
@@ -221,12 +189,28 @@ contract Shop {
         require(msg.value >= total, "Required value not met");
         transactionsCount.increment();
         if (transactionsCount.current() > freeTransactions) {
-            uint govShare = total.div(100);
-            uint shopShare = total.sub(govShare);
-            payable(address(governor)).transfer(govShare);
-            payable(address(owner)).transfer(shopShare);
+            if (affAddr != address(0)) {
+                uint govShare = total.div(100);
+                uint affShare = total.div(100).mul(aff.percentage);
+                uint shopShare = total.sub(govShare).sub(affShare);
+                payable(address(governor)).transfer(govShare);
+                payable(address(owner)).transfer(shopShare);
+                payable(address(aff.affAddr)).transfer(affShare);
+            } else {
+                uint govShare = total.div(100);
+                uint shopShare = total.sub(govShare);
+                payable(address(governor)).transfer(govShare);
+                payable(address(owner)).transfer(shopShare);
+            }
         } else {
-            payable(address(owner)).transfer(total);
+            if (affAddr != address(0)) {
+                uint affShare = total.div(100).mul(aff.percentage);
+                uint shopShare = total.sub(affShare);
+                payable(address(owner)).transfer(shopShare);
+                payable(address(aff.affAddr)).transfer(affShare);
+            } else {
+                payable(address(owner)).transfer(total);
+            }
         }
         uint transId = _transIds.current();
         transactions.push(Trans({

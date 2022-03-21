@@ -66,7 +66,7 @@ const CatalogItem = (props: Props) => {
   };
 
   return (
-    <Box borderRadius="12px" border="solid" p={"6"}>
+    <Box mb="4" borderRadius="12px" border="solid" p={"6"}>
       <Flex>
         <Image
           borderRadius="12px"
