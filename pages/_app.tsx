@@ -10,6 +10,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Web3Provider, ExternalProvider } from "@ethersproject/providers";
 import { AppStateProvider } from "../context/appState";
+import { AuthProvider } from "../context/auth";
 
 // /* CSS HEX */
 // https://coolors.co/202a25-5f4bb6-86a5d9-26f0f1-c4ebc8
@@ -40,23 +41,25 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <Web3ReactProvider getLibrary={getProvider}>
       <ChakraProvider theme={theme}>
-        <AppStateProvider>
-        <SEO />
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-        />
-        </AppStateProvider>
+        <AuthProvider>
+          <AppStateProvider>
+          <SEO />
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
+          </AppStateProvider>
+        </AuthProvider>
       </ChakraProvider>
     </Web3ReactProvider>
   );

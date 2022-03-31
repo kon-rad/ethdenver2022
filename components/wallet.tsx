@@ -5,6 +5,7 @@ import { UserRejectedRequestError } from '@web3-react/injected-connector'
 import { DEFAULT_COLOR_SCHEME } from '../utils/constants'
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
+import NextLink from 'next/link'
 
 const Wallet = () => {
     const router = useRouter()
@@ -42,6 +43,11 @@ const Wallet = () => {
                                 <Box>{formatAddress(web3Connect.account)}</Box>
                             </Flex>
                         </MenuButton>
+                        <MenuList>
+                            <NextLink href="/profile" passHref={true}>
+                                <MenuItem bg="gray.700" color="brand.400">Profile</MenuItem>
+                            </NextLink>
+                        </MenuList>
                     </Menu>
                 </>
             }
