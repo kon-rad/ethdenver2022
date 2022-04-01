@@ -2,6 +2,7 @@ import { Box, Text, Flex, Image, Button, Input } from "@chakra-ui/react";
 import { useState } from "react";
 import { useAppState } from "../context/appState";
 import web3 from 'web3';
+import { uploadFile } from '../utils/ipfs';
 import { BigNumber } from 'bignumber.js';
 
 interface ItemType {
@@ -16,10 +17,12 @@ interface ItemType {
 interface Props {
   data: ItemType;
   shopAddress: string;
+  isOwner: boolean;
 }
 
 const CatalogItem = (props: Props) => {
   const [qty, setQty] = useState<number>(1);
+  const [fileUrl, setFileUrl] = useState<string>("");
   const {
     cart,
     cartMetaData,
@@ -64,6 +67,14 @@ const CatalogItem = (props: Props) => {
       },
     });
   };
+  const setNewFile = async (e: any) => {
+    const newFileUrl = await uploadFile(e);
+    if (newFileUrl) {
+      setFileUrl(newFileUrl);
+    }
+    // call cloud function to upload newFileUrl to items database
+    
+  }
 
   return (
     <Box mb="4" borderRadius="12px" border="solid" p={"6"}>
@@ -100,6 +111,18 @@ const CatalogItem = (props: Props) => {
               />
               <Button m={'2'} onClick={handleAddToCart}>Add to Cart</Button>
             </>
+          )}
+          {props.isOwner && (
+            <Box m={"2"}>
+              <input
+                type="file"
+                name="Asset"
+                className="mr-2"
+                onChange={(e: any) => setNewFile(e)}
+              />
+              {fileUrl && <Text m={4} fontSize="sm">{fileUrl}</Text>}
+              <Text>Upload File for Sale</Text>
+            </Box>
           )}
         </Box>
       </Flex>

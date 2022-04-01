@@ -233,8 +233,6 @@ const ShopPage = (props: Props) => {
       </Box>
     );
   };
-
-  console.log("activeAffiliates: ", activeAffiliates, proposedAffiliates);
   return (
     <Box>
       <Flex justify={"center"} align={"center"} direction={"column"}>
@@ -301,7 +299,7 @@ const ShopPage = (props: Props) => {
               <TabPanel>
                 <Flex justify={"center"} align={"center"} direction={"column"}>
                   {items.map((elem: any) => (
-                    <CatalogItem data={elem} shopAddress={router.query.shop} />
+                    <CatalogItem data={elem} shopAddress={router.query.shop} isOwner={isOwner} />
                   ))}
                 </Flex>
               </TabPanel>

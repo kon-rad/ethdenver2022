@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const cors = require("cors")({ origin: true });
 const admin = require("firebase-admin");
 const functions = require("firebase-functions");
+const { isItemOwner, getShopOwnerAddress } = require('./utils');
+
 admin.initializeApp();
 
 // get config vars
@@ -49,6 +51,68 @@ const createUser = async (address) => {
     }
 }
 
+exports.createFile = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const shopAddress = Stirng(req.query.shopAddress);
+        const sig = String(req.query.signature);
+        const itemId = String(req.query.itemId);
+        const filePath = String(req.query.filePath);
+        
+        const ownerAddress = await getShopOwnerAddress(shopAddress);
+
+        // get address from sig
+        const msg = `I am the owner of shop with address: ${shopAddress}`;
+
+        const msgBufferHex = bufferToHex(Buffer.from(msg, 'utf8'));
+        const recoveredAddress = recoverPersonalSignature({
+            data: msgBufferHex,
+            sig: signature,
+        });
+        if (recoveredAddress.toLowerCase() !== ownerAddress.toLowerCase()) {
+            res.status(401).send({ error: "User is not owner of shop"})
+        }
+        try {
+            const fileRef = db.collection('files').doc();
+            const nonce = Math.floor(Math.random() * 10000000);
+            const createdTime = Date.now();
+
+            await fileRef.set({
+                owner: ownerAddress,
+                nonce,
+                createdTime,
+                filePath,
+                itemId,
+                shopAddress,
+                lastAccessed: createdTime
+            });
+    
+            return [{ id: fileRef.id, success: true, nonce }];
+        } catch (err) {
+            return [{ error: err }];
+        }
+    })
+})
+exports.authFileOwner = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const shopAddress = String(req.query.shopAddress);
+        const itemId = String(req.query.itemId);
+        const transId = String(req.query.transId);
+        const signature = String(req.query.signature);
+        
+        // 1. get address from signature and trans data
+        const msg = `I am the owner of item: ${itemId} from shop: ${shopAddress} transaction id: ${transId}`;
+
+        const msgBufferHex = bufferToHex(Buffer.from(msg, 'utf8'));
+        const recoveredAddress = recoverPersonalSignature({
+            data: msgBufferHex,
+            sig: signature,
+        });
+        const isOwnerOfItem = isItemOwner(recoveredAddress, shopAddress, itemId, transId);
+        if (!isOwnerOfItem) {
+            res.status(401).send({ error: "User is not owner of item"})
+        }
+    })
+})
 exports.authUser = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
 
@@ -98,8 +162,6 @@ exports.authUser = functions.https.onRequest(async (req, res) => {
                 return resolve(token);
             }
         )
-
-
     } else {
         res.status(401).send({
             error: 'Signature verification failed',
@@ -107,9 +169,6 @@ exports.authUser = functions.https.onRequest(async (req, res) => {
 
         return null;
     }
-
-
-
     res.status(200).send(user);
   });
 });

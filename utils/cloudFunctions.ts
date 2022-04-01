@@ -11,3 +11,5 @@ export const authUser = httpsCallable(functions, 'authUser');
 //     console.log('auth user result: ', result);
 //     return result;
 // }
+
+export const createFile = httpsCallable(functions, 'createFile');
