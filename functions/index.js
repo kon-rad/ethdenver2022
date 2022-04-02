@@ -53,12 +53,13 @@ const createUser = async (address) => {
 
 exports.createFile = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
-        const shopAddress = Stirng(req.query.shopAddress);
-        const sig = String(req.query.signature);
+        const shopAddress = String(req.query.shopAddress);
+        const signature = String(req.query.signature);
         const itemId = String(req.query.itemId);
         const filePath = String(req.query.filePath);
-        
-        const ownerAddress = await getShopOwnerAddress(shopAddress);
+        const ownerAddress = String(req.query.ownerAddress);
+
+        // const ownerAddress = await getShopOwnerAddress(shopAddress);
 
         // get address from sig
         const msg = `I am the owner of shop with address: ${shopAddress}`;
@@ -113,62 +114,62 @@ exports.authFileOwner = functions.https.onRequest(async (req, res) => {
         }
     })
 })
-exports.authUser = functions.https.onRequest(async (req, res) => {
-  cors(req, res, async () => {
+// exports.authUser = functions.https.onRequest(async (req, res) => {
+//   cors(req, res, async () => {
 
-    const address = String(req.query.address);
-    const signature = String(req.query.signature);
-    functions.logger.info("authUser called with address: ", address);
-    let user = await getUser(address);
-    if (user.length === 0) {
-        user = await createUser(address);
-    }
-    if (user.error) {
-        res.status(400).send({ error: user.error })
-    }
+//     const address = String(req.query.address);
+//     const signature = String(req.query.signature);
+//     functions.logger.info("authUser called with address: ", address);
+//     let user = await getUser(address);
+//     if (user.length === 0) {
+//         user = await createUser(address);
+//     }
+//     if (user.error) {
+//         res.status(400).send({ error: user.error })
+//     }
 
-    const msg = `I am signing my one-time nonce: ${user.nonce}`;
+//     const msg = `I am signing my one-time nonce: ${user.nonce}`;
 
-    // We now are in possession of msg, publicAddress and signature. We
-    // will use a helper from eth-sig-util to extract the address from the signature
-    const msgBufferHex = bufferToHex(Buffer.from(msg, 'utf8'));
-    const recoveredAddress = recoverPersonalSignature({
-        data: msgBufferHex,
-        sig: signature,
-    });
+//     // We now are in possession of msg, publicAddress and signature. We
+//     // will use a helper from eth-sig-util to extract the address from the signature
+//     const msgBufferHex = bufferToHex(Buffer.from(msg, 'utf8'));
+//     const recoveredAddress = recoverPersonalSignature({
+//         data: msgBufferHex,
+//         sig: signature,
+//     });
 
-    // The signature verification is successful if the address found with
-    // sigUtil.recoverPersonalSignature matches the initial publicAddress
-    if (address.toLowerCase() === recoveredAddress.toLowerCase()) {
-        // user authorized
-        jwt.sign(
-            {
-                payload: {
-                    id: user.id,
-                    publicAddress,
-                },
-            },
-            config.secret,
-            {
-                algorithm: config.algorithms[0],
-            },
-            (err, token) => {
-                if (err) {
-                    return reject(err);
-                }
-                if (!token) {
-                    return new Error('Empty token');
-                }
-                return resolve(token);
-            }
-        )
-    } else {
-        res.status(401).send({
-            error: 'Signature verification failed',
-        });
+//     // The signature verification is successful if the address found with
+//     // sigUtil.recoverPersonalSignature matches the initial publicAddress
+//     if (address.toLowerCase() === recoveredAddress.toLowerCase()) {
+//         // user authorized
+//         jwt.sign(
+//             {
+//                 payload: {
+//                     id: user.id,
+//                     publicAddress,
+//                 },
+//             },
+//             config.secret,
+//             {
+//                 algorithm: config.algorithms[0],
+//             },
+//             (err, token) => {
+//                 if (err) {
+//                     return reject(err);
+//                 }
+//                 if (!token) {
+//                     return new Error('Empty token');
+//                 }
+//                 return resolve(token);
+//             }
+//         )
+//     } else {
+//         res.status(401).send({
+//             error: 'Signature verification failed',
+//         });
 
-        return null;
-    }
-    res.status(200).send(user);
-  });
-});
+//         return null;
+//     }
+//     res.status(200).send(user);
+//   });
+// });
