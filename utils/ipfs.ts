@@ -21,7 +21,11 @@ export async function handleImageUpload(e: any) {
 }
 
 // function for uploading a file to IPFS
-export async function uploadFile(file: any): Promise<string> {
+export async function uploadFile(e: any): Promise<string> {
+  if (!e || !e.target || !e.target.files || !e.target.files[0]) {
+    return;
+  }
+  const file = e.target.files[0];
   try {
     const added = await client.add(file, {
       progress: (prog) => console.log(`received: ${prog}`),

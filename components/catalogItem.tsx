@@ -4,6 +4,7 @@ import { useAppState } from "../context/appState";
 import web3 from 'web3';
 import { uploadFile } from '../utils/ipfs';
 import { BigNumber } from 'bignumber.js';
+import axios from 'axios';
 
 interface ItemType {
   name: string;
@@ -70,10 +71,17 @@ const CatalogItem = (props: Props) => {
   const setNewFile = async (e: any) => {
     const newFileUrl = await uploadFile(e);
     if (newFileUrl) {
+      const signature = 'test hi'
+      const filePath = newFileUrl
+      const ownerAddress = newFileUrl
+
+      // todo: get signature of user w/ message of nonce from localstorage in authContext
+
+      const result = await axios.get('/api/createFile', { params: { shopAddress: props.shopAddress, signature, itemId: props.data.itemId, filePath, ownerAddress }});
       setFileUrl(newFileUrl);
+      console.log("result: ", result);
     }
-    // call cloud function to upload newFileUrl to items database
-    
+
   }
 
   return (
