@@ -26,6 +26,7 @@ export function AuthProvider({ children }: any) {
   const [currentUser, setCurrentUser] = useState();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>([]);
   useEffect(() => {
     web3 = new Web3((window as any).ethereum);
   }, []);
@@ -33,7 +34,7 @@ export function AuthProvider({ children }: any) {
   const signIn = async (userAddress: string) => {
     console.log("signIn -- ");
 
-    const users = await getUser(userAddress);
+    const users: any = await getUser(userAddress);
     if (users.length === 0) {
       users.push(await createUser(userAddress));
     }
@@ -85,7 +86,10 @@ export function AuthProvider({ children }: any) {
       console.log(doc.id, " => ", doc.data());
       users.push(doc.data());
     });
-    return users;
+    if (users.length === 0) {
+      users.push(await createUser(userAddress));
+    }
+    setUser(users[0]);
   };
 
   useEffect(() => {
@@ -97,6 +101,8 @@ export function AuthProvider({ children }: any) {
     isLoggedIn,
     loading,
     signIn,
+    getUser,
+    user
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

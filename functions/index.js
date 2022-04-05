@@ -54,44 +54,45 @@ const createUser = async (address) => {
 
 exports.createFile = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
-        const shopAddress = String(req.query.shopAddress);
-        const signature = String(req.query.signature);
-        const itemId = String(req.query.itemId);
-        const filePath = String(req.query.filePath);
-        const ownerAddress = String(req.query.ownerAddress);
+        functions.logger.info("authUser called with req.body: ", req.body);
+        const shopAddress = String(req.body.data.shopAddress);
+        const signature = String(req.body.data.signature);
+        const itemId = String(req.body.data.itemId);
+        const filePath = String(req.body.data.filePath);
+        const ownerAddress = String(req.body.data.ownerAddress);
 
         // const ownerAddress = await getShopOwnerAddress(shopAddress);
 
         // get address from sig
         const msg = `I am the owner of shop with address: ${shopAddress}`;
-        return [{ id: msg }];
+        res.status(200).send({ data: { id: msg, shopAddress, signature, itemId, filePath, ownerAddress }});
 
-        // const recoveredAddress = recoverPersonalSignature({
-        //     data: msg,
-        //     sig: signature,
-        // });
-        // if (recoveredAddress.toLowerCase() !== ownerAddress.toLowerCase()) {
-        //     res.status(401).send({ error: "User is not owner of shop"})
-        // }
-        // try {
-        //     const fileRef = db.collection('files').doc();
-        //     const nonce = Math.floor(Math.random() * 10000000);
-        //     const createdTime = Date.now();
+        const recoveredAddress = recoverPersonalSignature({
+            data: msg,
+            sig: signature,
+        });
+        if (recoveredAddress.toLowerCase() !== ownerAddress.toLowerCase()) {
+            res.status(401).send({ error: "User is not owner of shop"})
+        }
+        try {
+            const fileRef = db.collection('files').doc();
+            const nonce = Math.floor(Math.random() * 10000000);
+            const createdTime = Date.now();
 
-        //     await fileRef.set({
-        //         owner: ownerAddress,
-        //         nonce,
-        //         createdTime,
-        //         filePath,
-        //         itemId,
-        //         shopAddress,
-        //         lastAccessed: createdTime
-        //     });
+            await fileRef.set({
+                owner: ownerAddress,
+                nonce,
+                createdTime,
+                filePath,
+                itemId,
+                shopAddress,
+                lastAccessed: createdTime
+            });
     
-        //     return [{ id: fileRef.id, success: true, nonce }];
-        // } catch (err) {
-        //     return [{ error: err }];
-        // }
+            return [{ id: fileRef.id, success: true, nonce }];
+        } catch (err) {
+            return [{ error: err }];
+        }
     })
 })
 // exports.authFileOwner = functions.https.onRequest(async (req, res) => {

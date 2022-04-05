@@ -1,10 +1,12 @@
 import { Box, Text, Flex, Image, Button, Input } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppState } from "../context/appState";
 import web3 from 'web3';
 import { uploadFile } from '../utils/ipfs';
 import { BigNumber } from 'bignumber.js';
 import axios from 'axios';
+import { useAuth } from '../context/auth';
+import { useWeb3React } from '@web3-react/core';
 
 interface ItemType {
   name: string;
@@ -24,6 +26,7 @@ interface Props {
 const CatalogItem = (props: Props) => {
   const [qty, setQty] = useState<number>(1);
   const [fileUrl, setFileUrl] = useState<string>("");
+  const web3React = useWeb3React();
   const {
     cart,
     cartMetaData,
@@ -32,7 +35,13 @@ const CatalogItem = (props: Props) => {
     cartShopAddress,
     setCartShopAddress,
   } = useAppState();
-  console.log("cart: ", cart);
+  const { getUser, user }  = useAuth();
+  useEffect(() => {
+    if (user.length === 0 && web3React.account) {
+      getUser(web3React.account);
+    }
+  }, [web3React.account]);
+
   const handleAddToCart = () => {
     const id = props.data.itemId.toNumber();
 
@@ -70,18 +79,44 @@ const CatalogItem = (props: Props) => {
   };
   const setNewFile = async (e: any) => {
     const newFileUrl = await uploadFile(e);
-    if (newFileUrl) {
-      const signature = 'test hi'
-      const filePath = newFileUrl
-      const ownerAddress = newFileUrl
-
-      // todo: get signature of user w/ message of nonce from localstorage in authContext
-
-      const result = await axios.get('/api/createFile', { params: { shopAddress: props.shopAddress, signature, itemId: props.data.itemId, filePath, ownerAddress }});
-      setFileUrl(newFileUrl);
-      console.log("result: ", result);
+    setFileUrl(newFileUrl);
+  }
+  const handleUploadFile = async () => {
+    console.log('user: ', user);
+    
+    if (!fileUrl || user.length === 0) {
+      return;
+    }
+    const body = `I am the owner of shop address ${} with user nonce: ${user[0].nonce}`
+    let sig = ''
+    try {
+      sig = await signMessage({ body })
+    } catch (error) {
+      setError(JSON.stringify(error))
+      setSigning(false)
+      return
     }
 
+    const signature = 'test hi'
+    const filePath = fileUrl
+    const ownerAddress = fileUrl
+
+    // todo: get signature of user w/ message of nonce from localstorage in authContext
+
+    const result = await axios.get(
+      '/api/createFile',
+      { 
+        params:
+        { 
+          shopAddress: props.shopAddress,
+          signature,
+          itemId: props.data.itemId.toNumber(),
+          filePath,
+          ownerAddress 
+        }
+      }
+    );
+    console.log("result: ", result);
   }
 
   return (
@@ -130,6 +165,7 @@ const CatalogItem = (props: Props) => {
               />
               {fileUrl && <Text m={4} fontSize="sm">{fileUrl}</Text>}
               <Text>Upload File for Sale</Text>
+              <Button onClick={handleUploadFile} m={4}>Upload File</Button>
             </Box>
           )}
         </Box>
