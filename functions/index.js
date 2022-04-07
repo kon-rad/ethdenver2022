@@ -19,19 +19,20 @@ const getUser = async (address) => {
   const db = admin.firestore();
 
   let querySnapshot;
+  const users = [];
   try {
-      querySnapshot = await db.collection('users')
-          .where("address", "==", address)
-          .get();
+        querySnapshot = await db.collection('users')
+            .where("address", "==", address)
+            .get();
+
+        querySnapshot.forEach((doc) => {
+        users.push(doc.data());
+        });
   } catch (err) {
       res.status(500).send({error: err });
   }
 
-  if (!querySnapshot.docs[0]) {
-      return [];
-  }
-
-  return querySnapshot.docs;
+  return users;
 };
 
 const createUser = async (address) => {
@@ -61,25 +62,39 @@ exports.createFile = functions.https.onRequest(async (req, res) => {
         const filePath = String(req.body.data.filePath);
         const ownerAddress = String(req.body.data.ownerAddress);
 
+        const users = await getUser(ownerAddress);
+
+        if (users.length === 0) {
+            res.status(500).send({error: `User with address ${ownerAddress} is not found.` });
+        }
+
+        const user = users[0];
+        functions.logger.info("user found : ", user);
+
         // const ownerAddress = await getShopOwnerAddress(shopAddress);
 
+        // get nonce from user ownerAddress
+
         // get address from sig
-        const msg = `I am the owner of shop with address: ${shopAddress}`;
-        res.status(200).send({ data: { id: msg, shopAddress, signature, itemId, filePath, ownerAddress }});
+        const msg = `I am the owner of shop address ${shopAddress} with user nonce: ${user.nonce}`
 
         const recoveredAddress = recoverPersonalSignature({
             data: msg,
             sig: signature,
         });
+        functions.logger.info("creating file insert with recoveredAddress: ", recoveredAddress);
+
         if (recoveredAddress.toLowerCase() !== ownerAddress.toLowerCase()) {
             res.status(401).send({ error: "User is not owner of shop"})
         }
         try {
-            const fileRef = db.collection('files').doc();
+
+
             const nonce = Math.floor(Math.random() * 10000000);
             const createdTime = Date.now();
+            functions.logger.info("creating file insert with nonce: ", nonce, filePath);
 
-            await fileRef.set({
+            const data = {
                 owner: ownerAddress,
                 nonce,
                 createdTime,
@@ -87,11 +102,20 @@ exports.createFile = functions.https.onRequest(async (req, res) => {
                 itemId,
                 shopAddress,
                 lastAccessed: createdTime
-            });
-    
-            return [{ id: fileRef.id, success: true, nonce }];
-        } catch (err) {
-            return [{ error: err }];
+            };
+            const fielsRef = db.ref('files');
+            fielsRef.set(data, (error) => {
+                if (error) {
+                    functions.logger.info('Data could not be saved.', JSON.stringify(error));
+                    res.status(500).send({ error: JSON.stringify(error) });
+                } else {
+                    functions.logger.info('Data succesfully saved.');
+                    res.status(200).send({ success: true, nonce });
+                }
+              });
+
+        } catch (error) {
+            res.status(500).send({ error: JSON.stringify(error) });
         }
     })
 })

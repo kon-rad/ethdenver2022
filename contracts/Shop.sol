@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity ^0.8.4;
 
-import '@openzeppelin/contracts/utils/Counters.sol';
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract Shop {
     using SafeMath for uint;
@@ -29,6 +30,7 @@ contract Shop {
     Affiliate[] public approvedAffArr;
     mapping(address => Affiliate) proposedAffiliates;
     mapping(address => Affiliate) affiliates;
+    mapping(string => string) fileLinks;
 
     struct Item {
         uint itemId;
@@ -87,7 +89,14 @@ contract Shop {
         _;
     }
 
-    function createItem(string memory _name, string memory _description, string memory _image, uint _price) public onlyOwner payable {
+    function createItem(
+        string memory _name,
+        string memory _description,
+        string memory _image,
+        uint _price,
+        string memory _filePath,
+        bool isDigital
+    ) public onlyOwner payable {
         require(_itemIds.current() < 100, "Must be fewer than 100 items");
         uint itemId = _itemIds.current();
         Item memory newItem = Item(
@@ -99,10 +108,21 @@ contract Shop {
             true,
             false
         );
+        if (isDigital) {
+            fileLinks[Strings.toString(itemId)] = _filePath;
+        }
         _itemIds.increment();
         catalog.push(newItem);
 
         emit ItemCreated(itemId, _name, _description, _image, _price);
+    }
+
+    function fetchItemLink(
+        string memory itemId,
+        uint transId
+    ) public view returns (string memory) {
+        require(transactions[transId].client == msg.sender, "Sender must be client");
+        return fileLinks[itemId];
     }
 
     function setInStock(uint itemId, bool _inStock) public onlyOwner {

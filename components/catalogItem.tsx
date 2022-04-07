@@ -7,6 +7,8 @@ import { BigNumber } from 'bignumber.js';
 import axios from 'axios';
 import { useAuth } from '../context/auth';
 import { useWeb3React } from '@web3-react/core';
+import { signMessage } from '../utils/eth';
+import { toast } from "react-toastify";
 
 interface ItemType {
   name: string;
@@ -84,22 +86,25 @@ const CatalogItem = (props: Props) => {
   const handleUploadFile = async () => {
     console.log('user: ', user);
     
-    if (!fileUrl || user.length === 0) {
+    if (!fileUrl || !user.nonce || !props.shopAddress) {
       return;
     }
-    const body = `I am the owner of shop address ${} with user nonce: ${user[0].nonce}`
-    let sig = ''
+    const body = `I am the owner of shop address ${props.shopAddress} with user nonce: ${user.nonce}`
+    let sig = '';
     try {
       sig = await signMessage({ body })
     } catch (error) {
-      setError(JSON.stringify(error))
-      setSigning(false)
+      toast.error(`Error: ${JSON.stringify(error)}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
       return
     }
-
-    const signature = 'test hi'
-    const filePath = fileUrl
-    const ownerAddress = fileUrl
 
     // todo: get signature of user w/ message of nonce from localstorage in authContext
 
@@ -109,10 +114,10 @@ const CatalogItem = (props: Props) => {
         params:
         { 
           shopAddress: props.shopAddress,
-          signature,
+          signature: sig,
           itemId: props.data.itemId.toNumber(),
-          filePath,
-          ownerAddress 
+          filePath: fileUrl,
+          ownerAddress: web3React.account 
         }
       }
     );

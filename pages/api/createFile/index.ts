@@ -8,6 +8,7 @@ export default async function handler(req, res) {
     
     const result = await createFile({ shopAddress, signature, itemId, filePath, ownerAddress });
     
-    res.status(200).json({ data: result });
+    console.log('result on createFile API: ', result);
+    res.status(200).json(result);
   }
 
