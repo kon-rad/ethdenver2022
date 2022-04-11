@@ -104,7 +104,7 @@ export interface ShopInterface extends utils.Interface {
     "approvedAffArr(uint256)": FunctionFragment;
     "cancelAffiliate(address)": FunctionFragment;
     "catalog(uint256)": FunctionFragment;
-    "createItem(string,string,string,uint256)": FunctionFragment;
+    "createItem(string,string,string,uint256,string,bool)": FunctionFragment;
     "deleteItem(uint256)": FunctionFragment;
     "description()": FunctionFragment;
     "fetchCatalogItems()": FunctionFragment;
@@ -147,7 +147,7 @@ export interface ShopInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "createItem",
-    values: [string, string, string, BigNumberish]
+    values: [string, string, string, BigNumberish, string, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "deleteItem",
@@ -385,6 +385,8 @@ export interface Shop extends BaseContract {
       _description: string,
       _image: string,
       _price: BigNumberish,
+      _filePath: string,
+      isDigital: boolean,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -540,6 +542,8 @@ export interface Shop extends BaseContract {
     _description: string,
     _image: string,
     _price: BigNumberish,
+    _filePath: string,
+    isDigital: boolean,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -687,6 +691,8 @@ export interface Shop extends BaseContract {
       _description: string,
       _image: string,
       _price: BigNumberish,
+      _filePath: string,
+      isDigital: boolean,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -834,6 +840,8 @@ export interface Shop extends BaseContract {
       _description: string,
       _image: string,
       _price: BigNumberish,
+      _filePath: string,
+      isDigital: boolean,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -938,6 +946,8 @@ export interface Shop extends BaseContract {
       _description: string,
       _image: string,
       _price: BigNumberish,
+      _filePath: string,
+      isDigital: boolean,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

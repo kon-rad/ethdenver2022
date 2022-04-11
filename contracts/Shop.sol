@@ -20,10 +20,6 @@ contract Shop {
     uint public freeTransactions = 1000;
 
     Counters.Counter private _itemIds;
-    Counters.Counter private _transIds;
-    Counters.Counter public transactionsCount;
-
-    Trans[] public transactions;
 
     Counters.Counter private affiliateId;
     Affiliate[] public proposedAffArr;
@@ -47,20 +43,6 @@ contract Shop {
         address affAddr;
         uint id;
     }
-
-    struct Trans {
-        uint transId;
-        uint[] itemIds;
-        uint[] itemQty;
-        uint total;
-        bool isValid;
-        address client;
-        uint review;
-        bool isReviewed;
-        address affilate;
-        uint affPercentage;
-    }
-
     event ItemCreated (
         uint itemId,
         string name,
@@ -117,13 +99,13 @@ contract Shop {
         emit ItemCreated(itemId, _name, _description, _image, _price);
     }
 
-    function fetchItemLink(
-        string memory itemId,
-        uint transId
-    ) public view returns (string memory) {
-        require(transactions[transId].client == msg.sender, "Sender must be client");
-        return fileLinks[itemId];
-    }
+    // function fetchItemLink(
+    //     string memory itemId,
+    //     uint transId
+    // ) public view returns (string memory) {
+    //     require(transactions[transId].client == msg.sender, "Sender must be client");
+    //     return fileLinks[itemId];
+    // }
 
     function setInStock(uint itemId, bool _inStock) public onlyOwner {
         catalog[itemId].inStock = _inStock;
