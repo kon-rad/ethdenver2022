@@ -78,3 +78,16 @@ export const updateAffiliate = async (affAddr: string, provider: any, shopAddres
       });
     }
 }
+
+const ERROR_MESSAGES = {
+  'PA0': 'Sender is an affiliate already',
+  'PA1': 'Percentage must be greater than zero',
+  'PA2': 'Percentage must be less than 100',
+  'MT0': 'Affiliate must be approved',
+  'MT1': 'Required value not met',
+  'GR0': 'Sender is not client',
+  'OO0': 'Only owner function',
+  'OG0': 'Only governor function',
+  'CI0': 'Must be fewer than 100 items',
+  'CS0': 'Shop price not met',
+}

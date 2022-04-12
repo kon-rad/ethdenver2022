@@ -18,35 +18,35 @@ import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
+export type ItemStruct = {
+  _id: BigNumberish;
+  name: string;
+  description: string;
+  image: string;
+  price: BigNumberish;
+  inStock: boolean;
+  isDeleted: boolean;
+};
+
+export type ItemStructOutput = [
+  BigNumber,
+  string,
+  string,
+  string,
+  BigNumber,
+  boolean,
+  boolean
+] & {
+  _id: BigNumber;
+  name: string;
+  description: string;
+  image: string;
+  price: BigNumber;
+  inStock: boolean;
+  isDeleted: boolean;
+};
+
 export declare namespace Shop {
-  export type ItemStruct = {
-    itemId: BigNumberish;
-    name: string;
-    description: string;
-    image: string;
-    price: BigNumberish;
-    inStock: boolean;
-    isDeleted: boolean;
-  };
-
-  export type ItemStructOutput = [
-    BigNumber,
-    string,
-    string,
-    string,
-    BigNumber,
-    boolean,
-    boolean
-  ] & {
-    itemId: BigNumber;
-    name: string;
-    description: string;
-    image: string;
-    price: BigNumber;
-    inStock: boolean;
-    isDeleted: boolean;
-  };
-
   export type TransStruct = {
     transId: BigNumberish;
     itemIds: BigNumberish[];
@@ -103,7 +103,6 @@ export interface ShopInterface extends utils.Interface {
     "approveAffiliate(address)": FunctionFragment;
     "approvedAffArr(uint256)": FunctionFragment;
     "cancelAffiliate(address)": FunctionFragment;
-    "catalog(uint256)": FunctionFragment;
     "createItem(string,string,string,uint256,string,bool)": FunctionFragment;
     "deleteItem(uint256)": FunctionFragment;
     "description()": FunctionFragment;
@@ -140,10 +139,6 @@ export interface ShopInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "cancelAffiliate",
     values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "catalog",
-    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "createItem",
@@ -232,7 +227,6 @@ export interface ShopInterface extends utils.Interface {
     functionFragment: "cancelAffiliate",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "catalog", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "createItem", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deleteItem", data: BytesLike): Result;
   decodeFunctionResult(
@@ -365,21 +359,6 @@ export interface Shop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    catalog(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, string, string, string, BigNumber, boolean, boolean] & {
-        itemId: BigNumber;
-        name: string;
-        description: string;
-        image: string;
-        price: BigNumber;
-        inStock: boolean;
-        isDeleted: boolean;
-      }
-    >;
-
     createItem(
       _name: string,
       _description: string,
@@ -391,15 +370,13 @@ export interface Shop extends BaseContract {
     ): Promise<ContractTransaction>;
 
     deleteItem(
-      itemId: BigNumberish,
+      _id: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     description(overrides?: CallOverrides): Promise<[string]>;
 
-    fetchCatalogItems(
-      overrides?: CallOverrides
-    ): Promise<[Shop.ItemStructOutput[]]>;
+    fetchCatalogItems(overrides?: CallOverrides): Promise<[ItemStructOutput[]]>;
 
     fetchTransactions(
       overrides?: CallOverrides
@@ -466,7 +443,7 @@ export interface Shop extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setInStock(
-      itemId: BigNumberish,
+      _itemId: BigNumberish,
       _inStock: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -522,21 +499,6 @@ export interface Shop extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  catalog(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, string, string, string, BigNumber, boolean, boolean] & {
-      itemId: BigNumber;
-      name: string;
-      description: string;
-      image: string;
-      price: BigNumber;
-      inStock: boolean;
-      isDeleted: boolean;
-    }
-  >;
-
   createItem(
     _name: string,
     _description: string,
@@ -548,15 +510,13 @@ export interface Shop extends BaseContract {
   ): Promise<ContractTransaction>;
 
   deleteItem(
-    itemId: BigNumberish,
+    _id: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   description(overrides?: CallOverrides): Promise<string>;
 
-  fetchCatalogItems(
-    overrides?: CallOverrides
-  ): Promise<Shop.ItemStructOutput[]>;
+  fetchCatalogItems(overrides?: CallOverrides): Promise<ItemStructOutput[]>;
 
   fetchTransactions(
     overrides?: CallOverrides
@@ -623,7 +583,7 @@ export interface Shop extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setInStock(
-    itemId: BigNumberish,
+    _itemId: BigNumberish,
     _inStock: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -671,21 +631,6 @@ export interface Shop extends BaseContract {
 
     cancelAffiliate(affAddr: string, overrides?: CallOverrides): Promise<void>;
 
-    catalog(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, string, string, string, BigNumber, boolean, boolean] & {
-        itemId: BigNumber;
-        name: string;
-        description: string;
-        image: string;
-        price: BigNumber;
-        inStock: boolean;
-        isDeleted: boolean;
-      }
-    >;
-
     createItem(
       _name: string,
       _description: string,
@@ -696,13 +641,11 @@ export interface Shop extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    deleteItem(itemId: BigNumberish, overrides?: CallOverrides): Promise<void>;
+    deleteItem(_id: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     description(overrides?: CallOverrides): Promise<string>;
 
-    fetchCatalogItems(
-      overrides?: CallOverrides
-    ): Promise<Shop.ItemStructOutput[]>;
+    fetchCatalogItems(overrides?: CallOverrides): Promise<ItemStructOutput[]>;
 
     fetchTransactions(
       overrides?: CallOverrides
@@ -767,7 +710,7 @@ export interface Shop extends BaseContract {
     ): Promise<void>;
 
     setInStock(
-      itemId: BigNumberish,
+      _itemId: BigNumberish,
       _inStock: boolean,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -833,8 +776,6 @@ export interface Shop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    catalog(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
-
     createItem(
       _name: string,
       _description: string,
@@ -846,7 +787,7 @@ export interface Shop extends BaseContract {
     ): Promise<BigNumber>;
 
     deleteItem(
-      itemId: BigNumberish,
+      _id: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -907,7 +848,7 @@ export interface Shop extends BaseContract {
     ): Promise<BigNumber>;
 
     setInStock(
-      itemId: BigNumberish,
+      _itemId: BigNumberish,
       _inStock: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -936,11 +877,6 @@ export interface Shop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    catalog(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     createItem(
       _name: string,
       _description: string,
@@ -952,7 +888,7 @@ export interface Shop extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     deleteItem(
-      itemId: BigNumberish,
+      _id: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1017,7 +953,7 @@ export interface Shop extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setInStock(
-      itemId: BigNumberish,
+      _itemId: BigNumberish,
       _inStock: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

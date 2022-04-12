@@ -6,17 +6,17 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
+  const Catalog = await ethers.getContractFactory("Catalog");
+  const catalog = await Catalog.deploy();
 
+  await catalog.deployed();
+  console.log("catalog deployed to:", catalog.address);
 
-
-
-  const ShopFactory = await ethers.getContractFactory("ShopFactory");
+  const ShopFactory = await ethers.getContractFactory("ShopFactory", {
+    libraries: {
+      Catalog: catalog.address,
+    },
+  });
   const shopFactory = await ShopFactory.deploy();
 
   await shopFactory.deployed();
