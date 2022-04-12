@@ -4,6 +4,7 @@ import { Button, Input, Flex, Box, Text, useMediaQuery } from "@chakra-ui/react"
 import Hero from "../components/hero";
 import ShopCard from "../components/shopCard";
 import { useWeb3React } from "@web3-react/core";
+import Web3 from 'web3';
 import { handleWithdraw, handleDelete, handleSelfDestruct, fetchShops } from '../utils/factory';
 
 const Home: NextPage = () => {
@@ -13,6 +14,12 @@ const Home: NextPage = () => {
   // should be shop address
   const [deleteId, setDeleteId] = useState<string>("");
   const [isGov, setIsGov] = useState<boolean>(false);
+
+
+  const web3Provider = new Web3.providers.HttpProvider(process.env.NEXT_PUBLIC_NETWORK);
+  const web3 = new Web3(web3Provider);
+
+
   useEffect(() => {
     fetchShops(web3React, setShops, setBalance);
     setIsGov(process.env.NEXT_PUBLIC_GOV === web3React.account);

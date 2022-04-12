@@ -99,11 +99,9 @@ export interface ShopFactoryInterface extends utils.Interface {
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
-    "ShopCreated(address,string)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ShopCreated"): EventFragment;
 }
 
 export type OwnershipTransferredEvent = TypedEvent<
@@ -113,13 +111,6 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
-
-export type ShopCreatedEvent = TypedEvent<
-  [string, string],
-  { shopAddress: string; name: string }
->;
-
-export type ShopCreatedEventFilter = TypedEventFilter<ShopCreatedEvent>;
 
 export interface ShopFactory extends BaseContract {
   contractName: "ShopFactory";
@@ -284,15 +275,6 @@ export interface ShopFactory extends BaseContract {
       previousOwner?: string | null,
       newOwner?: string | null
     ): OwnershipTransferredEventFilter;
-
-    "ShopCreated(address,string)"(
-      shopAddress?: string | null,
-      name?: string | null
-    ): ShopCreatedEventFilter;
-    ShopCreated(
-      shopAddress?: string | null,
-      name?: string | null
-    ): ShopCreatedEventFilter;
   };
 
   estimateGas: {

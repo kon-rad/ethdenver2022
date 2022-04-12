@@ -2,9 +2,13 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { Ownable } from "./Ownable";
+export type { ShopMakerInterface } from "./ShopMakerInterface";
 export type { Shop } from "./Shop";
 export type { ShopFactory } from "./ShopFactory";
+export type { ShopMaker } from "./ShopMaker";
 
 export { Ownable__factory } from "./factories/Ownable__factory";
+export { ShopMakerInterface__factory } from "./factories/ShopMakerInterface__factory";
 export { Shop__factory } from "./factories/Shop__factory";
 export { ShopFactory__factory } from "./factories/ShopFactory__factory";
+export { ShopMaker__factory } from "./factories/ShopMaker__factory";

@@ -17,6 +17,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Ownable__factory>;
     getContractFactory(
+      name: "ShopMakerInterface",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ShopMakerInterface__factory>;
+    getContractFactory(
       name: "Shop",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Shop__factory>;
@@ -24,12 +28,21 @@ declare module "hardhat/types/runtime" {
       name: "ShopFactory",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ShopFactory__factory>;
+    getContractFactory(
+      name: "ShopMaker",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ShopMaker__factory>;
 
     getContractAt(
       name: "Ownable",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Ownable>;
+    getContractAt(
+      name: "ShopMakerInterface",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ShopMakerInterface>;
     getContractAt(
       name: "Shop",
       address: string,
@@ -40,6 +53,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ShopFactory>;
+    getContractAt(
+      name: "ShopMaker",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ShopMaker>;
 
     // default types
     getContractFactory(

@@ -3,20 +3,30 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Shop.sol";
+import "./interfaces/ShopMakerInterface.sol";
 
 contract ShopFactory is Ownable {
 
     address[] public allShops;
     uint256 private shopPrice = 0 ether;
+    address private shopMakerAddr;
 
-    event ShopCreated(address indexed shopAddress, string indexed name);
+    constructor(address _shopMakerAddr) {
+        shopMakerAddr = _shopMakerAddr;
+    }
 
-    function createShop(string memory name, string memory description, string memory location, string memory phone, string memory image) external payable returns (address) {
+    function createShop(
+            string memory name,
+            string memory description,
+            string memory location,
+            string memory phone,
+            string memory image
+        ) external payable returns (address) {
         require(msg.value >= shopPrice, "CS0");
-        Shop shop = new Shop(msg.sender, name, description, location, phone, image);
-        emit ShopCreated(address(shop), name);
-        allShops.push(address(shop));
-        return address(shop);
+        ShopMakerInterface shopMaker = ShopMakerInterface(shopMakerAddr);
+        address shopAddress = shopMaker.createShop(msg.sender, name, description, location, phone, image);
+        allShops.push(address(shopAddress));
+        return address(shopAddress);
     }
     
     function setShopPrice(uint _price) public onlyOwner {

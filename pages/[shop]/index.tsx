@@ -21,6 +21,9 @@ import {
   Tab,
   TabPanel,
   useMediaQuery,
+  RadioGroup,
+  Stack,
+  Radio
 } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
@@ -50,6 +53,8 @@ const ShopPage = (props: Props) => {
   const [desc, setDesc] = useState<string>("");
   const [image, setImage] = useState<string>("");
   const [isOwner, setIsOwner] = useState<boolean>(false);
+  const [isDigital, setIsDigital] = useState<string>("DIGITAL");
+  const [digitalProductFile, setDigitalProductFile] = useState<string>("");
   const [proposedAffiliates, setProposedAffiliates] = useState([]);
   const [activeAffiliates, setActiveAffiliates] = useState([]);
   const [percent, setPercent] = useState("3");
@@ -113,11 +118,28 @@ const ShopPage = (props: Props) => {
         Shop.abi,
         signer
       );
+      console.log(
+        'creating item: ', 
+        isDigital === 'DIGITAL',
+        digitalProductFile
+      );
+
+
+      // string memory _name,
+      // string memory _description,
+      // string memory _image,
+      // uint _price,
+      // string memory _filePath,
+      // bool isDigital
+
+
       await shopContract.createItem(
         itemName,
         itemDesc,
         itemImage,
-        web3.utils.toWei(itemPrice, "ether")
+        web3.utils.toWei(itemPrice, "ether"),
+        isDigital === 'DIGITAL',
+        digitalProductFile
       );
       await getShopData();
 
@@ -132,6 +154,7 @@ const ShopPage = (props: Props) => {
       });
       onClose();
     } catch (e: any) {
+      console.error(e);
       toast.error(`Error: ${e.message}`, {
         position: "top-right",
         autoClose: 5000,
@@ -149,6 +172,10 @@ const ShopPage = (props: Props) => {
   const uploadImage = async (e: any) => {
     setItemImage(await handleImageUpload(e));
   };
+  const uploadDigitalProduct = async (e: any) => {
+    console.log('digital product');
+    setDigitalProductFile(await handleImageUpload(e));
+  }
   if (!router.query.shop) {
     return <h1>Try navigating to this page from the home page</h1>;
   }
@@ -355,7 +382,28 @@ const ShopPage = (props: Props) => {
               onChange={(e: any) => setItemPrice(e.target.value)}
               mt={4}
             />
+            <RadioGroup mt={4} onChange={setIsDigital} value={isDigital}>
+              <Stack direction='row'>
+                <Radio value='PHYSICAL'>Physical Product</Radio>
+                <Radio value='DIGITAL'>Digital Product</Radio>
+                <Radio disabled={true} value='NFT'>NFT (soon to come)</Radio>
+              </Stack>
+            </RadioGroup>
+            {
+              isDigital === 'DIGITAL' ? (
+                <Box mt={"4"}>
+                  <Text mb={"2"}>Upload Digital Product</Text>
+                  <input
+                    type="file"
+                    name="Asset"
+                    className="mr-2"
+                    onChange={(e: any) => uploadDigitalProduct(e)}
+                  />
+              </Box>
+              ) : ""
+            }
             <Box mt={"4"}>
+              <Text mb={"2"}>Upload Product Image</Text>
               <input
                 type="file"
                 name="Asset"

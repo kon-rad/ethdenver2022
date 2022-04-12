@@ -45,6 +45,8 @@ const CatalogItem = (props: Props) => {
   }, [web3React.account]);
 
   const handleAddToCart = () => {
+    console.log("props.data.itemId: ", props.data, props.data.itemId);
+    
     const id = props.data.itemId.toNumber();
 
     if (props.shopAddress !== cartShopAddress) {

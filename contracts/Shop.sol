@@ -4,21 +4,20 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "./Catalog.sol";
+import "./library/Catalog.sol";
 
 contract Shop {
     using SafeMath for uint;
     using Counters for Counters.Counter;
     using Catalog for ItemsCatalogArray;
 
-    ItemsCatalogArray catalog;
+    ItemsCatalogArray private catalog;
 
     string public name;
     string public description;
     string public location;
     string public phone;
     string public image;
-    // Item[] public catalog;
     address payable public owner;
     address payable public governor;
     uint public freeTransactions = 1000;
@@ -28,19 +27,10 @@ contract Shop {
     Counters.Counter private affiliateId;
     Affiliate[] public proposedAffArr;
     Affiliate[] public approvedAffArr;
-    mapping(address => Affiliate) proposedAffiliates;
-    mapping(address => Affiliate) affiliates;
-    mapping(string => string) fileLinks;
+    mapping(address => Affiliate) public proposedAffiliates;
+    mapping(address => Affiliate) public affiliates;
+    mapping(string => string) private fileLinks;
 
-    // struct Item {
-    //     uint itemId;
-    //     string name;
-    //     string description;
-    //     string image;
-    //     uint price;
-    //     bool inStock;
-    //     bool isDeleted;
-    // }
     struct Trans {
         uint transId;
         uint[] itemIds;
@@ -109,7 +99,6 @@ contract Shop {
     ) public onlyOwner payable {
         uint itemId = _itemIds.current();
         catalog.createItem(
-            itemId,
             Item(
                 itemId,
                 _name,
@@ -120,34 +109,23 @@ contract Shop {
                 false
             )
         );
-        // Item memory newItem = Item(
-        //     itemId,
-        //     _name,
-        //     _description,
-        //     _image,
-        //     _price,
-        //     true,
-        //     false
-        // );
         if (isDigital) {
             fileLinks[Strings.toString(itemId)] = _filePath;
         }
         _itemIds.increment();
-        // catalog.push(newItem);
 
         emit ItemCreated(itemId, _name, _description, _image, _price);
     }
 
-    // function fetchItemLink(
-    //     string memory itemId,
-    //     uint transId
-    // ) public view returns (string memory) {
-    //     require(transactions[transId].client == msg.sender, "Sender must be client");
-    //     return fileLinks[itemId];
-    // }
+    function fetchItemLink(
+        string memory itemId,
+        uint transId
+    ) public view returns (string memory) {
+        require(transactions[transId].client == msg.sender, "Sender must be client");
+        return fileLinks[itemId];
+    }
 
     function setInStock(uint _itemId, bool _inStock) public onlyOwner {
-        // catalog[itemId].inStock = _inStock;
         catalog.setInStock(_itemId, _inStock);
     }
 
@@ -157,12 +135,6 @@ contract Shop {
 
     function deleteItem(uint _id) public onlyOwner {
         catalog.deleteItem(_id);
-        // for (uint i = 0; i < catalog.length; i++) {
-        //     if (catalog[i].itemId == itemId) {
-        //         catalog[i].isDeleted = true;
-        //         break;
-        //     }
-        // }
     }
 
     // ================================= // AFFILIATES // ================================= //

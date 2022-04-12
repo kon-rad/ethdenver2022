@@ -44,9 +44,9 @@ export const fetchShops = async (
   setShops: any,
   setBalance: any
 ) => {
-  const provider = web3React.library;
+  const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);
 
-  console.log("process.env.NEXT_PUBLIC_FACTORY_ADDRESS: ", process.env.NEXT_PUBLIC_FACTORY_ADDRESS);
+  // console.log("process.env.NEXT_PUBLIC_FACTORY_ADDRESS: ", process.env.NEXT_PUBLIC_FACTORY_ADDRESS);
   if (!provider) {
     toast.error(`You must sign in to metamask!`, {
       position: "top-right",
