@@ -25,9 +25,12 @@ import Shop from "../artifacts/contracts/Shop.sol/Shop.json";
 interface Prop {
   data: any;
   shopAddress: string;
+  currentAddress: string;
 }
 
 const TransactionItem = (props: Prop) => {
+  console.log('transaction data: ', props.data);
+  
   const web3React = useWeb3React();
   const [reviewStars, setReviewStars] = useState<number>(5);
   const router = useRouter();
@@ -43,6 +46,21 @@ const TransactionItem = (props: Prop) => {
     );
     await shopContract.giveReview(reviewStars, props.data.transId.toNumber());
   };
+  const onDownload = async (itemId: string) => {
+    console.log('ondownload: ', itemId, props.data.transId.toNumber());
+    
+    const provider = web3React.library;
+    const signer = provider.getSigner();
+
+    const shopContract = new ethers.Contract(
+      props.shopAddress,
+      Shop.abi,
+      signer
+    );
+    const downloadData = await shopContract.fetchItemLink(`${itemId}`, props.data.transId.toNumber());
+    console.log('downloadData ---: ', downloadData);
+    window.open(downloadData, '_blank');
+  }
   return (
     <>
       <Flex
@@ -53,7 +71,7 @@ const TransactionItem = (props: Prop) => {
       >
         <Flex>
           <Text fontSize="xl" mr="4">
-            id#: {props.data.transId.toNumber()}
+            transaction id#: {props.data.transId.toNumber()}
           </Text>
           <Text fontSize="xl" mr="4">
             total: MATIC{" "}
@@ -67,6 +85,7 @@ const TransactionItem = (props: Prop) => {
               <Button onClick={onOpen}>Review</Button>
             )}
           </Text>
+
         </Flex>
         <Spacer />
         <Link
@@ -76,6 +95,21 @@ const TransactionItem = (props: Prop) => {
         >
           Detail
         </Link>
+      </Flex>
+      <Flex direction="column">
+            {props.data.itemIds.map((item: any, i: number) => {
+              return (
+                <Flex direction="row" my={4} justify="between" align="center">
+                  <Text mr={4}>Item ID: {item.toNumber()}</Text>
+                  <Text mr={4}>Item Quantity: {props.data.itemQty[i].toNumber()}</Text>
+                  {props.data.client === props.currentAddress ? (
+                    <Button onClick={() => onDownload(item)}>Download File</Button>
+                    ) : (
+                      ""
+                    )}
+                </Flex>
+              )
+            })}
       </Flex>
 
       <Modal isOpen={isOpen} onClose={onClose}>

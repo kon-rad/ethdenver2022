@@ -19,13 +19,14 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export type ItemStruct = {
-  _id: BigNumberish;
+  itemId: BigNumberish;
   name: string;
   description: string;
   image: string;
   price: BigNumberish;
   inStock: boolean;
   isDeleted: boolean;
+  isDigital: boolean;
 };
 
 export type ItemStructOutput = [
@@ -35,15 +36,17 @@ export type ItemStructOutput = [
   string,
   BigNumber,
   boolean,
+  boolean,
   boolean
 ] & {
-  _id: BigNumber;
+  itemId: BigNumber;
   name: string;
   description: string;
   image: string;
   price: BigNumber;
   inStock: boolean;
   isDeleted: boolean;
+  isDigital: boolean;
 };
 
 export declare namespace Shop {
@@ -397,7 +400,7 @@ export interface Shop extends BaseContract {
       _image: string,
       _price: BigNumberish,
       _filePath: string,
-      isDigital: boolean,
+      _isDigital: boolean,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -565,7 +568,7 @@ export interface Shop extends BaseContract {
     _image: string,
     _price: BigNumberish,
     _filePath: string,
-    isDigital: boolean,
+    _isDigital: boolean,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -725,7 +728,7 @@ export interface Shop extends BaseContract {
       _image: string,
       _price: BigNumberish,
       _filePath: string,
-      isDigital: boolean,
+      _isDigital: boolean,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -889,7 +892,7 @@ export interface Shop extends BaseContract {
       _image: string,
       _price: BigNumberish,
       _filePath: string,
-      isDigital: boolean,
+      _isDigital: boolean,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1006,7 +1009,7 @@ export interface Shop extends BaseContract {
       _image: string,
       _price: BigNumberish,
       _filePath: string,
-      isDigital: boolean,
+      _isDigital: boolean,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

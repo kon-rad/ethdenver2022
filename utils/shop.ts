@@ -9,14 +9,14 @@ export const getAffiliates = async (
   shopAbi: any,
   shopAddress: string,
 ) => {
-    console.log("getAffiliates is called");
-  const provider = web3React.library;
-  const signer = provider.getSigner();
+  console.log("getAffiliates is called");
+  // const provider = web3React.library;
 
+  const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);
   const factoryContract = new ethers.Contract(
     shopAddress,
     shopAbi,
-    signer
+    provider
   );
 
   const proposed = await factoryContract.getProposedAffiliates();

@@ -19,22 +19,22 @@ const Header = () => {
   const { cart, setCart } = useAppState();
 
   return (
-    <Flex as="header" p={4} alignItems="center">
+    <Flex as="header" p={4} alignItems="center" className="header-container">
       <LinkBox cursor="pointer">
         <NextLink href="/" passHref={true}>
           <Flex align="center">
             <Image
               borderRadius="12px"
               mr="4"
-              src="/images/logo.png"
+              src="/images/logos/dcom_circle.png"
               width="40px"
               height="40px"
             />
             {isMobile ? (
               ""
             ) : (
-              <Text fontWeight="bold" fontSize="2xl" color="brand.400">
-                deCom
+              <Text fontWeight="bold" fontSize="2xl" color="brand.900">
+                dCom
               </Text>
             )}
           </Flex>
@@ -62,7 +62,7 @@ const Header = () => {
       <Box mr={4}>
         <LinkBox>
           <NextLink href="/create" passHref={true}>
-            <Button bg="gray.700" color="brand.400">
+            <Button bg="white" color="brand.400">
               <AddIcon />
             </Button>
           </NextLink>

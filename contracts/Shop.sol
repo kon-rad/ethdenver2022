@@ -95,21 +95,22 @@ contract Shop {
         string memory _image,
         uint _price,
         string memory _filePath,
-        bool isDigital
+        bool _isDigital
     ) public onlyOwner payable {
         uint itemId = _itemIds.current();
         catalog.createItem(
-            Item(
-                itemId,
-                _name,
-                _description,
-                _image,
-                _price,
-                true,
-                false
-            )
+            Item({
+                itemId: itemId,
+                name: _name,
+                description: _description,
+                image: _image,
+                price: _price,
+                inStock: true,
+                isDeleted: false,
+                isDigital: _isDigital
+            })
         );
-        if (isDigital) {
+        if (_isDigital) {
             fileLinks[Strings.toString(itemId)] = _filePath;
         }
         _itemIds.increment();
@@ -203,24 +204,23 @@ contract Shop {
         }
         require(msg.value >= total, "MT1");
         transactionsCount.increment();
+        uint shopShare;
+        uint affShare;
         if (transactionsCount.current() > freeTransactions) {
+            uint govShare = total.div(100);
             if (affAddr != address(0)) {
-                uint govShare = total.div(100);
-                uint affShare = total.div(100).mul(aff.percentage);
-                uint shopShare = total.sub(govShare).sub(affShare);
-                payable(address(governor)).transfer(govShare);
-                payable(address(owner)).transfer(shopShare);
+                affShare = total.div(100).mul(aff.percentage);
+                shopShare = total.sub(govShare).sub(affShare);
                 payable(address(aff.affAddr)).transfer(affShare);
             } else {
-                uint govShare = total.div(100);
-                uint shopShare = total.sub(govShare);
-                payable(address(governor)).transfer(govShare);
-                payable(address(owner)).transfer(shopShare);
+                shopShare = total.sub(govShare);
             }
+            payable(address(owner)).transfer(shopShare);
+            payable(address(governor)).transfer(govShare);
         } else {
             if (affAddr != address(0)) {
-                uint affShare = total.div(100).mul(aff.percentage);
-                uint shopShare = total.sub(affShare);
+                affShare = total.div(100).mul(aff.percentage);
+                shopShare = total.sub(affShare);
                 payable(address(owner)).transfer(shopShare);
                 payable(address(aff.affAddr)).transfer(affShare);
             } else {
@@ -259,6 +259,7 @@ contract Shop {
         selfdestruct(payable(governor));
     }
 
+    /* this may be deleted if size is too big */
     function setFreeTransactions(uint _freeTransactions) public onlyGovernor {
         freeTransactions = _freeTransactions;
     }

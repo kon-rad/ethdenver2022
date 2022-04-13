@@ -45,8 +45,6 @@ const CatalogItem = (props: Props) => {
   }, [web3React.account]);
 
   const handleAddToCart = () => {
-    console.log("props.data.itemId: ", props.data, props.data.itemId);
-    
     const id = props.data.itemId.toNumber();
 
     if (props.shopAddress !== cartShopAddress) {
@@ -127,7 +125,7 @@ const CatalogItem = (props: Props) => {
   }
 
   return (
-    <Box mb="4" borderRadius="12px" border="solid" p={"6"}>
+    <Box mb="4" borderRadius="12px" border="solid" borderWidth={1} borderColor={"black.600"} p={"6"} boxShadow="md">
       <Flex>
         <Image
           borderRadius="12px"
@@ -136,7 +134,7 @@ const CatalogItem = (props: Props) => {
           h={"140px"}
         />
         <Box p={"6"}>
-          <Text fontSize="2xl" mb={"2"} fontWeight={"bold"}>
+          <Text fontSize="2xl" mb={"2"} fontWeight={"bold"} color="black.700">
             {props.data.name}
           </Text>
           {props.data.inStock ? (
@@ -147,7 +145,7 @@ const CatalogItem = (props: Props) => {
           <Text fontSize="md" mb={"2"} color={"gray.700"} fontWeight={"light"}>
             {props.data.description}
           </Text>
-          <Text fontSize="md" mb={"2"}>
+          <Text fontSize="md" mb={"2"} color="black.700">
             MATIC: {web3.utils.fromWei(props.data.price.toString(), 'ether')}
           </Text>
           {props.data.inStock && (
@@ -162,7 +160,7 @@ const CatalogItem = (props: Props) => {
               <Button m={'2'} onClick={handleAddToCart}>Add to Cart</Button>
             </>
           )}
-          {props.isOwner && (
+          {/* {props.isOwner && (
             <Box m={"2"}>
               <input
                 type="file"
@@ -174,7 +172,7 @@ const CatalogItem = (props: Props) => {
               <Text>Upload File for Sale</Text>
               <Button onClick={handleUploadFile} m={4}>Upload File</Button>
             </Box>
-          )}
+          )} */}
         </Box>
       </Flex>
     </Box>

@@ -27,7 +27,7 @@ const Wallet = () => {
         <>
             {!web3Connect.active && 
                 <Menu>
-                    <MenuButton as={Button} bg="gray.700" color="brand.400" rightIcon={<ChevronDownIcon />}>
+                    <MenuButton as={Button} bg="white" color="brand.400" rightIcon={<ChevronDownIcon />}>
                         Connect
                     </MenuButton>
                     <MenuList>

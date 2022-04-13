@@ -6,8 +6,8 @@ const Hero = () => {
         <div className="hero">
             <Box p="6">
                 <Flex align="center" direction="column">
-                    <Text fontSize="6xl" mb="6" > deCom </Text>
-                    <Text mb="6" fontSize="2xl" textAlign="center" fontWeight="bold" width="400px">
+                    <Text fontSize="6xl" mb="6" color="whiteAlpha.900"> dCom </Text>
+                    <Text mb="6" fontSize="2xl" textAlign="center" fontWeight="bold" width="400px" color="whiteAlpha.900">
                         Easily create an online store 
                         and take payments instantly
                     </Text>

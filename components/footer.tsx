@@ -39,7 +39,7 @@ export default function Footer() {
                             <Box>
                                 <Image
                                     borderRadius="xl"
-                                    src="/images/logo.png"
+                                    src="/images/logos/dcom_circle.png"
                                     w="100px"
                                     h="100px"
                                 />

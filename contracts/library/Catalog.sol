@@ -2,13 +2,14 @@
 pragma solidity ^0.8.4;
 
 struct Item {
-    uint _id;
+    uint itemId;
     string name;
     string description;
     string image;
     uint price;
     bool inStock;
     bool isDeleted;
+    bool isDigital;
 }
 
 struct ItemsCatalogArray {
@@ -27,7 +28,7 @@ library Catalog {
     }
     function deleteItem(ItemsCatalogArray storage self, uint _id) public {
         for (uint i = 0; i < self.catalog.length; i++) {
-            if (self.catalog[i]._id == _id) {
+            if (self.catalog[i].itemId == _id) {
                 self.catalog[i].isDeleted = true;
                 break;
             }

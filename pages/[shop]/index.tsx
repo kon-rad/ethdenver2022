@@ -70,7 +70,7 @@ const ShopPage = (props: Props) => {
 
   const web3React = useWeb3React();
 
-  const provider = web3React.library;
+  const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);
 
   const router = useRouter();
   useEffect(() => {
@@ -124,22 +124,15 @@ const ShopPage = (props: Props) => {
         digitalProductFile
       );
 
-
-      // string memory _name,
-      // string memory _description,
-      // string memory _image,
-      // uint _price,
-      // string memory _filePath,
-      // bool isDigital
-
-
+      console.log('createItem: ', digitalProductFile, isDigital);
+      
       await shopContract.createItem(
         itemName,
         itemDesc,
         itemImage,
         web3.utils.toWei(itemPrice, "ether"),
-        isDigital === 'DIGITAL',
-        digitalProductFile
+        digitalProductFile,
+        isDigital === 'DIGITAL'
       );
       await getShopData();
 
@@ -176,6 +169,8 @@ const ShopPage = (props: Props) => {
     console.log('digital product');
     setDigitalProductFile(await handleImageUpload(e));
   }
+  console.log("transactions: ", transactions);
+  
   if (!router.query.shop) {
     return <h1>Try navigating to this page from the home page</h1>;
   }
@@ -207,7 +202,6 @@ const ShopPage = (props: Props) => {
     }
     return (
       <Box>
-
         <Box>
           <Text>Proposals:</Text>
             {
@@ -336,6 +330,7 @@ const ShopPage = (props: Props) => {
                     <TransactionItem
                       data={elem}
                       shopAddress={router.query.shop}
+                      currentAddress={web3React.account}
                     />
                   ))}
                 </Flex>

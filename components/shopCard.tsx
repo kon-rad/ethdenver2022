@@ -27,7 +27,7 @@ const ShopCard = (props: Props) => {
   }, []);
 
   const getShopData = async () => {
-    const provider = web3React.library;
+    const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);
     const shopContract = new ethers.Contract(props.address, Shop.abi, provider);
     setName(await shopContract.name());
     setDesc(await shopContract.description());
