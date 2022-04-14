@@ -38,6 +38,7 @@ import web3 from "web3";
 import { formatAddress } from "../../utils/web3";
 import { getAffiliates, makeAffiliateProposal, updateAffiliate } from "../../utils/shop";
 import { BigNumber } from "bignumber.js";
+import Web3Modal from "web3modal";
 
 interface Props {}
 
@@ -110,8 +111,11 @@ const ShopPage = (props: Props) => {
 
   console.log("addr 2: & owner ", web3React.account, owner, isOwner);
   const handleCreate = async () => {
+    const web3Modal = new Web3Modal();
+    const connection = await web3Modal.connect();
+    const providerWSigner = new ethers.providers.Web3Provider(connection);
     try {
-      const signer = provider.getSigner();
+      const signer = providerWSigner.getSigner();
 
       const shopContract = new ethers.Contract(
         router.query.shop,
@@ -124,7 +128,10 @@ const ShopPage = (props: Props) => {
         digitalProductFile
       );
 
-      console.log('createItem: ', digitalProductFile, isDigital);
+      console.log('createItem: ', digitalProductFile, isDigital, itemPrice);
+      if (!itemPrice) {
+        throw Error("Item price is required");
+      }
       
       await shopContract.createItem(
         itemName,

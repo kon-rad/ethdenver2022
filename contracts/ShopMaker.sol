@@ -14,9 +14,10 @@ contract ShopMaker is ShopMakerInterface {
         string memory description,
         string memory location,
         string memory phone,
-        string memory image
+        string memory image,
+        address governor
     ) external override payable returns (address) {
-        Shop shop = new Shop(owner, name, description, location, phone, image);
+        Shop shop = new Shop(owner, name, description, location, phone, image, governor);
         emit ShopCreated(address(shop), name);
         return address(shop);
     }

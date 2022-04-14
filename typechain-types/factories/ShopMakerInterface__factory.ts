@@ -42,6 +42,11 @@ const _abi = [
         name: "image",
         type: "string",
       },
+      {
+        internalType: "address",
+        name: "governor",
+        type: "address",
+      },
     ],
     name: "createShop",
     outputs: [

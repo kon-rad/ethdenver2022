@@ -68,7 +68,8 @@ contract Shop {
         string memory _description,
         string memory _location,
         string memory _phone,
-        string memory _image
+        string memory _image,
+        address _governor
     ) {
         owner = payable(address(_owner));
         name = _name;
@@ -76,7 +77,7 @@ contract Shop {
         location = _location;
         phone = _phone;
         image = _image;
-        governor= payable(address(msg.sender));
+        governor= payable(address(_governor));
     }
 
     modifier onlyOwner() {

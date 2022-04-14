@@ -19,12 +19,12 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 export interface ShopMakerInterfaceInterface extends utils.Interface {
   contractName: "ShopMakerInterface";
   functions: {
-    "createShop(address,string,string,string,string,string)": FunctionFragment;
+    "createShop(address,string,string,string,string,string,address)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "createShop",
-    values: [string, string, string, string, string, string]
+    values: [string, string, string, string, string, string, string]
   ): string;
 
   decodeFunctionResult(functionFragment: "createShop", data: BytesLike): Result;
@@ -67,6 +67,7 @@ export interface ShopMakerInterface extends BaseContract {
       location: string,
       phone: string,
       image: string,
+      governor: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -78,6 +79,7 @@ export interface ShopMakerInterface extends BaseContract {
     location: string,
     phone: string,
     image: string,
+    governor: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -89,6 +91,7 @@ export interface ShopMakerInterface extends BaseContract {
       location: string,
       phone: string,
       image: string,
+      governor: string,
       overrides?: CallOverrides
     ): Promise<string>;
   };
@@ -103,6 +106,7 @@ export interface ShopMakerInterface extends BaseContract {
       location: string,
       phone: string,
       image: string,
+      governor: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -115,6 +119,7 @@ export interface ShopMakerInterface extends BaseContract {
       location: string,
       phone: string,
       image: string,
+      governor: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

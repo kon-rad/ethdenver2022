@@ -8,6 +8,7 @@ interface ShopMakerInterface {
         string memory description,
         string memory location,
         string memory phone,
-        string memory image
+        string memory image,
+        address governor
     ) external payable returns (address);
 }

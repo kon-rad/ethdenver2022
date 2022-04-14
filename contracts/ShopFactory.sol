@@ -24,7 +24,15 @@ contract ShopFactory is Ownable {
         ) external payable returns (address) {
         require(msg.value >= shopPrice, "CS0");
         ShopMakerInterface shopMaker = ShopMakerInterface(shopMakerAddr);
-        address shopAddress = shopMaker.createShop(msg.sender, name, description, location, phone, image);
+        address shopAddress = shopMaker.createShop(
+            msg.sender,
+            name,
+            description,
+            location,
+            phone,
+            image,
+            address(this)
+        );
         allShops.push(address(shopAddress));
         return address(shopAddress);
     }
