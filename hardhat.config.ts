@@ -51,6 +51,10 @@ const config: any = {
     matic: {
       url: process.env.ALCHEMY_URL,
       accounts: [process.env.PRIVATE_KEY || ''],
+    },
+    rinkeby: {
+      url: "https://rinkeby.infura.io/v3/" + process.env.INFURA_KEY,
+      accounts: [process.env.PRIVATE_KEY || '']
     }
   },
   gasReporter: {

@@ -9,6 +9,7 @@
     "compile": "npx hardhat compile",
     "deploy": "npx hardhat run scripts/deploy.ts --network localhost",
     "deploy:mumbai": "npx hardhat run scripts/deploy.ts --network mumbai",
+    "deploy:rinkeby": "npx hardhat run scripts/deploy.ts --network rinkeby",
     "flatten": "npx hardhat flatten > flattened.sol",
     "size": "yarn hardhat size-contracts"
   },
