@@ -6,12 +6,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "compile": "npx hardhat compile",
-    "deploy": "npx hardhat run scripts/deploy.ts --network localhost",
+    "compile": "clean && npx hardhat compile",
+    "deploy:local": "npx hardhat run scripts/deploy.ts --network localhost",
     "deploy:mumbai": "npx hardhat run scripts/deploy.ts --network mumbai",
     "deploy:rinkeby": "npx hardhat run scripts/deploy.ts --network rinkeby",
     "flatten": "npx hardhat flatten > flattened.sol",
-    "size": "yarn hardhat size-contracts"
+    "size": "yarn hardhat size-contracts",
+    "clean": "npx hardhat clean"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.5",
@@ -22,7 +23,7 @@
     "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-etherscan": "^3.0.1",
     "@nomiclabs/hardhat-waffle": "^2.0.2",
-    "@openzeppelin/contracts": "^4.5.0",
+    "@openzeppelin/contracts": "^4.6.0",
     "@toruslabs/torus-embed": "^1.21.0",
     "@typechain/ethers-v5": "^9.0.0",
     "@typechain/hardhat": "^4.0.0",

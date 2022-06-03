@@ -3,6 +3,8 @@ pragma solidity ^0.8.4;
 
 import "./Shop.sol";
 import "./interfaces/ShopMakerInterface.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "./tokens/ERC1155Modified.sol";
 
 contract ShopMaker is ShopMakerInterface {
 
@@ -13,11 +15,12 @@ contract ShopMaker is ShopMakerInterface {
         string memory name,
         string memory description,
         string memory location,
-        string memory phone,
         string memory image,
+        uint256 shopId,
         address governor
     ) external override payable returns (address) {
-        Shop shop = new Shop(owner, name, description, location, phone, image, governor);
+        address nftAddress = new ERC1155Modified();
+        Shop shop = new Shop(owner, name, description, location, image, shopId, governor, nftAddress);
         emit ShopCreated(address(shop), name);
         return address(shop);
     }

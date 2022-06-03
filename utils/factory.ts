@@ -59,17 +59,21 @@ export const fetchShops = async (
     });
     return;
   }
-  // console.log('network: ', process.env.NEXT_PUBLIC_NETWORK);
+  console.log('network: ', process.env.NEXT_PUBLIC_NETWORK);
   // const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);
-  const factoryContract = new ethers.Contract(
-    process.env.NEXT_PUBLIC_FACTORY_ADDRESS,
-    ShopFactory.abi,
-    provider
-  );
+  try {
+    const factoryContract = new ethers.Contract(
+      process.env.NEXT_PUBLIC_FACTORY_ADDRESS,
+      ShopFactory.abi,
+      provider
+    );
 
-  const data = await factoryContract.fetchAllShops();
-  const balance = await factoryContract.getBalance();
-  console.log("data: ", data);
-  setShops(data);
-  setBalance(web3.utils.fromWei(balance.toString(), "ether"));
+    const data = await factoryContract.fetchAllShops();
+    const balance = await factoryContract.getBalance();
+    console.log("data: ", data);
+    setShops(data);
+    setBalance(web3.utils.fromWei(balance.toString(), "ether"));
+  } catch(e: any) {
+    console.error(e);
+  }
 };

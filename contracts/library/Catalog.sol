@@ -3,13 +3,8 @@ pragma solidity ^0.8.4;
 
 struct Item {
     uint itemId;
-    string name;
-    string description;
-    string image;
     uint price;
-    bool inStock;
     bool isDeleted;
-    bool isDigital;
 }
 
 struct ItemsCatalogArray {
@@ -19,9 +14,6 @@ struct ItemsCatalogArray {
 library Catalog {
     function createItem(ItemsCatalogArray storage self, Item memory _item) public {
         self.catalog.push(_item);
-    }
-    function setInStock(ItemsCatalogArray storage self, uint _id, bool _inStock) public {
-        self.catalog[_id].inStock = _inStock;
     }
     function fetchCatalogItems(ItemsCatalogArray storage self) public view returns (Item[] memory) {
         return self.catalog;

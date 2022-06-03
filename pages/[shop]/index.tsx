@@ -214,9 +214,9 @@ const ShopPage = (props: Props) => {
             {
               proposedAffiliates
                 .filter((aff: any) => aff.affAddr == web3React.account)
-                .map((aff: any) => {
+                .map((aff: any, i: number) => {
                   return (
-                    <Box>
+                    <Box key={`proposed-aff-${i}`}>
                       <Text fontWeight="bold" fontSize="xl">Your Affiliate proposal for {aff.percentage?.toString()}% is pending</Text>
                     </Box>
                   )
@@ -226,9 +226,9 @@ const ShopPage = (props: Props) => {
             {
               activeAffiliates
                 .filter((aff: any) => aff.affAddr == web3React.account)
-                .map((aff: any) => {
+                .map((aff: any, i:number) => {
                   return (
-                    <Box>
+                    <Box key={`aff-${i}`}>
                       <Text fontWeight="bold" fontSize="xl"> <a href={`${window.location.href}/${web3React.account}`}>Here is your affiliate link for {aff.percentage?.toString()}%:</a></Text>
                     </Box>
                   )
@@ -326,15 +326,16 @@ const ShopPage = (props: Props) => {
             <TabPanels>
               <TabPanel>
                 <Flex justify={"center"} align={"center"} direction={"column"}>
-                  {items.map((elem: any) => (
-                    <CatalogItem data={elem} shopAddress={router.query.shop} isOwner={isOwner} />
+                  {items.map((elem: any, i: number) => (
+                    <CatalogItem key={`item-${i}`} data={elem} shopAddress={router.query.shop} isOwner={isOwner} />
                   ))}
                 </Flex>
               </TabPanel>
               <TabPanel>
                 <Flex justify={"center"} align={"center"} direction={"column"}>
-                  {transactions.map((elem: any) => (
+                  {transactions.map((elem: any, i: number) => (
                     <TransactionItem
+                      key={`aff-${i}`}
                       data={elem}
                       shopAddress={router.query.shop}
                       currentAddress={web3React.account}

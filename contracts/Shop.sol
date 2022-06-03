@@ -4,6 +4,8 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "./interfaces/IERC1155Modified.sol";
 import "./library/Catalog.sol";
 
 contract Shop {
@@ -16,10 +18,11 @@ contract Shop {
     string public name;
     string public description;
     string public location;
-    string public phone;
+    uint public shopId;
     string public image;
     address payable public owner;
     address payable public governor;
+    address payable public nftAddress;
     uint public freeTransactions = 1000;
 
     Counters.Counter private _itemIds;
@@ -56,9 +59,6 @@ contract Shop {
     }
     event ItemCreated (
         uint itemId,
-        string name,
-        string description,
-        string image,
         uint price
     );
 
@@ -67,17 +67,19 @@ contract Shop {
         string memory _name,
         string memory _description,
         string memory _location,
-        string memory _phone,
+        uint _shopId,
         string memory _image,
-        address _governor
+        address _governor,
+        address _nftAddress
     ) {
         owner = payable(address(_owner));
         name = _name;
         description = _description;
         location = _location;
-        phone = _phone;
+        shopId = _shopId;
         image = _image;
-        governor= payable(address(_governor));
+        governor = payable(address(_governor));
+        nftAddress = payable(address(_nftAddress));
     }
 
     modifier onlyOwner() {
@@ -91,44 +93,37 @@ contract Shop {
     }
 
     function createItem(
-        string memory _name,
-        string memory _description,
-        string memory _image,
         uint _price,
         string memory _filePath,
-        bool _isDigital
+        string memory _tokenURI
     ) public onlyOwner payable {
         uint itemId = _itemIds.current();
+        IERC1155Modified(nftAddress).createItem(itemId, _tokenURI);
+
         catalog.createItem(
             Item({
                 itemId: itemId,
-                name: _name,
-                description: _description,
-                image: _image,
                 price: _price,
-                inStock: true,
-                isDeleted: false,
-                isDigital: _isDigital
+                isDeleted: false
             })
         );
-        if (_isDigital) {
-            fileLinks[Strings.toString(itemId)] = _filePath;
-        }
+        fileLinks[Strings.toString(itemId)] = _filePath;
         _itemIds.increment();
 
-        emit ItemCreated(itemId, _name, _description, _image, _price);
+        emit ItemCreated(itemId, _price);
     }
 
     function fetchItemLink(
-        string memory itemId,
-        uint transId
+        uint _itemId
     ) public view returns (string memory) {
-        require(transactions[transId].client == msg.sender, "Sender must be client");
-        return fileLinks[itemId];
+        return fileLinks[_itemId];
     }
 
-    function setInStock(uint _itemId, bool _inStock) public onlyOwner {
-        catalog.setInStock(_itemId, _inStock);
+    function setItemLink(
+        uint _itemId,
+        string memory _fileLink
+    ) public onlyOwner {
+        fileLinks[_itemId] = _fileLink;
     }
 
     function fetchCatalogItems() public view returns (Item[] memory) {

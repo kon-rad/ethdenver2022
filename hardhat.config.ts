@@ -32,10 +32,6 @@ const config: any = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    // mumbai: {
-    //   url: 'https://rpc-mumbai.matic.today',
-    //   accounts: [privateKey],
-    // },
     // alfajores: {
     //   url: "https://alfajores-forno.celo-testnet.org",
     //   accounts: {
