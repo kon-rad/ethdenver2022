@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import "./interfaces/IERC1155Modified.sol";
+import "./interfaces/IItemToken.sol";
 import "./library/Catalog.sol";
 
 contract Shop {
@@ -17,7 +17,6 @@ contract Shop {
 
     string public name;
     string public description;
-    string public location;
     uint public shopId;
     string public image;
     address payable public owner;
@@ -32,7 +31,7 @@ contract Shop {
     Affiliate[] public approvedAffArr;
     mapping(address => Affiliate) public proposedAffiliates;
     mapping(address => Affiliate) public affiliates;
-    mapping(string => string) private fileLinks;
+    mapping(uint => string) private fileLinks;
 
     struct Trans {
         uint transId;
@@ -43,7 +42,6 @@ contract Shop {
         address client;
         uint review;
         bool isReviewed;
-        address affilate;
         uint affPercentage;
     }
 
@@ -66,7 +64,6 @@ contract Shop {
         address _owner,
         string memory _name,
         string memory _description,
-        string memory _location,
         uint _shopId,
         string memory _image,
         address _governor,
@@ -75,7 +72,6 @@ contract Shop {
         owner = payable(address(_owner));
         name = _name;
         description = _description;
-        location = _location;
         shopId = _shopId;
         image = _image;
         governor = payable(address(_governor));
@@ -98,7 +94,7 @@ contract Shop {
         string memory _tokenURI
     ) public onlyOwner payable {
         uint itemId = _itemIds.current();
-        IERC1155Modified(nftAddress).createItem(itemId, _tokenURI);
+        IItemToken(nftAddress).createItem(itemId, _tokenURI);
 
         catalog.createItem(
             Item({
@@ -107,7 +103,7 @@ contract Shop {
                 isDeleted: false
             })
         );
-        fileLinks[Strings.toString(itemId)] = _filePath;
+        fileLinks[itemId] = _filePath;
         _itemIds.increment();
 
         emit ItemCreated(itemId, _price);
@@ -190,39 +186,32 @@ contract Shop {
         public payable returns (uint transactionId)
     {
         Affiliate memory aff;
+        // if an affiliate address is provided make sure it is an approved affiliate
         if (affAddr != address(0)) {
             aff = affiliates[affAddr];
             require(aff.affAddr != address(0), "MT0");
         }
         uint total = 0;
-        for (uint i = 0; i < itemIds.length; i++) {
+        // get items total
+        uint i;
+        uint len = itemIds.length;
+        for (i = 0; i < len; i++) {
             total += catalog.catalog[itemIds[i]].price * itemQty[i];
         }
         require(msg.value >= total, "MT1");
+
+        IItemToken(nftAddress).batchSale(msg.sender, itemIds, itemQty);
         transactionsCount.increment();
-        uint shopShare;
-        uint affShare;
-        if (transactionsCount.current() > freeTransactions) {
-            uint govShare = total.div(100);
-            if (affAddr != address(0)) {
-                affShare = total.div(100).mul(aff.percentage);
-                shopShare = total.sub(govShare).sub(affShare);
-                payable(address(aff.affAddr)).transfer(affShare);
-            } else {
-                shopShare = total.sub(govShare);
-            }
-            payable(address(owner)).transfer(shopShare);
-            payable(address(governor)).transfer(govShare);
-        } else {
-            if (affAddr != address(0)) {
-                affShare = total.div(100).mul(aff.percentage);
-                shopShare = total.sub(affShare);
-                payable(address(owner)).transfer(shopShare);
-                payable(address(aff.affAddr)).transfer(affShare);
-            } else {
-                payable(address(owner)).transfer(total);
-            }
+        uint affShare = 0;
+        uint govShare = 0;
+        if (transactionsCount.current() > freeTransactions) govShare = total.div(100);
+        if (affAddr != address(0)) {
+            affShare = total.div(100).mul(aff.percentage);
+            payable(address(aff.affAddr)).transfer(affShare);
         }
+        payable(address(owner)).transfer(total.sub(govShare).sub(affShare));
+        if (govShare > 0) payable(address(governor)).transfer(govShare);
+
         uint transId = _transIds.current();
         transactions.push(Trans({
             transId: transId,
@@ -233,7 +222,6 @@ contract Shop {
             client: msg.sender,
             review: 0,
             isReviewed: false,
-            affilate: address(0),
             affPercentage: 0
         }));
         _transIds.increment();
@@ -255,7 +243,6 @@ contract Shop {
         selfdestruct(payable(governor));
     }
 
-    /* this may be deleted if size is too big */
     function setFreeTransactions(uint _freeTransactions) public onlyGovernor {
         freeTransactions = _freeTransactions;
     }

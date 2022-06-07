@@ -5,12 +5,12 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
 
-contract ERC1155Modified is ERC1155URIStorage {
+contract ItemToken is ERC1155URIStorage {
 
     using Counters for Counters.Counter;
     address public owner;
 
-    constructor() ERC1155URIStorage() {
+    constructor(string memory _baseURI) ERC1155(_baseURI) {
         owner = msg.sender;
     }
 
@@ -19,16 +19,14 @@ contract ERC1155Modified is ERC1155URIStorage {
         _;
     }
 
-    function sellItem(address _to, uint256[] _tokenIds, uint256[] _amounts) public {
+    function batchSale(address _to, uint256[] memory _tokenIds, uint256[] memory _amounts) public {
         // mint to new owner
         require(_tokenIds.length == _amounts.length, "ERC115500");
         uint len = _tokenIds.length;
-        uint i = 0;
-        do {
-            // mint to new owner
+        uint i;
+        for (i = 0; i < len; i++) {
             _mint(_to, _tokenIds[i], _amounts[i], "");
-            i++;
-        } while(i < len);
+        }
     }
 
     function createItem(uint256 _tokenId, string memory _uri) public onlyOwner {

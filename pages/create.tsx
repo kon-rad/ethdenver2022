@@ -12,7 +12,6 @@ const Create = () => {
   const [isMobile] = useMediaQuery('(max-width: 600px)')
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [location, setLocation] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [fileUrl, setFileUrl] = useState<string>("");
   const handleSubmit = async () => {
@@ -29,7 +28,6 @@ const Create = () => {
     const transaction = await contract.createShop(
       name,
       description,
-      location,
       phone,
       fileUrl
     );
@@ -90,14 +88,6 @@ const Create = () => {
             }
             name={"description"}
             placeholder={"shop description"}
-          />
-          <Input
-            mb="2"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setLocation(e.target.value)
-            }
-            name={"address"}
-            placeholder={"shop address"}
           />
           <Input
             mb="2"

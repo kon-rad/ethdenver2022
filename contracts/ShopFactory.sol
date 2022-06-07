@@ -19,7 +19,6 @@ contract ShopFactory is Ownable {
             string memory name,
             string memory description,
             string memory location,
-            string memory phone,
             string memory image
         ) external payable returns (address) {
         require(msg.value >= shopPrice, "CS0");
@@ -29,7 +28,6 @@ contract ShopFactory is Ownable {
             name,
             description,
             location,
-            phone,
             image,
             address(this)
         );
