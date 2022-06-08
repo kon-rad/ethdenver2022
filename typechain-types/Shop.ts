@@ -20,33 +20,14 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export type ItemStruct = {
   itemId: BigNumberish;
-  name: string;
-  description: string;
-  image: string;
   price: BigNumberish;
-  inStock: boolean;
   isDeleted: boolean;
-  isDigital: boolean;
 };
 
-export type ItemStructOutput = [
-  BigNumber,
-  string,
-  string,
-  string,
-  BigNumber,
-  boolean,
-  boolean,
-  boolean
-] & {
+export type ItemStructOutput = [BigNumber, BigNumber, boolean] & {
   itemId: BigNumber;
-  name: string;
-  description: string;
-  image: string;
   price: BigNumber;
-  inStock: boolean;
   isDeleted: boolean;
-  isDigital: boolean;
 };
 
 export declare namespace Shop {
@@ -59,7 +40,6 @@ export declare namespace Shop {
     client: string;
     review: BigNumberish;
     isReviewed: boolean;
-    affilate: string;
     affPercentage: BigNumberish;
   };
 
@@ -72,7 +52,6 @@ export declare namespace Shop {
     string,
     BigNumber,
     boolean,
-    string,
     BigNumber
   ] & {
     transId: BigNumber;
@@ -83,7 +62,6 @@ export declare namespace Shop {
     client: string;
     review: BigNumber;
     isReviewed: boolean;
-    affilate: string;
     affPercentage: BigNumber;
   };
 
@@ -107,11 +85,10 @@ export interface ShopInterface extends utils.Interface {
     "approveAffiliate(address)": FunctionFragment;
     "approvedAffArr(uint256)": FunctionFragment;
     "cancelAffiliate(address)": FunctionFragment;
-    "createItem(string,string,string,uint256,string,bool)": FunctionFragment;
+    "createItem(uint256,string,string)": FunctionFragment;
     "deleteItem(uint256)": FunctionFragment;
-    "description()": FunctionFragment;
     "fetchCatalogItems()": FunctionFragment;
-    "fetchItemLink(string,uint256)": FunctionFragment;
+    "fetchItemLink(uint256)": FunctionFragment;
     "fetchTransactions()": FunctionFragment;
     "freeTransactions()": FunctionFragment;
     "getApprovedAffiliates()": FunctionFragment;
@@ -119,17 +96,17 @@ export interface ShopInterface extends utils.Interface {
     "giveReview(uint256,uint256)": FunctionFragment;
     "governor()": FunctionFragment;
     "image()": FunctionFragment;
-    "location()": FunctionFragment;
     "makeTransaction(uint256[],uint256[],address)": FunctionFragment;
     "name()": FunctionFragment;
+    "nftAddress()": FunctionFragment;
     "owner()": FunctionFragment;
-    "phone()": FunctionFragment;
     "proposeAffiliate(uint256)": FunctionFragment;
     "proposedAffArr(uint256)": FunctionFragment;
     "proposedAffiliates(address)": FunctionFragment;
     "selfDestruct()": FunctionFragment;
     "setFreeTransactions(uint256)": FunctionFragment;
-    "setInStock(uint256,bool)": FunctionFragment;
+    "setItemLink(uint256,string)": FunctionFragment;
+    "shopId()": FunctionFragment;
     "transactions(uint256)": FunctionFragment;
     "transactionsCount()": FunctionFragment;
   };
@@ -149,15 +126,11 @@ export interface ShopInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "createItem",
-    values: [string, string, string, BigNumberish, string, boolean]
+    values: [BigNumberish, string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "deleteItem",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "description",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "fetchCatalogItems",
@@ -165,7 +138,7 @@ export interface ShopInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "fetchItemLink",
-    values: [string, BigNumberish]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "fetchTransactions",
@@ -189,14 +162,16 @@ export interface ShopInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "governor", values?: undefined): string;
   encodeFunctionData(functionFragment: "image", values?: undefined): string;
-  encodeFunctionData(functionFragment: "location", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "makeTransaction",
     values: [BigNumberish[], BigNumberish[], string]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "nftAddress",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(functionFragment: "phone", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proposeAffiliate",
     values: [BigNumberish]
@@ -218,9 +193,10 @@ export interface ShopInterface extends utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "setInStock",
-    values: [BigNumberish, boolean]
+    functionFragment: "setItemLink",
+    values: [BigNumberish, string]
   ): string;
+  encodeFunctionData(functionFragment: "shopId", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transactions",
     values: [BigNumberish]
@@ -245,10 +221,6 @@ export interface ShopInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "createItem", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deleteItem", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "description",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "fetchCatalogItems",
     data: BytesLike
@@ -276,14 +248,13 @@ export interface ShopInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "giveReview", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "governor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "image", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "location", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "makeTransaction",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "nftAddress", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "phone", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeAffiliate",
     data: BytesLike
@@ -304,7 +275,11 @@ export interface ShopInterface extends utils.Interface {
     functionFragment: "setFreeTransactions",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setInStock", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setItemLink",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "shopId", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transactions",
     data: BytesLike
@@ -315,21 +290,15 @@ export interface ShopInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "ItemCreated(uint256,string,string,string,uint256)": EventFragment;
+    "ItemCreated(uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "ItemCreated"): EventFragment;
 }
 
 export type ItemCreatedEvent = TypedEvent<
-  [BigNumber, string, string, string, BigNumber],
-  {
-    itemId: BigNumber;
-    name: string;
-    description: string;
-    image: string;
-    price: BigNumber;
-  }
+  [BigNumber, BigNumber],
+  { itemId: BigNumber; price: BigNumber }
 >;
 
 export type ItemCreatedEventFilter = TypedEventFilter<ItemCreatedEvent>;
@@ -395,12 +364,9 @@ export interface Shop extends BaseContract {
     ): Promise<ContractTransaction>;
 
     createItem(
-      _name: string,
-      _description: string,
-      _image: string,
       _price: BigNumberish,
       _filePath: string,
-      _isDigital: boolean,
+      _tokenURI: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -409,13 +375,10 @@ export interface Shop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    description(overrides?: CallOverrides): Promise<[string]>;
-
     fetchCatalogItems(overrides?: CallOverrides): Promise<[ItemStructOutput[]]>;
 
     fetchItemLink(
-      itemId: string,
-      transId: BigNumberish,
+      _itemId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
@@ -443,8 +406,6 @@ export interface Shop extends BaseContract {
 
     image(overrides?: CallOverrides): Promise<[string]>;
 
-    location(overrides?: CallOverrides): Promise<[string]>;
-
     makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
@@ -454,9 +415,9 @@ export interface Shop extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<[string]>;
 
-    owner(overrides?: CallOverrides): Promise<[string]>;
+    nftAddress(overrides?: CallOverrides): Promise<[string]>;
 
-    phone(overrides?: CallOverrides): Promise<[string]>;
+    owner(overrides?: CallOverrides): Promise<[string]>;
 
     proposeAffiliate(
       percentage: BigNumberish,
@@ -494,33 +455,25 @@ export interface Shop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setInStock(
+    setItemLink(
       _itemId: BigNumberish,
-      _inStock: boolean,
+      _fileLink: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    shopId(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     transactions(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [
-        BigNumber,
-        BigNumber,
-        boolean,
-        string,
-        BigNumber,
-        boolean,
-        string,
-        BigNumber
-      ] & {
+      [BigNumber, BigNumber, boolean, string, BigNumber, boolean, BigNumber] & {
         transId: BigNumber;
         total: BigNumber;
         isValid: boolean;
         client: string;
         review: BigNumber;
         isReviewed: boolean;
-        affilate: string;
         affPercentage: BigNumber;
       }
     >;
@@ -563,12 +516,9 @@ export interface Shop extends BaseContract {
   ): Promise<ContractTransaction>;
 
   createItem(
-    _name: string,
-    _description: string,
-    _image: string,
     _price: BigNumberish,
     _filePath: string,
-    _isDigital: boolean,
+    _tokenURI: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -577,13 +527,10 @@ export interface Shop extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  description(overrides?: CallOverrides): Promise<string>;
-
   fetchCatalogItems(overrides?: CallOverrides): Promise<ItemStructOutput[]>;
 
   fetchItemLink(
-    itemId: string,
-    transId: BigNumberish,
+    _itemId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
 
@@ -611,8 +558,6 @@ export interface Shop extends BaseContract {
 
   image(overrides?: CallOverrides): Promise<string>;
 
-  location(overrides?: CallOverrides): Promise<string>;
-
   makeTransaction(
     itemIds: BigNumberish[],
     itemQty: BigNumberish[],
@@ -622,9 +567,9 @@ export interface Shop extends BaseContract {
 
   name(overrides?: CallOverrides): Promise<string>;
 
-  owner(overrides?: CallOverrides): Promise<string>;
+  nftAddress(overrides?: CallOverrides): Promise<string>;
 
-  phone(overrides?: CallOverrides): Promise<string>;
+  owner(overrides?: CallOverrides): Promise<string>;
 
   proposeAffiliate(
     percentage: BigNumberish,
@@ -662,33 +607,25 @@ export interface Shop extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setInStock(
+  setItemLink(
     _itemId: BigNumberish,
-    _inStock: boolean,
+    _fileLink: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  shopId(overrides?: CallOverrides): Promise<BigNumber>;
 
   transactions(
     arg0: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
-    [
-      BigNumber,
-      BigNumber,
-      boolean,
-      string,
-      BigNumber,
-      boolean,
-      string,
-      BigNumber
-    ] & {
+    [BigNumber, BigNumber, boolean, string, BigNumber, boolean, BigNumber] & {
       transId: BigNumber;
       total: BigNumber;
       isValid: boolean;
       client: string;
       review: BigNumber;
       isReviewed: boolean;
-      affilate: string;
       affPercentage: BigNumber;
     }
   >;
@@ -723,24 +660,18 @@ export interface Shop extends BaseContract {
     cancelAffiliate(affAddr: string, overrides?: CallOverrides): Promise<void>;
 
     createItem(
-      _name: string,
-      _description: string,
-      _image: string,
       _price: BigNumberish,
       _filePath: string,
-      _isDigital: boolean,
+      _tokenURI: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
     deleteItem(_id: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
-    description(overrides?: CallOverrides): Promise<string>;
-
     fetchCatalogItems(overrides?: CallOverrides): Promise<ItemStructOutput[]>;
 
     fetchItemLink(
-      itemId: string,
-      transId: BigNumberish,
+      _itemId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -768,8 +699,6 @@ export interface Shop extends BaseContract {
 
     image(overrides?: CallOverrides): Promise<string>;
 
-    location(overrides?: CallOverrides): Promise<string>;
-
     makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
@@ -779,9 +708,9 @@ export interface Shop extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<string>;
 
-    owner(overrides?: CallOverrides): Promise<string>;
+    nftAddress(overrides?: CallOverrides): Promise<string>;
 
-    phone(overrides?: CallOverrides): Promise<string>;
+    owner(overrides?: CallOverrides): Promise<string>;
 
     proposeAffiliate(
       percentage: BigNumberish,
@@ -817,33 +746,25 @@ export interface Shop extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setInStock(
+    setItemLink(
       _itemId: BigNumberish,
-      _inStock: boolean,
+      _fileLink: string,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    shopId(overrides?: CallOverrides): Promise<BigNumber>;
 
     transactions(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [
-        BigNumber,
-        BigNumber,
-        boolean,
-        string,
-        BigNumber,
-        boolean,
-        string,
-        BigNumber
-      ] & {
+      [BigNumber, BigNumber, boolean, string, BigNumber, boolean, BigNumber] & {
         transId: BigNumber;
         total: BigNumber;
         isValid: boolean;
         client: string;
         review: BigNumber;
         isReviewed: boolean;
-        affilate: string;
         affPercentage: BigNumber;
       }
     >;
@@ -852,20 +773,11 @@ export interface Shop extends BaseContract {
   };
 
   filters: {
-    "ItemCreated(uint256,string,string,string,uint256)"(
+    "ItemCreated(uint256,uint256)"(
       itemId?: null,
-      name?: null,
-      description?: null,
-      image?: null,
       price?: null
     ): ItemCreatedEventFilter;
-    ItemCreated(
-      itemId?: null,
-      name?: null,
-      description?: null,
-      image?: null,
-      price?: null
-    ): ItemCreatedEventFilter;
+    ItemCreated(itemId?: null, price?: null): ItemCreatedEventFilter;
   };
 
   estimateGas: {
@@ -887,12 +799,9 @@ export interface Shop extends BaseContract {
     ): Promise<BigNumber>;
 
     createItem(
-      _name: string,
-      _description: string,
-      _image: string,
       _price: BigNumberish,
       _filePath: string,
-      _isDigital: boolean,
+      _tokenURI: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -901,13 +810,10 @@ export interface Shop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    description(overrides?: CallOverrides): Promise<BigNumber>;
-
     fetchCatalogItems(overrides?: CallOverrides): Promise<BigNumber>;
 
     fetchItemLink(
-      itemId: string,
-      transId: BigNumberish,
+      _itemId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -929,8 +835,6 @@ export interface Shop extends BaseContract {
 
     image(overrides?: CallOverrides): Promise<BigNumber>;
 
-    location(overrides?: CallOverrides): Promise<BigNumber>;
-
     makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
@@ -940,9 +844,9 @@ export interface Shop extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
+    nftAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
-    phone(overrides?: CallOverrides): Promise<BigNumber>;
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposeAffiliate(
       percentage: BigNumberish,
@@ -968,11 +872,13 @@ export interface Shop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setInStock(
+    setItemLink(
       _itemId: BigNumberish,
-      _inStock: boolean,
+      _fileLink: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    shopId(overrides?: CallOverrides): Promise<BigNumber>;
 
     transactions(
       arg0: BigNumberish,
@@ -1004,12 +910,9 @@ export interface Shop extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     createItem(
-      _name: string,
-      _description: string,
-      _image: string,
       _price: BigNumberish,
       _filePath: string,
-      _isDigital: boolean,
+      _tokenURI: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1018,13 +921,10 @@ export interface Shop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    description(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     fetchCatalogItems(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     fetchItemLink(
-      itemId: string,
-      transId: BigNumberish,
+      _itemId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1050,8 +950,6 @@ export interface Shop extends BaseContract {
 
     image(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    location(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
@@ -1061,9 +959,9 @@ export interface Shop extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    nftAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    phone(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proposeAffiliate(
       percentage: BigNumberish,
@@ -1089,11 +987,13 @@ export interface Shop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setInStock(
+    setItemLink(
       _itemId: BigNumberish,
-      _inStock: boolean,
+      _fileLink: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    shopId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transactions(
       arg0: BigNumberish,

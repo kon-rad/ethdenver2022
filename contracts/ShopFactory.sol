@@ -3,35 +3,34 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Shop.sol";
-import "./interfaces/ShopMakerInterface.sol";
+import "./interfaces/IShopMaker.sol";
 
 contract ShopFactory is Ownable {
 
     address[] public allShops;
     uint256 private shopPrice = 0 ether;
-    address private shopMakerAddr;
+    uint256 public shopCount = 0;
+    IShopMaker shopMaker;
 
-    constructor(address _shopMakerAddr) {
-        shopMakerAddr = _shopMakerAddr;
+    constructor(address _shopMakerAddr, address _shopTemplate) {
+        shopMaker = IShopMaker(_shopMakerAddr);
+        shopMaker.setShopTemplate(_shopTemplate);
     }
 
     function createShop(
             string memory name,
-            string memory description,
-            string memory location,
             string memory image
         ) external payable returns (address) {
         require(msg.value >= shopPrice, "CS0");
-        ShopMakerInterface shopMaker = ShopMakerInterface(shopMakerAddr);
         address shopAddress = shopMaker.createShop(
             msg.sender,
             name,
-            description,
-            location,
             image,
+            shopCount,
             address(this)
         );
         allShops.push(address(shopAddress));
+        shopCount++;
         return address(shopAddress);
     }
     

@@ -4,6 +4,7 @@
 import {
   BaseContract,
   BigNumber,
+  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -19,12 +20,12 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 export interface ShopMakerInterface extends utils.Interface {
   contractName: "ShopMaker";
   functions: {
-    "createShop(address,string,string,string,string,string,address)": FunctionFragment;
+    "createShop(address,string,string,uint256,address)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "createShop",
-    values: [string, string, string, string, string, string, string]
+    values: [string, string, string, BigNumberish, string]
   ): string;
 
   decodeFunctionResult(functionFragment: "createShop", data: BytesLike): Result;
@@ -72,37 +73,31 @@ export interface ShopMaker extends BaseContract {
 
   functions: {
     createShop(
-      owner: string,
-      name: string,
-      description: string,
-      location: string,
-      phone: string,
-      image: string,
-      governor: string,
+      _owner: string,
+      _name: string,
+      _image: string,
+      _shopId: BigNumberish,
+      _governor: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
   createShop(
-    owner: string,
-    name: string,
-    description: string,
-    location: string,
-    phone: string,
-    image: string,
-    governor: string,
+    _owner: string,
+    _name: string,
+    _image: string,
+    _shopId: BigNumberish,
+    _governor: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     createShop(
-      owner: string,
-      name: string,
-      description: string,
-      location: string,
-      phone: string,
-      image: string,
-      governor: string,
+      _owner: string,
+      _name: string,
+      _image: string,
+      _shopId: BigNumberish,
+      _governor: string,
       overrides?: CallOverrides
     ): Promise<string>;
   };
@@ -120,26 +115,22 @@ export interface ShopMaker extends BaseContract {
 
   estimateGas: {
     createShop(
-      owner: string,
-      name: string,
-      description: string,
-      location: string,
-      phone: string,
-      image: string,
-      governor: string,
+      _owner: string,
+      _name: string,
+      _image: string,
+      _shopId: BigNumberish,
+      _governor: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     createShop(
-      owner: string,
-      name: string,
-      description: string,
-      location: string,
-      phone: string,
-      image: string,
-      governor: string,
+      _owner: string,
+      _name: string,
+      _image: string,
+      _shopId: BigNumberish,
+      _governor: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

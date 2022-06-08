@@ -16,7 +16,6 @@ contract Shop {
     ItemsCatalogArray private catalog;
 
     string public name;
-    string public description;
     uint public shopId;
     string public image;
     address payable public owner;
@@ -63,17 +62,15 @@ contract Shop {
     constructor(
         address _owner,
         string memory _name,
-        string memory _description,
-        uint _shopId,
         string memory _image,
+        uint _shopId,
         address _governor,
         address _nftAddress
     ) {
         owner = payable(address(_owner));
         name = _name;
-        description = _description;
-        shopId = _shopId;
         image = _image;
+        shopId = _shopId;
         governor = payable(address(_governor));
         nftAddress = payable(address(_nftAddress));
     }

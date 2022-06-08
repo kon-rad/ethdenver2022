@@ -17,9 +17,41 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Ownable__factory>;
     getContractFactory(
-      name: "ShopMakerInterface",
+      name: "ERC1155",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ShopMakerInterface__factory>;
+    ): Promise<Contracts.ERC1155__factory>;
+    getContractFactory(
+      name: "ERC1155URIStorage",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC1155URIStorage__factory>;
+    getContractFactory(
+      name: "IERC1155MetadataURI",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC1155MetadataURI__factory>;
+    getContractFactory(
+      name: "IERC1155",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC1155__factory>;
+    getContractFactory(
+      name: "IERC1155Receiver",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC1155Receiver__factory>;
+    getContractFactory(
+      name: "ERC165",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC165__factory>;
+    getContractFactory(
+      name: "IERC165",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC165__factory>;
+    getContractFactory(
+      name: "IItemToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IItemToken__factory>;
+    getContractFactory(
+      name: "IShopMaker",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IShopMaker__factory>;
     getContractFactory(
       name: "Shop",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -32,6 +64,10 @@ declare module "hardhat/types/runtime" {
       name: "ShopMaker",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ShopMaker__factory>;
+    getContractFactory(
+      name: "ItemToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ItemToken__factory>;
 
     getContractAt(
       name: "Ownable",
@@ -39,10 +75,50 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Ownable>;
     getContractAt(
-      name: "ShopMakerInterface",
+      name: "ERC1155",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.ShopMakerInterface>;
+    ): Promise<Contracts.ERC1155>;
+    getContractAt(
+      name: "ERC1155URIStorage",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC1155URIStorage>;
+    getContractAt(
+      name: "IERC1155MetadataURI",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC1155MetadataURI>;
+    getContractAt(
+      name: "IERC1155",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC1155>;
+    getContractAt(
+      name: "IERC1155Receiver",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC1155Receiver>;
+    getContractAt(
+      name: "ERC165",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC165>;
+    getContractAt(
+      name: "IERC165",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC165>;
+    getContractAt(
+      name: "IItemToken",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IItemToken>;
+    getContractAt(
+      name: "IShopMaker",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IShopMaker>;
     getContractAt(
       name: "Shop",
       address: string,
@@ -58,6 +134,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ShopMaker>;
+    getContractAt(
+      name: "ItemToken",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ItemToken>;
 
     // default types
     getContractFactory(
