@@ -22,6 +22,7 @@ contract Shop {
     address payable public governor;
     address payable public nftAddress;
     uint public freeTransactions = 1000;
+    bool private initialized = false;
 
     Counters.Counter private _itemIds;
 
@@ -58,15 +59,17 @@ contract Shop {
         uint itemId,
         uint price
     );
-
-    constructor(
+    
+    function initialize(
         address _owner,
         string memory _name,
         string memory _image,
         uint _shopId,
         address _governor,
         address _nftAddress
-    ) {
+    ) external {
+        require(initialized == false, "S00");
+        initialized = true;
         owner = payable(address(_owner));
         name = _name;
         image = _image;

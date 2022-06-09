@@ -8,6 +8,7 @@ import {
   BytesLike,
   CallOverrides,
   ContractTransaction,
+  Overrides,
   PayableOverrides,
   PopulatedTransaction,
   Signer,
@@ -21,14 +22,26 @@ export interface ShopMakerInterface extends utils.Interface {
   contractName: "ShopMaker";
   functions: {
     "createShop(address,string,string,uint256,address)": FunctionFragment;
+    "owner()": FunctionFragment;
+    "setShopTemplate(address)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "createShop",
     values: [string, string, string, BigNumberish, string]
   ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "setShopTemplate",
+    values: [string]
+  ): string;
 
   decodeFunctionResult(functionFragment: "createShop", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setShopTemplate",
+    data: BytesLike
+  ): Result;
 
   events: {
     "ShopCreated(address,string)": EventFragment;
@@ -72,34 +85,85 @@ export interface ShopMaker extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    createShop(
+    "createShop(address,string,string,uint256,address)"(
+      owner: string,
+      name: string,
+      image: string,
+      shopId: BigNumberish,
+      governor: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "createShop(address,string,string,uint256,address,address)"(
       _owner: string,
       _name: string,
       _image: string,
       _shopId: BigNumberish,
       _governor: string,
+      _nftAddress: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
+    setShopTemplate(
+      _shopTemplate: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
-  createShop(
+  "createShop(address,string,string,uint256,address)"(
+    owner: string,
+    name: string,
+    image: string,
+    shopId: BigNumberish,
+    governor: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "createShop(address,string,string,uint256,address,address)"(
     _owner: string,
     _name: string,
     _image: string,
     _shopId: BigNumberish,
     _governor: string,
+    _nftAddress: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  owner(overrides?: CallOverrides): Promise<string>;
+
+  setShopTemplate(
+    _shopTemplate: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
-    createShop(
+    "createShop(address,string,string,uint256,address)"(
+      owner: string,
+      name: string,
+      image: string,
+      shopId: BigNumberish,
+      governor: string,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "createShop(address,string,string,uint256,address,address)"(
       _owner: string,
       _name: string,
       _image: string,
       _shopId: BigNumberish,
       _governor: string,
+      _nftAddress: string,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    owner(overrides?: CallOverrides): Promise<string>;
+
+    setShopTemplate(
+      _shopTemplate: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -114,24 +178,58 @@ export interface ShopMaker extends BaseContract {
   };
 
   estimateGas: {
-    createShop(
+    "createShop(address,string,string,uint256,address)"(
+      owner: string,
+      name: string,
+      image: string,
+      shopId: BigNumberish,
+      governor: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "createShop(address,string,string,uint256,address,address)"(
       _owner: string,
       _name: string,
       _image: string,
       _shopId: BigNumberish,
       _governor: string,
+      _nftAddress: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    setShopTemplate(
+      _shopTemplate: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    createShop(
+    "createShop(address,string,string,uint256,address)"(
+      owner: string,
+      name: string,
+      image: string,
+      shopId: BigNumberish,
+      governor: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "createShop(address,string,string,uint256,address,address)"(
       _owner: string,
       _name: string,
       _image: string,
       _shopId: BigNumberish,
       _governor: string,
+      _nftAddress: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    setShopTemplate(
+      _shopTemplate: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

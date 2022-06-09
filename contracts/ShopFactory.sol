@@ -3,35 +3,45 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Shop.sol";
-import "./interfaces/IShopMaker.sol";
+import "./tokens/ItemToken.sol";
 
 contract ShopFactory is Ownable {
 
     address[] public allShops;
     uint256 private shopPrice = 0 ether;
     uint256 public shopCount = 0;
-    IShopMaker shopMaker;
+    address internal shopTemplate;
+    address internal nftTemplate;
 
-    constructor(address _shopMakerAddr, address _shopTemplate) {
-        shopMaker = IShopMaker(_shopMakerAddr);
-        shopMaker.setShopTemplate(_shopTemplate);
+    event ShopCreated(address indexed shopAddress, string indexed name);
+
+    constructor(address _shopTemplate, address _nftTemplate) {
+        shopTemplate = _shopTemplate;
+        nftTemplate = _nftTemplate;
     }
 
     function createShop(
-            string memory name,
-            string memory image
+            string memory _name,
+            string memory _image
         ) external payable returns (address) {
         require(msg.value >= shopPrice, "CS0");
-        address shopAddress = shopMaker.createShop(
+
+        ItemToken itemToken = ItemToken(_createClone(nftTemplate));
+        Shop shop = Shop(_createClone(shopTemplate));
+        shop.initialize(
             msg.sender,
-            name,
-            image,
+            _name,
+            _image,
             shopCount,
-            address(this)
+            address(this),
+            address(itemToken)
         );
-        allShops.push(address(shopAddress));
+
+        emit ShopCreated(address(shop), _name);
+
+        allShops.push(address(shop));
         shopCount++;
-        return address(shopAddress);
+        return address(shop);
     }
     
     function setShopPrice(uint _price) public onlyOwner {
@@ -72,5 +82,16 @@ contract ShopFactory is Ownable {
 
     function getBalance() public view returns (uint256) {
        return address(this).balance;
+    }
+
+    function _createClone(address target) internal returns (address result) {
+        bytes20 targetBytes = bytes20(target);
+        assembly {
+            let clone := mload(0x40)
+            mstore(clone, 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000)
+            mstore(add(clone, 0x14), targetBytes)
+            mstore(add(clone, 0x28), 0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000)
+            result := create(0, clone, 0x37)
+        }
     }
 }

@@ -96,6 +96,7 @@ export interface ShopInterface extends utils.Interface {
     "giveReview(uint256,uint256)": FunctionFragment;
     "governor()": FunctionFragment;
     "image()": FunctionFragment;
+    "initialize(address,string,string,uint256,address,address)": FunctionFragment;
     "makeTransaction(uint256[],uint256[],address)": FunctionFragment;
     "name()": FunctionFragment;
     "nftAddress()": FunctionFragment;
@@ -162,6 +163,10 @@ export interface ShopInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "governor", values?: undefined): string;
   encodeFunctionData(functionFragment: "image", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [string, string, string, BigNumberish, string, string]
+  ): string;
   encodeFunctionData(
     functionFragment: "makeTransaction",
     values: [BigNumberish[], BigNumberish[], string]
@@ -248,6 +253,7 @@ export interface ShopInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "giveReview", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "governor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "image", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "makeTransaction",
     data: BytesLike
@@ -406,6 +412,16 @@ export interface Shop extends BaseContract {
 
     image(overrides?: CallOverrides): Promise<[string]>;
 
+    initialize(
+      _owner: string,
+      _name: string,
+      _image: string,
+      _shopId: BigNumberish,
+      _governor: string,
+      _nftAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
@@ -558,6 +574,16 @@ export interface Shop extends BaseContract {
 
   image(overrides?: CallOverrides): Promise<string>;
 
+  initialize(
+    _owner: string,
+    _name: string,
+    _image: string,
+    _shopId: BigNumberish,
+    _governor: string,
+    _nftAddress: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   makeTransaction(
     itemIds: BigNumberish[],
     itemQty: BigNumberish[],
@@ -699,6 +725,16 @@ export interface Shop extends BaseContract {
 
     image(overrides?: CallOverrides): Promise<string>;
 
+    initialize(
+      _owner: string,
+      _name: string,
+      _image: string,
+      _shopId: BigNumberish,
+      _governor: string,
+      _nftAddress: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
@@ -835,6 +871,16 @@ export interface Shop extends BaseContract {
 
     image(overrides?: CallOverrides): Promise<BigNumber>;
 
+    initialize(
+      _owner: string,
+      _name: string,
+      _image: string,
+      _shopId: BigNumberish,
+      _governor: string,
+      _nftAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     makeTransaction(
       itemIds: BigNumberish[],
       itemQty: BigNumberish[],
@@ -949,6 +995,16 @@ export interface Shop extends BaseContract {
     governor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     image(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initialize(
+      _owner: string,
+      _name: string,
+      _image: string,
+      _shopId: BigNumberish,
+      _governor: string,
+      _nftAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     makeTransaction(
       itemIds: BigNumberish[],

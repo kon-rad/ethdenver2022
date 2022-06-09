@@ -12,18 +12,24 @@ async function main() {
   await catalog.deployed();
   console.log("catalog deployed to:", catalog.address);
 
-  const ShopMaker = await ethers.getContractFactory("ShopMaker", {
+  const Shop = await ethers.getContractFactory("Shop", {
     libraries: {
       Catalog: catalog.address,
     },
   });
-  const shopMaker = await ShopMaker.deploy();
+  const shop = await Shop.deploy();
 
-  await shopMaker.deployed();
-  console.log("ShopMaker deployed to:", shopMaker.address);
+  await shop.deployed();
+  console.log("Shop deployed to:", shop.address);
+
+  const ItemToken = await ethers.getContractFactory("ItemToken");
+  const itemToken = await ItemToken.deploy("");
+
+  await itemToken.deployed();
+  console.log("ItemToken deployed to:", itemToken.address);
 
   const ShopFactory = await ethers.getContractFactory("ShopFactory");
-  const shopFactory = await ShopFactory.deploy(shopMaker.address);
+  const shopFactory = await ShopFactory.deploy(shop.address, itemToken.address);
 
   await shopFactory.deployed();
 

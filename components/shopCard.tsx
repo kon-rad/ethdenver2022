@@ -19,7 +19,6 @@ const ShopCard = (props: Props) => {
   const web3React = useWeb3React();
   const [owner, setOwner] = useState<string>("");
   const [name, setName] = useState<string>("");
-  const [desc, setDesc] = useState<string>("");
   const [image, setImage] = useState<string>("");
   const [isMobile] = useMediaQuery("(max-width: 600px)");
   useEffect(() => {
@@ -30,7 +29,6 @@ const ShopCard = (props: Props) => {
     const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);
     const shopContract = new ethers.Contract(props.address, Shop.abi, provider);
     setName(await shopContract.name());
-    setDesc(await shopContract.description());
     setImage(await shopContract.image());
     setOwner(await shopContract.owner());
   };
@@ -51,7 +49,7 @@ const ShopCard = (props: Props) => {
           <Text fontSize="2xl" color="black.700">
             {name}
           </Text>
-          <Text color="gray.600">{desc}</Text>
+          {/* <Text color="gray.600">{desc}</Text> */}
         </Box>
         <Spacer />
         <Link href={`/${encodeURIComponent(props.address)}`}>

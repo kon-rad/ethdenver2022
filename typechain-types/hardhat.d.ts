@@ -49,10 +49,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IItemToken__factory>;
     getContractFactory(
-      name: "IShopMaker",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IShopMaker__factory>;
-    getContractFactory(
       name: "Shop",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Shop__factory>;
@@ -60,10 +56,6 @@ declare module "hardhat/types/runtime" {
       name: "ShopFactory",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ShopFactory__factory>;
-    getContractFactory(
-      name: "ShopMaker",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ShopMaker__factory>;
     getContractFactory(
       name: "ItemToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -115,11 +107,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IItemToken>;
     getContractAt(
-      name: "IShopMaker",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IShopMaker>;
-    getContractAt(
       name: "Shop",
       address: string,
       signer?: ethers.Signer
@@ -129,11 +116,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ShopFactory>;
-    getContractAt(
-      name: "ShopMaker",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ShopMaker>;
     getContractAt(
       name: "ItemToken",
       address: string,

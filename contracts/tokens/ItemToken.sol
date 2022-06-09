@@ -9,9 +9,14 @@ contract ItemToken is ERC1155URIStorage {
 
     using Counters for Counters.Counter;
     address public owner;
+    bool internal initialized = false;
 
-    constructor(string memory _baseURI) ERC1155(_baseURI) {
-        owner = msg.sender;
+    constructor(string memory _baseURI) ERC1155(_baseURI) {}
+
+    function initialize(address _owner) public {
+        require(initialized == false, "IT:00");
+        initialized = true;
+        owner = _owner;
     }
 
     modifier onlyOwner() {

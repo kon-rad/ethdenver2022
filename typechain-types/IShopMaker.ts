@@ -8,6 +8,7 @@ import {
   BytesLike,
   CallOverrides,
   ContractTransaction,
+  Overrides,
   PayableOverrides,
   PopulatedTransaction,
   Signer,
@@ -21,14 +22,23 @@ export interface IShopMakerInterface extends utils.Interface {
   contractName: "IShopMaker";
   functions: {
     "createShop(address,string,string,uint256,address)": FunctionFragment;
+    "setShopTemplate(address)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "createShop",
     values: [string, string, string, BigNumberish, string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "setShopTemplate",
+    values: [string]
+  ): string;
 
   decodeFunctionResult(functionFragment: "createShop", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setShopTemplate",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -69,6 +79,11 @@ export interface IShopMaker extends BaseContract {
       governor: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    setShopTemplate(
+      _shopTemplate: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   createShop(
@@ -80,6 +95,11 @@ export interface IShopMaker extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setShopTemplate(
+    _shopTemplate: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     createShop(
       owner: string,
@@ -89,6 +109,11 @@ export interface IShopMaker extends BaseContract {
       governor: string,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    setShopTemplate(
+      _shopTemplate: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {};
@@ -102,6 +127,11 @@ export interface IShopMaker extends BaseContract {
       governor: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    setShopTemplate(
+      _shopTemplate: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -112,6 +142,11 @@ export interface IShopMaker extends BaseContract {
       shopId: BigNumberish,
       governor: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setShopTemplate(
+      _shopTemplate: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

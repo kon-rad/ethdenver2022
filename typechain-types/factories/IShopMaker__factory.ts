@@ -46,6 +46,19 @@ const _abi = [
     stateMutability: "payable",
     type: "function",
   },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_shopTemplate",
+        type: "address",
+      },
+    ],
+    name: "setShopTemplate",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ];
 
 export class IShopMaker__factory {

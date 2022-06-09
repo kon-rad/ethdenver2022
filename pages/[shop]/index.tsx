@@ -39,6 +39,7 @@ import { formatAddress } from "../../utils/web3";
 import { getAffiliates, makeAffiliateProposal, updateAffiliate } from "../../utils/shop";
 import { BigNumber } from "bignumber.js";
 import Web3Modal from "web3modal";
+import { create as ipfsHttpClient } from 'ipfs-http-client'
 
 interface Props {}
 
@@ -46,6 +47,9 @@ interface CartType {
   qty: number;
   itemId: string;
 }
+
+// @ts-ignore
+const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0');
 
 const ShopPage = (props: Props) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -100,7 +104,7 @@ const ShopPage = (props: Props) => {
       provider
     );
     setName(await shopContract.name());
-    setDesc(await shopContract.description());
+    // setDesc(await shopContract.description());
     setImage(await shopContract.image());
     setOwner(await shopContract.owner());
 
@@ -117,14 +121,24 @@ const ShopPage = (props: Props) => {
     try {
       const signer = providerWSigner.getSigner();
 
+
+      /* first, upload to IPFS */
+      const data = JSON.stringify({
+          name: itemName,
+          description: itemDesc,
+          image: itemImage,
+      });
+      const added = await client.add(data);
+      const metadtaUrl = `https://ipfs.infura.io/ipfs/${added.path}`;
+
       const shopContract = new ethers.Contract(
         router.query.shop,
         Shop.abi,
         signer
       );
       console.log(
-        'creating item: ', 
-        isDigital === 'DIGITAL',
+        'creating item: metadtaUrl, file url', 
+        metadtaUrl,
         digitalProductFile
       );
 
@@ -134,12 +148,9 @@ const ShopPage = (props: Props) => {
       }
       
       await shopContract.createItem(
-        itemName,
-        itemDesc,
-        itemImage,
         web3.utils.toWei(itemPrice, "ether"),
         digitalProductFile,
-        isDigital === 'DIGITAL'
+        metadtaUrl
       );
       await getShopData();
 

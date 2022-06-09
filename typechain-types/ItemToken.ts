@@ -24,6 +24,7 @@ export interface ItemTokenInterface extends utils.Interface {
     "balanceOfBatch(address[],uint256[])": FunctionFragment;
     "batchSale(address,uint256[],uint256[])": FunctionFragment;
     "createItem(uint256,string)": FunctionFragment;
+    "initialize(address)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)": FunctionFragment;
@@ -49,6 +50,7 @@ export interface ItemTokenInterface extends utils.Interface {
     functionFragment: "createItem",
     values: [BigNumberish, string]
   ): string;
+  encodeFunctionData(functionFragment: "initialize", values: [string]): string;
   encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [string, string]
@@ -79,6 +81,7 @@ export interface ItemTokenInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "batchSale", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "createItem", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isApprovedForAll",
     data: BytesLike
@@ -208,6 +211,11 @@ export interface ItemToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    initialize(
+      _owner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     isApprovedForAll(
       account: string,
       operator: string,
@@ -270,6 +278,11 @@ export interface ItemToken extends BaseContract {
   createItem(
     _tokenId: BigNumberish,
     _uri: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  initialize(
+    _owner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -337,6 +350,8 @@ export interface ItemToken extends BaseContract {
       _uri: string,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    initialize(_owner: string, overrides?: CallOverrides): Promise<void>;
 
     isApprovedForAll(
       account: string,
@@ -453,6 +468,11 @@ export interface ItemToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    initialize(
+      _owner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     isApprovedForAll(
       account: string,
       operator: string,
@@ -516,6 +536,11 @@ export interface ItemToken extends BaseContract {
     createItem(
       _tokenId: BigNumberish,
       _uri: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    initialize(
+      _owner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

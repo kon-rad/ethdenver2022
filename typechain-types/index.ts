@@ -10,10 +10,8 @@ export type { IERC1155Receiver } from "./IERC1155Receiver";
 export type { ERC165 } from "./ERC165";
 export type { IERC165 } from "./IERC165";
 export type { IItemToken } from "./IItemToken";
-export type { IShopMaker } from "./IShopMaker";
 export type { Shop } from "./Shop";
 export type { ShopFactory } from "./ShopFactory";
-export type { ShopMaker } from "./ShopMaker";
 export type { ItemToken } from "./ItemToken";
 
 export { Ownable__factory } from "./factories/Ownable__factory";
@@ -25,8 +23,6 @@ export { IERC1155Receiver__factory } from "./factories/IERC1155Receiver__factory
 export { ERC165__factory } from "./factories/ERC165__factory";
 export { IERC165__factory } from "./factories/IERC165__factory";
 export { IItemToken__factory } from "./factories/IItemToken__factory";
-export { IShopMaker__factory } from "./factories/IShopMaker__factory";
 export { Shop__factory } from "./factories/Shop__factory";
 export { ShopFactory__factory } from "./factories/ShopFactory__factory";
-export { ShopMaker__factory } from "./factories/ShopMaker__factory";
 export { ItemToken__factory } from "./factories/ItemToken__factory";
