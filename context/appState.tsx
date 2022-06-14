@@ -5,6 +5,7 @@ const AppContext = createContext(undefined);
 const AppStateProvider = ({ children }: any) => {
     const [cart, setCart] = useState<any>([]);
     const [cartMetaData, setCartMetaData] = useState<any>({});
+    const [catalogItems, setCatalogItems] = useState<any>({});
     const [cartShopAddress, setCartShopAddress] = useState<string>("");
     const [affiliate, setAffiliate] = useState<string>("");
 
@@ -13,6 +14,8 @@ const AppStateProvider = ({ children }: any) => {
         setCart,
         cartMetaData,
         setCartMetaData,
+        catalogItems,
+        setCatalogItems,
         cartShopAddress,
         setCartShopAddress,
         affiliate,

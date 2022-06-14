@@ -52,6 +52,7 @@ const CartItem = (props: Props) => {
     setCartMetaData(currMetaData);
     setCart(currCart);
   };
+  console.log("cartdata: ", cartMetaData, props);
 
   return (
     <Box key={props.data.itemId} mb="6">

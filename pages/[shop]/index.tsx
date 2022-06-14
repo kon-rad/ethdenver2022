@@ -37,7 +37,6 @@ import TransactionItem from "../../components/transactionItem";
 import web3 from "web3";
 import { formatAddress } from "../../utils/web3";
 import { getAffiliates, makeAffiliateProposal, updateAffiliate } from "../../utils/shop";
-import { BigNumber } from "bignumber.js";
 import Web3Modal from "web3modal";
 import { create as ipfsHttpClient } from 'ipfs-http-client'
 
@@ -55,6 +54,7 @@ const ShopPage = (props: Props) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [owner, setOwner] = useState<string>("");
   const [name, setName] = useState<string>("");
+  const [nftAddress, setNftAddress] = useState<string>("");
   const [desc, setDesc] = useState<string>("");
   const [image, setImage] = useState<string>("");
   const [isOwner, setIsOwner] = useState<boolean>(false);
@@ -107,6 +107,7 @@ const ShopPage = (props: Props) => {
     // setDesc(await shopContract.description());
     setImage(await shopContract.image());
     setOwner(await shopContract.owner());
+    setNftAddress(await shopContract.nftAddress());
 
     setItems(await shopContract.fetchCatalogItems());
     setTransactions(await shopContract.fetchTransactions());
@@ -337,8 +338,8 @@ const ShopPage = (props: Props) => {
             <TabPanels>
               <TabPanel>
                 <Flex justify={"center"} align={"center"} direction={"column"}>
-                  {items.map((elem: any, i: number) => (
-                    <CatalogItem key={`item-${i}`} data={elem} shopAddress={router.query.shop} isOwner={isOwner} />
+                  {items.map((elem: any, i: number) => !elem[2] && (
+                    <CatalogItem key={`item-${i}`} data={elem} nftAddress={nftAddress} shopAddress={router.query.shop} isOwner={isOwner} />
                   ))}
                 </Flex>
               </TabPanel>

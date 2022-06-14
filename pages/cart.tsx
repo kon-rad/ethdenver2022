@@ -1,12 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Box, Flex, Text, Button, Link, useMediaQuery } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { useAppState } from "../context/appState";
 import CartItem from "../components/cartItem";
-import Web3Modal from "web3modal";
 import { toast } from "react-toastify";
 import { ethers } from "ethers";
-import Router from "next/router";
 import { useWeb3React } from "@web3-react/core";
 import { getCartTotal } from "../utils/cart";
 import web3 from "web3";
@@ -20,7 +18,6 @@ const Cart = () => {
   const { cart, cartMetaData, cartShopAddress, setCart, setCartMetaData, affiliate } =
     useAppState();
   const handleCheckout = async () => {
-    console.log("checkout ");
 
     const provider = web3React.library;
     if (!provider) {
@@ -46,7 +43,6 @@ const Cart = () => {
       const itemQuantities = cart.map((item: any) => item.qty);
       let transaction;
       let affParam = affiliate ? affiliate : '0x0000000000000000000000000000000000000000';
-      console.log('Cart - affiliate: ', affiliate, affParam);
 
       transaction = await contract.makeTransaction(
         cartItems,
@@ -70,10 +66,6 @@ const Cart = () => {
       setCart([]);
       setCartMetaData({});
       setTransactionHash(transData.transactionHash);
-      console.log("transData: ", transData.transactionHash);
-      //   Router.push(`/${encodeURIComponent(
-      //       cartShopAddress
-      //     )}/transaction/${encodeURIComponent(transId.toNumber())}`);
     } catch (e) {
       toast.error(`Error: ${e.message}`, {
         position: "top-right",
@@ -87,7 +79,7 @@ const Cart = () => {
       return;
     }
   };
-  console.log('Cart - affiliate - render: ', affiliate);
+
   return (
     <Box>
       <Flex justify="center">
@@ -117,8 +109,8 @@ const Cart = () => {
           ) : (
             <Box>
               <Flex direction="column">
-                {cart.map((item: any) => (
-                  <CartItem data={item} />
+                {cart.map((item: any, i: number) => (
+                  <CartItem data={item} key={`cartItem_${i}`} />
                 ))}
               </Flex>
               <Text m={"2"} fontSize="2xl">

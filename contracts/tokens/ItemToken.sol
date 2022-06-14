@@ -41,4 +41,7 @@ contract ItemToken is ERC1155URIStorage {
         _mint(address(owner), _tokenId, 1, "");
         _setURI(_tokenId, _uri);
     }
+
+    // todo: create resale transfer options: yes / no / max / min price
+    // todo: create royalty
 }

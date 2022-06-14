@@ -13,8 +13,6 @@ contract Shop {
     using Counters for Counters.Counter;
     using Catalog for ItemsCatalogArray;
 
-    ItemsCatalogArray private catalog;
-
     string public name;
     uint public shopId;
     string public image;
@@ -23,10 +21,11 @@ contract Shop {
     address payable public nftAddress;
     uint public freeTransactions = 1000;
     bool private initialized = false;
-
+    ItemsCatalogArray private catalog;
     Counters.Counter private _itemIds;
-
-    Counters.Counter private affiliateId;
+    Counters.Counter private _affiliateId;
+    Counters.Counter private _transIds;
+    Counters.Counter public _transactionsCount;
     Affiliate[] public proposedAffArr;
     Affiliate[] public approvedAffArr;
     mapping(address => Affiliate) public proposedAffiliates;
@@ -42,11 +41,7 @@ contract Shop {
         address client;
         uint review;
         bool isReviewed;
-        uint affPercentage;
     }
-
-    Counters.Counter private _transIds;
-    Counters.Counter public transactionsCount;
 
     Trans[] public transactions;
 
@@ -68,7 +63,7 @@ contract Shop {
         address _governor,
         address _nftAddress
     ) external {
-        require(initialized == false, "S00");
+        require(initialized == false, "Shop00");
         initialized = true;
         owner = payable(address(_owner));
         name = _name;
@@ -79,12 +74,12 @@ contract Shop {
     }
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "OO0");
+        require(msg.sender == owner, "Shop01");
         _;
     }
 
     modifier onlyGovernor() {
-        require(msg.sender == governor, "OG0");
+        require(msg.sender == governor, "Shop03");
         _;
     }
 
@@ -112,6 +107,8 @@ contract Shop {
     function fetchItemLink(
         uint _itemId
     ) public view returns (string memory) {
+        // only for owner of NFT
+        require(IItemToken(nftAddress).balanceOf(msg.sender, _itemId) > 0, "Shop03");
         return fileLinks[_itemId];
     }
 
@@ -136,7 +133,7 @@ contract Shop {
         require(affiliates[msg.sender].percentage == 0, "PA0");
         require(percentage > 0, "PA1");
         require(percentage < 100, "PA2");
-        uint _id = affiliateId.current();
+        uint _id = _affiliateId.current();
         Affiliate memory pAff = Affiliate({
             affAddr: msg.sender,
             percentage: percentage,
@@ -144,7 +141,7 @@ contract Shop {
         });
         proposedAffiliates[msg.sender] = pAff;
         proposedAffArr.push(pAff);
-        affiliateId.increment();
+        _affiliateId.increment();
     }
 
     function getProposedAffiliates() public view returns (Affiliate[] memory) {
@@ -201,10 +198,10 @@ contract Shop {
         require(msg.value >= total, "MT1");
 
         IItemToken(nftAddress).batchSale(msg.sender, itemIds, itemQty);
-        transactionsCount.increment();
+        _transactionsCount.increment();
         uint affShare = 0;
         uint govShare = 0;
-        if (transactionsCount.current() > freeTransactions) govShare = total.div(100);
+        if (_transactionsCount.current() > freeTransactions) govShare = total.div(100);
         if (affAddr != address(0)) {
             affShare = total.div(100).mul(aff.percentage);
             payable(address(aff.affAddr)).transfer(affShare);
@@ -221,8 +218,7 @@ contract Shop {
             isValid: true,
             client: msg.sender,
             review: 0,
-            isReviewed: false,
-            affPercentage: 0
+            isReviewed: false
         }));
         _transIds.increment();
 

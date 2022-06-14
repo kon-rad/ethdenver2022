@@ -8,7 +8,6 @@ import { SEO } from "../components/seo";
 import "../styles/Home.module.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Web3Provider, ExternalProvider } from "@ethersproject/providers";
 import { AppStateProvider } from "../context/appState";
 import { AuthProvider } from "../context/auth";
 

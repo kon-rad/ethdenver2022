@@ -9,40 +9,79 @@ import { useAuth } from '../context/auth';
 import { useWeb3React } from '@web3-react/core';
 import { signMessage } from '../utils/eth';
 import { toast } from "react-toastify";
+import { ethers } from "ethers";
+import ItemToken from '../artifacts/contracts/tokens/ItemToken.sol/ItemToken.json';
+
+// interface ItemType {
+//   name: string;
+//   description: string;
+//   image: string;
+//   price: any;
+//   itemId: any;
+//   inStock: boolean;
+// }
+
+interface BigNumberType {
+  _isBigNumber: boolean,
+  _hex: string,
+  toNumber: any
+}
 
 interface ItemType {
-  name: string;
-  description: string;
-  image: string;
-  price: any;
-  itemId: any;
-  inStock: boolean;
+  itemId: BigNumberType,
+  price: BigNumberType,
+  isDelete: boolean
 }
 
 interface Props {
   data: ItemType;
   shopAddress: string;
+  nftAddress: string;
   isOwner: boolean;
 }
 
 const CatalogItem = (props: Props) => {
   const [qty, setQty] = useState<number>(1);
   const [fileUrl, setFileUrl] = useState<string>("");
+  const [metadata, setMetadata] = useState<any>();
   const web3React = useWeb3React();
   const {
     cart,
     cartMetaData,
+    catalogItems,
+    setCatalogItems,
     setCart,
     setCartMetaData,
     cartShopAddress,
     setCartShopAddress,
   } = useAppState();
+
+  const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);
+
   const { getUser, user }  = useAuth();
   useEffect(() => {
     if (user.length === 0 && web3React.account) {
       getUser(web3React.account);
     }
+    fetchNFTData();
   }, [web3React.account]);
+
+  const fetchNFTData = async () => {
+    const nftContract = new ethers.Contract(props.nftAddress, ItemToken.abi, provider);
+
+    const tokenUri = await nftContract.uri(props.data.itemId.toNumber());
+    const _metadata = await axios.get(tokenUri);
+    setMetadata(_metadata.data);
+    console.log("_metadata: ", _metadata);
+    const currentStoreItems = catalogItems[props.shopAddress] || {};
+    setCatalogItems({
+      ...catalogItems,
+      [props.shopAddress]: {
+        ...currentStoreItems,
+        [props.data.itemId.toNumber()]: _metadata.data
+      }
+    })
+  }
 
   const handleAddToCart = () => {
     const id = props.data.itemId.toNumber();
@@ -72,9 +111,9 @@ const CatalogItem = (props: Props) => {
     setCartMetaData({
       ...cartMetaData,
       [props.data.itemId.toNumber()]: {
-        name: props.data.name,
-        description: props.data.description,
-        image: props.data.image,
+        name: metadata.name,
+        description: metadata.description,
+        image: metadata.image,
         price: new BigNumber(web3.utils.fromWei(props.data.price.toString(), 'ether')),
       },
     });
@@ -123,32 +162,29 @@ const CatalogItem = (props: Props) => {
     );
     console.log("result: ", result);
   }
+  console.log("data: ", props.data);
 
   return (
     <Box mb="4" borderRadius="12px" border="solid" borderWidth={1} borderColor={"black.600"} p={"6"} boxShadow="md">
       <Flex>
-        <Image
-          borderRadius="12px"
-          src={props.data.image}
-          w={"140px"}
-          h={"140px"}
-        />
+        {
+          metadata && (<Image
+            borderRadius="12px"
+            src={metadata.image}
+            w={"140px"}
+            h={"140px"}
+          />)
+        }
         <Box p={"6"}>
           <Text fontSize="2xl" mb={"2"} fontWeight={"bold"} color="black.700">
-            {props.data.name}
+            {metadata && metadata.name}
           </Text>
-          {props.data.inStock ? (
-            <Text color="green.600">In Stock</Text>
-          ) : (
-            <Text color="red.600">Out of Stock</Text>
-          )}
           <Text fontSize="md" mb={"2"} color={"gray.700"} fontWeight={"light"}>
-            {props.data.description}
+            {metadata && metadata.description}
           </Text>
           <Text fontSize="md" mb={"2"} color="black.700">
             MATIC: {web3.utils.fromWei(props.data.price.toString(), 'ether')}
           </Text>
-          {props.data.inStock && (
             <>
               <Input
                 placeholder="Quantity"
@@ -159,7 +195,6 @@ const CatalogItem = (props: Props) => {
               />
               <Button m={'2'} onClick={handleAddToCart}>Add to Cart</Button>
             </>
-          )}
           {/* {props.isOwner && (
             <Box m={"2"}>
               <input
