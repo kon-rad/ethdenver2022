@@ -12,7 +12,8 @@
     "deploy:rinkeby": "npx hardhat run scripts/deploy.ts --network rinkeby",
     "flatten": "npx hardhat flatten > flattened.sol",
     "size": "yarn hardhat size-contracts",
-    "clean": "npx hardhat clean"
+    "clean": "npx hardhat clean",
+    "local": "npx harhat node"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.5",
