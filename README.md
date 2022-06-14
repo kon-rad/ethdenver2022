@@ -16,3 +16,10 @@ install dependencies
 run local hardhat node
 ```yarn local```
 
+open a new tab
+compile and deploy smart contracts
+```yarn deploy:local```
+
+open a new tab
+run web app
+```yarn dev```
