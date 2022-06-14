@@ -9,18 +9,20 @@ contract ItemToken is ERC1155URIStorage {
 
     using Counters for Counters.Counter;
     address public owner;
+    address public shop;
     bool internal initialized = false;
 
     constructor(string memory _baseURI) ERC1155(_baseURI) {}
 
-    function initialize(address _owner) public {
+    function initialize(address _owner, address _shop) public {
         require(initialized == false, "IT:00");
         initialized = true;
         owner = _owner;
+        shop = _shop;
     }
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "ERC115501");
+    modifier onlyShop() {
+        require(msg.sender == shop, "ERC115501");
         _;
     }
 
@@ -34,7 +36,7 @@ contract ItemToken is ERC1155URIStorage {
         }
     }
 
-    function createItem(uint256 _tokenId, string memory _uri) public onlyOwner {
+    function createItem(uint256 _tokenId, string memory _uri) public onlyShop {
         // mint to owner
         _mint(address(owner), _tokenId, 1, "");
         _setURI(_tokenId, _uri);

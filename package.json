@@ -6,7 +6,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "compile": "clean && npx hardhat compile",
+    "compile": "yarn clean && npx hardhat compile",
     "deploy:local": "npx hardhat run scripts/deploy.ts --network localhost",
     "deploy:mumbai": "npx hardhat run scripts/deploy.ts --network mumbai",
     "deploy:rinkeby": "npx hardhat run scripts/deploy.ts --network rinkeby",

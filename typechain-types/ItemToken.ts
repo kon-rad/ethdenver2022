@@ -24,12 +24,13 @@ export interface ItemTokenInterface extends utils.Interface {
     "balanceOfBatch(address[],uint256[])": FunctionFragment;
     "batchSale(address,uint256[],uint256[])": FunctionFragment;
     "createItem(uint256,string)": FunctionFragment;
-    "initialize(address)": FunctionFragment;
+    "initialize(address,address)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)": FunctionFragment;
     "safeTransferFrom(address,address,uint256,uint256,bytes)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
+    "shop()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "uri(uint256)": FunctionFragment;
   };
@@ -50,7 +51,10 @@ export interface ItemTokenInterface extends utils.Interface {
     functionFragment: "createItem",
     values: [BigNumberish, string]
   ): string;
-  encodeFunctionData(functionFragment: "initialize", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [string, string]
+  ): string;
   encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [string, string]
@@ -68,6 +72,7 @@ export interface ItemTokenInterface extends utils.Interface {
     functionFragment: "setApprovalForAll",
     values: [string, boolean]
   ): string;
+  encodeFunctionData(functionFragment: "shop", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
@@ -99,6 +104,7 @@ export interface ItemTokenInterface extends utils.Interface {
     functionFragment: "setApprovalForAll",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "shop", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
@@ -213,6 +219,7 @@ export interface ItemToken extends BaseContract {
 
     initialize(
       _owner: string,
+      _shop: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -247,6 +254,8 @@ export interface ItemToken extends BaseContract {
       approved: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    shop(overrides?: CallOverrides): Promise<[string]>;
 
     supportsInterface(
       interfaceId: BytesLike,
@@ -283,6 +292,7 @@ export interface ItemToken extends BaseContract {
 
   initialize(
     _owner: string,
+    _shop: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -318,6 +328,8 @@ export interface ItemToken extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  shop(overrides?: CallOverrides): Promise<string>;
+
   supportsInterface(
     interfaceId: BytesLike,
     overrides?: CallOverrides
@@ -351,7 +363,11 @@ export interface ItemToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    initialize(_owner: string, overrides?: CallOverrides): Promise<void>;
+    initialize(
+      _owner: string,
+      _shop: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     isApprovedForAll(
       account: string,
@@ -384,6 +400,8 @@ export interface ItemToken extends BaseContract {
       approved: boolean,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    shop(overrides?: CallOverrides): Promise<string>;
 
     supportsInterface(
       interfaceId: BytesLike,
@@ -470,6 +488,7 @@ export interface ItemToken extends BaseContract {
 
     initialize(
       _owner: string,
+      _shop: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -504,6 +523,8 @@ export interface ItemToken extends BaseContract {
       approved: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    shop(overrides?: CallOverrides): Promise<BigNumber>;
 
     supportsInterface(
       interfaceId: BytesLike,
@@ -541,6 +562,7 @@ export interface ItemToken extends BaseContract {
 
     initialize(
       _owner: string,
+      _shop: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -575,6 +597,8 @@ export interface ItemToken extends BaseContract {
       approved: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    shop(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     supportsInterface(
       interfaceId: BytesLike,

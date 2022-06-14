@@ -36,6 +36,7 @@ contract ShopFactory is Ownable {
             address(this),
             address(itemToken)
         );
+        itemToken.initialize(address(msg.sender), address(shop));
 
         emit ShopCreated(address(shop), _name);
 
