@@ -32,13 +32,15 @@ import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
 import CatalogItem from "../../components/catalogItem";
 import Shop from "../../artifacts/contracts/Shop.sol/Shop.json";
-import { handleImageUpload } from "../../utils/ipfs";
+import { handleImageUpload, encryptFile } from "../../utils/ipfs";
 import TransactionItem from "../../components/transactionItem";
 import web3 from "web3";
 import { formatAddress } from "../../utils/web3";
 import { getAffiliates, makeAffiliateProposal, updateAffiliate } from "../../utils/shop";
 import Web3Modal from "web3modal";
 import { create as ipfsHttpClient } from 'ipfs-http-client'
+import axios from "axios";
+import { encrypt, decrypt } from "../../services/encryption";
 
 interface Props {}
 
@@ -63,6 +65,7 @@ const ShopPage = (props: Props) => {
   const [proposedAffiliates, setProposedAffiliates] = useState([]);
   const [activeAffiliates, setActiveAffiliates] = useState([]);
   const [percent, setPercent] = useState("3");
+  const [encryptedUrl, setEncryptedUrl] = useState<string>("");
 
   const [itemName, setItemName] = useState<string>("");
   const [itemDesc, setItemDesc] = useState<string>("");
@@ -121,7 +124,6 @@ const ShopPage = (props: Props) => {
     const providerWSigner = new ethers.providers.Web3Provider(connection);
     try {
       const signer = providerWSigner.getSigner();
-
 
       /* first, upload to IPFS */
       const data = JSON.stringify({
@@ -186,9 +188,36 @@ const ShopPage = (props: Props) => {
   };
   const uploadDigitalProduct = async (e: any) => {
     console.log('digital product');
-    setDigitalProductFile(await handleImageUpload(e));
+    // todo: encrypt file and set in SC
+    const res = await encryptFile(e, setEncryptedUrl);
+    console.log('encrypt res: ', res);
+    // setDigitalProductFile(await handleImageUpload(e));
   }
   console.log("transactions: ", transactions);
+  console.log("encryptedUrl: ", encryptedUrl);
+
+  const downloadAndDecrypt = async () => {
+    axios.get(encryptedUrl, {
+      responseType: 'arraybuffer'
+    })
+    .then(response => {
+      // Buffer.from(response.data, 'binary').toString('base64')
+      // fs.writeFile('/temp/decrypted.md', response.data, (err) => {
+      //   if (err) throw err;
+      //   console.log('The file has been saved!');
+      // });
+      console.log("response data: ", response.data);
+
+      const decrypted = decrypt(Buffer.from(response.data, 'binary'));
+
+      const url = window.URL.createObjectURL(new Blob([decrypted]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'encrypted.txt');
+      document.body.appendChild(link);
+      link.click();
+    })
+  }
   
   if (!router.query.shop) {
     return <h1>Try navigating to this page from the home page</h1>;
@@ -326,6 +355,7 @@ const ShopPage = (props: Props) => {
                 )}
                 {isOwner && <Button onClick={handleEdit}>Edit Shop</Button>}
               </Flex>
+            <Button mr={"4"} onClick={downloadAndDecrypt}>download and decrypt file</Button>
             </Box>
           </Flex>
 
