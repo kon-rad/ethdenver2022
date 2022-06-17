@@ -41,6 +41,18 @@ import Web3Modal from "web3modal";
 import { create as ipfsHttpClient } from 'ipfs-http-client'
 import axios from "axios";
 import { encrypt, decrypt } from "../../services/encryption";
+import crypto from 'crypto';
+import {
+    collection,
+    addDoc,
+    getDocs,
+    query,
+    where,
+    getFirestore,
+    deleteDoc,
+    doc,
+    updateDoc,
+} from "firebase/firestore";
 
 interface Props {}
 
@@ -51,6 +63,8 @@ interface CartType {
 
 // @ts-ignore
 const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0');
+
+const db = getFirestore();
 
 const ShopPage = (props: Props) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -186,10 +200,35 @@ const ShopPage = (props: Props) => {
   const uploadImage = async (e: any) => {
     setItemImage(await handleImageUpload(e));
   };
+
+  const saveKeyForFile = async (fileUrl: string, secretKey: string) => {
+    // const keyRef = doc(db, 'fileKeys', web3React.account);
+    debugger;
+    console.log('save key for file: ', fileUrl);
+    
+    await addDoc(collection(db, 'fileKeys'), {
+      tokenId: items.length,
+      nftAddress: nftAddress,
+      fileURI: fileUrl,
+      ownerAddress: web3React.account,
+      secretKey: secretKey,
+    });
+  }
+
+  const completeFileEncryption = async (fileUrl: string, secretKey: string) => {
+    setEncryptedUrl(fileUrl);
+    await saveKeyForFile(fileUrl, secretKey);
+  }
+
   const uploadDigitalProduct = async (e: any) => {
     console.log('digital product');
+    let secretKey = crypto.randomBytes(48).toString('base64');
+    secretKey = crypto.createHash('sha256').update(String(secretKey)).digest('base64').substr(0, 32);
+
+    console.log('secretKey: ', secretKey);
     // todo: encrypt file and set in SC
-    const res = await encryptFile(e, setEncryptedUrl);
+    const res = await encryptFile(e, completeFileEncryption, secretKey);
+
     console.log('encrypt res: ', res);
     // setDigitalProductFile(await handleImageUpload(e));
   }

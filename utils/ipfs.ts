@@ -10,7 +10,6 @@ export async function handleImageUpload(e: any) {
   }
   const file = e.target.files[0];
   try {
-    // nft.storage was returning 500 type error - it was reported on discord that it was down
     const added = await client.add(file, {
       progress: (prog) => console.log(`received: ${prog}`),
     });
@@ -21,32 +20,31 @@ export async function handleImageUpload(e: any) {
   }
 }
 
-export const encryptFile = (e: any, setEncryptedUrl: any) => {
+const toBuffer = (ab: any) => {
+  var buffer = new Buffer(ab.byteLength);
+  var view = new Uint8Array(ab);
+  for (var i = 0; i < buffer.length; ++i) {
+      buffer[i] = view[i];
+  }
+  return buffer;
+}
+
+export const encryptFile = (e: any, completeFileEncryption: any, secretKey: string) => {
   if (!e || !e.target || !e.target.files || !e.target.files[0]) {
     return;
   }
   const file = e.target.files[0];
-  const fileReader = new FileReader(); // initialize the object  
+  const fileReader = new FileReader();
   fileReader.readAsArrayBuffer(file);
-  let data;
-  // console.log("file: ", file);
-  
-  // const fileBuffer = Buffer.from(file, 'base64')
-  // console.log('fileBuffer buffer: ', fileBuffer);
-  // return fileBuffer;
 
   fileReader.onload = async (event) => {
-    // const content = event.target.result;
-    // data = Buffer.from(fileReader.result.toString());
-    console.log('fileReader.result buffer: ', fileReader.result.toString());
-    data = encrypt(fileReader.result);
-    console.log('encrypted data: ', data);
+    const data = encrypt(toBuffer(fileReader.result), secretKey);
     try {
       const added = await client.add(data, {
         progress: (prog) => console.log(`received: ${prog}`),
       });
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
-      setEncryptedUrl(url);
+      completeFileEncryption(url, secretKey);
     } catch (error) {
       console.log(`Error uploading file: ${error}`);
     }

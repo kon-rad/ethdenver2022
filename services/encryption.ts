@@ -5,11 +5,11 @@ const algorithm = 'aes-256-ctr';
 let key = 'MySuperSecretKey';
 key = crypto.createHash('sha256').update(String(key)).digest('base64').substr(0, 32);
 
-export const encrypt = (buffer: any) => {
+export const encrypt = (buffer: any, secretKey: string) => {
     // Create an initialization vector
     const iv = crypto.randomBytes(16);
     // Create a new cipher using the algorithm, key, and iv
-    const cipher = crypto.createCipheriv(algorithm, key, iv);
+    const cipher = crypto.createCipheriv(algorithm, secretKey, iv);
     // Create the new (encrypted) buffer
     const result = Buffer.concat([iv, cipher.update(buffer), cipher.final()]);
     return result;
@@ -29,11 +29,3 @@ export const decrypt = (encrypted: any) => {
    const result = Buffer.concat([decipher.update(encrypted), decipher.final()]);
    return result;
 };
-
-const plain = Buffer.from('Hello world');
-
-const encrypted = encrypt(plain);
-console.log('Encrypted:', encrypted.toString());
-
-const decrypted = decrypt(encrypted);
-console.log('Decrypted:', decrypted.toString());
