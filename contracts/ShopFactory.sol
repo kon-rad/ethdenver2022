@@ -22,7 +22,8 @@ contract ShopFactory is Ownable {
 
     function createShop(
             string memory _name,
-            string memory _image
+            string memory _image,
+            string memory nftSymbol_
         ) external payable returns (address) {
         require(msg.value >= shopPrice, "CS0");
 
@@ -36,7 +37,7 @@ contract ShopFactory is Ownable {
             address(this),
             address(itemToken)
         );
-        itemToken.initialize(address(msg.sender), address(shop));
+        itemToken.initialize(address(msg.sender), address(shop), _name, nftSymbol_);
 
         emit ShopCreated(address(shop), _name);
 

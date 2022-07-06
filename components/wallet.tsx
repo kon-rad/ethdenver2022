@@ -6,6 +6,7 @@ import { DEFAULT_COLOR_SCHEME } from '../utils/constants'
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
 import NextLink from 'next/link'
+import { toast } from "react-toastify";
 
 const Wallet = () => {
     const router = useRouter()
@@ -13,12 +14,28 @@ const Wallet = () => {
 
     const connect = () => {
         web3Connect.activate(injected, (error) => {
-            // todo: present toast notifications
             console.error('connection error: ', error);
             if (error instanceof UserRejectedRequestError) {
-                // ignore user rejected error
+                toast.error(`User Rejected transaction`, {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
             } else {
                 web3Connect.setError(error)
+                toast.error(`Error: ${JSON.stringify(error)}`, {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
             }
         }, false)
     }

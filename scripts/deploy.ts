@@ -23,7 +23,7 @@ async function main() {
   console.log("Shop deployed to:", shop.address);
 
   const ItemToken = await ethers.getContractFactory("ItemToken");
-  const itemToken = await ItemToken.deploy("");
+  const itemToken = await ItemToken.deploy("", "");
 
   await itemToken.deployed();
   console.log("ItemToken deployed to:", itemToken.address);

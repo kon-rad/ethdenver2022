@@ -53,6 +53,7 @@ import {
     doc,
     updateDoc,
 } from "firebase/firestore";
+import lit from '../../utils/lit';
 
 interface Props {}
 
@@ -74,8 +75,8 @@ const ShopPage = (props: Props) => {
   const [desc, setDesc] = useState<string>("");
   const [image, setImage] = useState<string>("");
   const [isOwner, setIsOwner] = useState<boolean>(false);
-  const [isDigital, setIsDigital] = useState<string>("DIGITAL");
   const [digitalProductFile, setDigitalProductFile] = useState<string>("");
+  const [digitalProductFileRef, setDigitalProductFileRef] = useState<string>("");
   const [proposedAffiliates, setProposedAffiliates] = useState([]);
   const [activeAffiliates, setActiveAffiliates] = useState([]);
   const [percent, setPercent] = useState("3");
@@ -138,15 +139,20 @@ const ShopPage = (props: Props) => {
     const providerWSigner = new ethers.providers.Web3Provider(connection);
     try {
       const signer = providerWSigner.getSigner();
+      const {
+        encryptedFileIPFSHash,
+        encryptedSymmetricKey
+    } = lit.encrypt(digitalProductFileRef, nftAddress, )
 
       /* first, upload to IPFS */
       const data = JSON.stringify({
           name: itemName,
           description: itemDesc,
           image: itemImage,
+          encryptedAsset: encryptedAsset,
       });
       const added = await client.add(data);
-      const metadtaUrl = `https://ipfs.infura.io/ipfs/${added.path}`;
+      const ipfsHash = `${added.path}`;
 
       const shopContract = new ethers.Contract(
         router.query.shop,
@@ -155,11 +161,11 @@ const ShopPage = (props: Props) => {
       );
       console.log(
         'creating item: metadtaUrl, file url', 
-        metadtaUrl,
+        ipfsHash,
         digitalProductFile
       );
 
-      console.log('createItem: ', digitalProductFile, isDigital, itemPrice);
+      console.log('createItem: ', digitalProductFile, itemPrice);
       if (!itemPrice) {
         throw Error("Item price is required");
       }
@@ -167,7 +173,7 @@ const ShopPage = (props: Props) => {
       await shopContract.createItem(
         web3.utils.toWei(itemPrice, "ether"),
         digitalProductFile,
-        metadtaUrl
+        ipfsHash
       );
       await getShopData();
 
@@ -221,15 +227,18 @@ const ShopPage = (props: Props) => {
   }
 
   const uploadDigitalProduct = async (e: any) => {
-    console.log('digital product');
-    let secretKey = crypto.randomBytes(48).toString('base64');
-    secretKey = crypto.createHash('sha256').update(String(secretKey)).digest('base64').substr(0, 32);
+    console.log('uploadDigitalProduct e: ', e);
+    setDigitalProductFileRef(e);
+    return;
+    // console.log('digital product');
+    // let secretKey = crypto.randomBytes(48).toString('base64');
+    // secretKey = crypto.createHash('sha256').update(String(secretKey)).digest('base64').substr(0, 32);
 
-    console.log('secretKey: ', secretKey);
-    // todo: encrypt file and set in SC
-    const res = await encryptFile(e, completeFileEncryption, secretKey);
+    // console.log('secretKey: ', secretKey);
+    // // todo: encrypt file and set in SC
+    // const res = await encryptFile(e, completeFileEncryption, secretKey);
 
-    console.log('encrypt res: ', res);
+    // console.log('encrypt res: ', res);
     // setDigitalProductFile(await handleImageUpload(e));
   }
   console.log("transactions: ", transactions);
@@ -448,6 +457,16 @@ const ShopPage = (props: Props) => {
                 height="200px"
               />
             </Flex>
+            <Box mt={"4"}>
+              <Text mb={"1"}>Upload NFT Image</Text>
+              <Text mb={"2"} fontSize="xs">this image represents what the product is like</Text>
+              <input
+                type="file"
+                name="Asset"
+                className="mr-2"
+                onChange={(e: any) => uploadImage(e)}
+              />
+            </Box>
             <Input
               placeholder="item name"
               value={itemName}
@@ -466,34 +485,15 @@ const ShopPage = (props: Props) => {
               onChange={(e: any) => setItemPrice(e.target.value)}
               mt={4}
             />
-            <RadioGroup mt={4} onChange={setIsDigital} value={isDigital}>
-              <Stack direction='row'>
-                <Radio value='PHYSICAL'>Physical Product</Radio>
-                <Radio value='DIGITAL'>Digital Product</Radio>
-                <Radio disabled={true} value='NFT'>NFT (soon to come)</Radio>
-              </Stack>
-            </RadioGroup>
-            {
-              isDigital === 'DIGITAL' ? (
-                <Box mt={"4"}>
-                  <Text mb={"2"}>Upload Digital Product</Text>
-                  <input
-                    type="file"
-                    name="Asset"
-                    className="mr-2"
-                    onChange={(e: any) => uploadDigitalProduct(e)}
-                  />
-              </Box>
-              ) : ""
-            }
-            <Box mt={"4"}>
-              <Text mb={"2"}>Upload Product Image</Text>
-              <input
-                type="file"
-                name="Asset"
-                className="mr-2"
-                onChange={(e: any) => uploadImage(e)}
-              />
+              <Box mt={"4"}>
+                <Text mb={"1"}>Upload Digital Product</Text>
+                <Text mb={"2"} fontSize="xs">any digital asset file that you intend to sell</Text>
+                <input
+                  type="file"
+                  name="Asset"
+                  className="mr-2"
+                  onChange={(e: any) => uploadDigitalProduct(e)}
+                />
             </Box>
           </ModalBody>
 

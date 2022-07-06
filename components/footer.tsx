@@ -45,7 +45,7 @@ export default function Footer() {
                                 />
                             </Box>
                             <Text fontSize={'sm'}>
-                                © 2022 deCom. All rights
+                                © 2022 dCom. All rights
                                 reserved
                             </Text>
                         </Stack>

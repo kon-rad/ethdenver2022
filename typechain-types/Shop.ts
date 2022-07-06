@@ -40,7 +40,6 @@ export declare namespace Shop {
     client: string;
     review: BigNumberish;
     isReviewed: boolean;
-    affPercentage: BigNumberish;
   };
 
   export type TransStructOutput = [
@@ -51,8 +50,7 @@ export declare namespace Shop {
     boolean,
     string,
     BigNumber,
-    boolean,
-    BigNumber
+    boolean
   ] & {
     transId: BigNumber;
     itemIds: BigNumber[];
@@ -62,7 +60,6 @@ export declare namespace Shop {
     client: string;
     review: BigNumber;
     isReviewed: boolean;
-    affPercentage: BigNumber;
   };
 
   export type AffiliateStruct = {
@@ -81,6 +78,7 @@ export declare namespace Shop {
 export interface ShopInterface extends utils.Interface {
   contractName: "Shop";
   functions: {
+    "_transactionsCount()": FunctionFragment;
     "affiliates(address)": FunctionFragment;
     "approveAffiliate(address)": FunctionFragment;
     "approvedAffArr(uint256)": FunctionFragment;
@@ -109,9 +107,12 @@ export interface ShopInterface extends utils.Interface {
     "setItemLink(uint256,string)": FunctionFragment;
     "shopId()": FunctionFragment;
     "transactions(uint256)": FunctionFragment;
-    "transactionsCount()": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "_transactionsCount",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "affiliates", values: [string]): string;
   encodeFunctionData(
     functionFragment: "approveAffiliate",
@@ -206,11 +207,11 @@ export interface ShopInterface extends utils.Interface {
     functionFragment: "transactions",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "transactionsCount",
-    values?: undefined
-  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "_transactionsCount",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "affiliates", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "approveAffiliate",
@@ -290,10 +291,6 @@ export interface ShopInterface extends utils.Interface {
     functionFragment: "transactions",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "transactionsCount",
-    data: BytesLike
-  ): Result;
 
   events: {
     "ItemCreated(uint256,uint256)": EventFragment;
@@ -337,6 +334,10 @@ export interface Shop extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    _transactionsCount(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { _value: BigNumber }>;
+
     affiliates(
       arg0: string,
       overrides?: CallOverrides
@@ -483,21 +484,18 @@ export interface Shop extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, boolean, string, BigNumber, boolean, BigNumber] & {
+      [BigNumber, BigNumber, boolean, string, BigNumber, boolean] & {
         transId: BigNumber;
         total: BigNumber;
         isValid: boolean;
         client: string;
         review: BigNumber;
         isReviewed: boolean;
-        affPercentage: BigNumber;
       }
     >;
-
-    transactionsCount(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { _value: BigNumber }>;
   };
+
+  _transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
 
   affiliates(
     arg0: string,
@@ -645,20 +643,19 @@ export interface Shop extends BaseContract {
     arg0: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber, boolean, string, BigNumber, boolean, BigNumber] & {
+    [BigNumber, BigNumber, boolean, string, BigNumber, boolean] & {
       transId: BigNumber;
       total: BigNumber;
       isValid: boolean;
       client: string;
       review: BigNumber;
       isReviewed: boolean;
-      affPercentage: BigNumber;
     }
   >;
 
-  transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
-
   callStatic: {
+    _transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
+
     affiliates(
       arg0: string,
       overrides?: CallOverrides
@@ -794,18 +791,15 @@ export interface Shop extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, boolean, string, BigNumber, boolean, BigNumber] & {
+      [BigNumber, BigNumber, boolean, string, BigNumber, boolean] & {
         transId: BigNumber;
         total: BigNumber;
         isValid: boolean;
         client: string;
         review: BigNumber;
         isReviewed: boolean;
-        affPercentage: BigNumber;
       }
     >;
-
-    transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {
@@ -817,6 +811,8 @@ export interface Shop extends BaseContract {
   };
 
   estimateGas: {
+    _transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
+
     affiliates(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     approveAffiliate(
@@ -930,11 +926,13 @@ export interface Shop extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    _transactionsCount(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     affiliates(
       arg0: string,
       overrides?: CallOverrides
@@ -1055,7 +1053,5 @@ export interface Shop extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    transactionsCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

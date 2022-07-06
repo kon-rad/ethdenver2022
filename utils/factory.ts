@@ -45,8 +45,9 @@ export const fetchShops = async (
   setBalance: any
 ) => {
   const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);
-
-  // console.log("process.env.NEXT_PUBLIC_FACTORY_ADDRESS: ", process.env.NEXT_PUBLIC_FACTORY_ADDRESS);
+  console.log('network: ', process.env.NEXT_PUBLIC_NETWORK);
+  console.log("process.env.NEXT_PUBLIC_FACTORY_ADDRESS: ", process.env.NEXT_PUBLIC_FACTORY_ADDRESS);
+  
   if (!provider) {
     toast.error(`You must sign in to metamask!`, {
       position: "top-right",
@@ -59,7 +60,6 @@ export const fetchShops = async (
     });
     return;
   }
-  console.log('network: ', process.env.NEXT_PUBLIC_NETWORK);
   // const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);
   try {
     const factoryContract = new ethers.Contract(
@@ -74,6 +74,6 @@ export const fetchShops = async (
     setShops(data);
     setBalance(web3.utils.fromWei(balance.toString(), "ether"));
   } catch(e: any) {
-    console.error(e);
+    console.error(`Error during fetchAllShops: ${JSON.stringify(e)}`);
   }
 };

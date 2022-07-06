@@ -10,6 +10,7 @@ import web3 from 'web3';
 
 const Create = () => {
   const [isMobile] = useMediaQuery('(max-width: 600px)')
+  const [symbol, setSymbol] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [fileUrl, setFileUrl] = useState<string>("");
   const handleSubmit = async () => {
@@ -22,12 +23,26 @@ const Create = () => {
       ShopFactory.abi,
       signer
     );
-    // const sendValue = web3.utils.toWei('10', 'ether');
-    const transaction = await contract.createShop(
-      name,
-      fileUrl
-    );
-    await transaction.wait();
+    try {
+      // const sendValue = web3.utils.toWei('10', 'ether');
+      const transaction = await contract.createShop(
+        name,
+        fileUrl,
+        symbol
+      );
+      await transaction.wait();
+    } catch (e: any) {
+        toast.error(`Error: ${JSON.stringify(e.message)}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+      });
+      return;
+    }
     toast(`You successfully created ${name}!`, {
       position: "top-right",
       autoClose: 5000,
@@ -51,7 +66,7 @@ const Create = () => {
           </Text>
         </Box>
         <Box
-          maxWidth={isMobile ? '100%' : "600px"}
+          maxWidth={isMobile ? '100%' : "800px"}
           border="solid"
           borderRadius="8px"
           borderColor="Background.400"
@@ -66,23 +81,37 @@ const Create = () => {
               height="204px"
               mb="4"
             >
-            <Image src={fileUrl ? fileUrl : '/images/placeholder-image.png'} width="200px" height="200px" borderRadius="12px"/>
+              <Image src={fileUrl ? fileUrl : '/images/placeholder-image.png'} width="200px" height="200px" borderRadius="12px"/>
             </Box>
           </Flex>
+          <Box mb="4" mt="2">
+            <input
+              type="file"
+              name="Asset"
+              className="mr-2"
+              onChange={handleImageSelect}
+            />
+          </Box>
           <Input
-            mb="2"
+            mb="1"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setName(e.target.value)
             }
             name={"name"}
             placeholder={"shop name"}
           />
-          <input
-            type="file"
-            name="Asset"
-            className="mr-2"
-            onChange={handleImageSelect}
+          <Text fontSize="xs" mb="2">The name of your shop and NFT contract</Text>
+          <Input
+            mb="1"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setSymbol((e.target.value || "").toUpperCase().replace(" ", "").slice(0, 10))
+            }
+            width="180px"
+            value={symbol}
+            name={"symbol"}
+            placeholder={"shop symbol"}
           />
+          <Text fontSize="xs" mb="2">All caps, no spaces, 10 max character length</Text>
         </Box>
         <Box p="12">
           <Button color="brand.400" onClick={handleSubmit}>

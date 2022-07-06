@@ -15,10 +15,8 @@ const Home: NextPage = () => {
   const [deleteId, setDeleteId] = useState<string>("");
   const [isGov, setIsGov] = useState<boolean>(false);
 
-
   const web3Provider = new Web3.providers.HttpProvider(process.env.NEXT_PUBLIC_NETWORK);
   const web3 = new Web3(web3Provider);
-
 
   useEffect(() => {
     fetchShops(web3React, setShops, setBalance);

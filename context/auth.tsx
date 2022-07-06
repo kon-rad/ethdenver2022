@@ -88,8 +88,10 @@ export function AuthProvider({ children }: any) {
     });
     if (users.length === 0) {
       users.push(await createUser(userAddress));
+      return users[0];
     }
     setUser(users[0]);
+    return users[0];
   };
 
   useEffect(() => {
