@@ -16,16 +16,16 @@ contract Shop {
     // using StringUtils for string;
 
     string public name;
-    uint public shopId;
+    uint256 public shopId;
     string public image;
     string public tags;
     address payable public owner;
     address payable public governor;
     address payable public nftAddress;
-    uint public freeTransactions = 1000;
+    uint256 public freeTransactions = 1000;
     bool private initialized = false;
     ItemsCatalogArray private catalog;
-    Counters.Counter private _itemIds;
+    uint256[] public _templateItemIds;
     Counters.Counter private _affiliateId;
     Counters.Counter private _transIds;
     Counters.Counter public _transactionsCount;
@@ -33,29 +33,28 @@ contract Shop {
     Affiliate[] public approvedAffArr;
     mapping(address => Affiliate) public proposedAffiliates;
     mapping(address => Affiliate) public affiliates;
-    mapping(uint => string) private fileLinks;
 
     struct Trans {
-        uint transId;
+        uint256 transId;
         uint[] itemIds;
         uint[] itemQty;
-        uint total;
+        uint256 total;
         bool isValid;
         address client;
-        uint review;
+        uint256 review;
         bool isReviewed;
     }
 
     Trans[] public transactions;
 
     struct Affiliate {
-        uint percentage;
+        uint256 percentage;
         address affAddr;
-        uint id;
+        uint256 id;
     }
     event ItemCreated (
-        uint itemId,
-        uint price
+        uint256 itemId,
+        uint256 price
     );
     
     function initialize(
@@ -63,7 +62,7 @@ contract Shop {
         string memory _name,
         string memory _image,
         string memory _tags,
-        uint _shopId,
+        uint256 _shopId,
         address _governor,
         address _nftAddress
     ) external {
@@ -80,12 +79,12 @@ contract Shop {
     }
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "Shop01");
+        require(msg.sender == owner, "S:01");
         _;
     }
 
     modifier onlyGovernor() {
-        require(msg.sender == governor, "Shop03");
+        require(msg.sender == governor, "S:03");
         _;
     }
 
@@ -95,11 +94,10 @@ contract Shop {
     }
 
     function createItem(
-        uint _price,
-        string memory _filePath,
+        uint256 _price,
         string memory _tokenURI
     ) public onlyOwner payable {
-        uint itemId = _itemIds.current();
+        uint256 itemId = IItemToken(nftAddress).getTotal() + 1;
         IItemToken(nftAddress).createItem(itemId, _tokenURI);
 
         catalog.createItem(
@@ -109,42 +107,26 @@ contract Shop {
                 isDeleted: false
             })
         );
-        fileLinks[itemId] = _filePath;
-        _itemIds.increment();
+        _templateItemIds.push(itemId);
 
         emit ItemCreated(itemId, _price);
-    }
-
-    function fetchItemLink(
-        uint _itemId
-    ) public view returns (string memory) {
-        // only for owner of NFT
-        require(IItemToken(nftAddress).balanceOf(msg.sender, _itemId) > 0, "Shop03");
-        return fileLinks[_itemId];
-    }
-
-    function setItemLink(
-        uint _itemId,
-        string memory _fileLink
-    ) public onlyOwner {
-        fileLinks[_itemId] = _fileLink;
     }
 
     function fetchCatalogItems() public view returns (Item[] memory) {
         return catalog.fetchCatalogItems();
     }
 
-    function deleteItem(uint _id) public onlyOwner {
+    function deleteItem(uint256 _id) public onlyOwner {
         catalog.deleteItem(_id);
     }
 
     // ================================= // AFFILIATES // ================================= //
 
-    function proposeAffiliate(uint percentage) public {
+    function proposeAffiliate(uint256 percentage) public {
         require(affiliates[msg.sender].percentage == 0, "PA0");
         require(percentage > 0, "PA1");
         require(percentage < 100, "PA2");
-        uint _id = _affiliateId.current();
+        uint256 _id = _affiliateId.current();
         Affiliate memory pAff = Affiliate({
             affAddr: msg.sender,
             percentage: percentage,
@@ -164,7 +146,7 @@ contract Shop {
     }
 
     function cancelAffiliate(address affAddr) public onlyOwner {
-        for (uint i; i < approvedAffArr.length; i++) {
+        for (uint256 i; i < approvedAffArr.length; i++) {
             if (approvedAffArr[i].affAddr == affAddr) {
                 delete approvedAffArr[i];
                 if (i != approvedAffArr.length - 1) {
@@ -178,7 +160,7 @@ contract Shop {
 
     function approveAffiliate(address affAddr) public onlyOwner {
         affiliates[affAddr] = proposedAffiliates[affAddr];
-        uint affId = proposedAffiliates[affAddr].id;
+        uint256 affId = proposedAffiliates[affAddr].id;
         
         approvedAffArr.push(affiliates[affAddr]);
         delete proposedAffArr[affId];
@@ -191,7 +173,7 @@ contract Shop {
     // ================================= // TRANSACTION // ================================= //
 
     function makeTransaction(uint[] memory itemIds, uint[] memory itemQty, address affAddr)
-        public payable returns (uint transactionId)
+        public payable returns (uint256 transactionId)
     {
         Affiliate memory aff;
         // if an affiliate address is provided make sure it is an approved affiliate
@@ -199,10 +181,10 @@ contract Shop {
             aff = affiliates[affAddr];
             require(aff.affAddr != address(0), "MT0");
         }
-        uint total = 0;
+        uint256 total = 0;
         // get items total
-        uint i;
-        uint len = itemIds.length;
+        uint256 i;
+        uint256 len = itemIds.length;
         for (i = 0; i < len; i++) {
             total += catalog.catalog[itemIds[i]].price * itemQty[i];
         }
@@ -210,8 +192,8 @@ contract Shop {
 
         IItemToken(nftAddress).batchSale(msg.sender, itemIds, itemQty);
         _transactionsCount.increment();
-        uint affShare = 0;
-        uint govShare = 0;
+        uint256 affShare = 0;
+        uint256 govShare = 0;
         if (_transactionsCount.current() > freeTransactions) govShare = total.div(100);
         if (affAddr != address(0)) {
             affShare = total.div(100).mul(aff.percentage);
@@ -220,7 +202,7 @@ contract Shop {
         payable(address(owner)).transfer(total.sub(govShare).sub(affShare));
         if (govShare > 0) payable(address(governor)).transfer(govShare);
 
-        uint transId = _transIds.current();
+        uint256 transId = _transIds.current();
         transactions.push(Trans({
             transId: transId,
             itemIds: itemIds,
@@ -236,7 +218,7 @@ contract Shop {
         return transId;
     }
 
-    function giveReview(uint stars, uint transId) public {
+    function giveReview(uint256 stars, uint256 transId) public {
         require(transactions[transId].client == msg.sender, "GR0");
         transactions[transId].review = stars;
         transactions[transId].isReviewed = true;
@@ -250,7 +232,7 @@ contract Shop {
         selfdestruct(payable(governor));
     }
 
-    function setFreeTransactions(uint _freeTransactions) public onlyGovernor {
+    function setFreeTransactions(uint256 _freeTransactions) public onlyGovernor {
         freeTransactions = _freeTransactions;
     }
 }

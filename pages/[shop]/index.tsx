@@ -21,9 +21,6 @@ import {
   Tab,
   TabPanel,
   useMediaQuery,
-  RadioGroup,
-  Stack,
-  Radio
 } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
@@ -32,16 +29,14 @@ import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
 import CatalogItem from "../../components/catalogItem";
 import Shop from "../../artifacts/contracts/Shop.sol/Shop.json";
+import ItemToken from "../../artifacts/contracts/tokens/ItemToken.sol/ItemToken.json";
 import { handleImageUpload, encryptFile } from "../../utils/ipfs";
 import TransactionItem from "../../components/transactionItem";
 import web3 from "web3";
 import { formatAddress } from "../../utils/web3";
 import { getAffiliates, makeAffiliateProposal, updateAffiliate } from "../../utils/shop";
-import Web3Modal from "web3modal";
 import { create as ipfsHttpClient } from 'ipfs-http-client'
 import axios from "axios";
-import { encrypt, decrypt } from "../../services/encryption";
-import crypto from 'crypto';
 import {
     collection,
     addDoc,
@@ -71,7 +66,9 @@ const ShopPage = (props: Props) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [owner, setOwner] = useState<string>("");
   const [name, setName] = useState<string>("");
+  const [tags, setTags] = useState<string>("");
   const [nftAddress, setNftAddress] = useState<string>("");
+  const [lastTokenId, setLastTokenId] = useState<number>(1);
   const [desc, setDesc] = useState<string>("");
   const [image, setImage] = useState<string>("");
   const [isOwner, setIsOwner] = useState<boolean>(false);
@@ -92,8 +89,7 @@ const ShopPage = (props: Props) => {
   const [isMobile] = useMediaQuery("(max-width: 600px)");
 
   const web3React = useWeb3React();
-
-  const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);
+  const provider = web3React.library;
 
   const router = useRouter();
   console.log("router.query.shop: ", router.query.shop);
@@ -103,7 +99,7 @@ const ShopPage = (props: Props) => {
   useEffect(() => {
     if (router.query.shop) {
       getAffiliates(
-        web3React,
+        web3React.library,
         setProposedAffiliates,
         setActiveAffiliates,
         Shop.abi,
@@ -121,67 +117,76 @@ const ShopPage = (props: Props) => {
   const getShopData = async () => {
     if (!router.query.shop) return;
 
-    console.log("getting shop data ", provider);
     const shopContract = new ethers.Contract(
       router.query.shop,
       Shop.abi,
       provider
     );
     setName(await shopContract.name());
-    // setDesc(await shopContract.description());
     setImage(await shopContract.image());
     setOwner(await shopContract.owner());
-    setNftAddress(await shopContract.nftAddress());
+    setTags(await shopContract.tags());
+    const freshNftAddress = await shopContract.nftAddress();
+    setNftAddress(freshNftAddress);
 
     setItems(await shopContract.fetchCatalogItems());
     setTransactions(await shopContract.fetchTransactions());
     console.log("shop data is set");
+
+    const itemTokenContract = new ethers.Contract(
+      freshNftAddress,
+      ItemToken.abi,
+      provider
+    );
+    setLastTokenId(await itemTokenContract.getTotal());
   };
 
-  console.log("addr 2: & owner ", web3React.account, owner, isOwner);
   const handleCreate = async () => {
-    const web3Modal = new Web3Modal();
-    const connection = await web3Modal.connect();
-    const providerWSigner = new ethers.providers.Web3Provider(connection);
     try {
-      const signer = providerWSigner.getSigner();
-      const {
-        encryptedFileIPFSHash,
-        encryptedSymmetricKey
-    } = lit.encrypt(digitalProductFileRef, nftAddress, )
-
-      /* first, upload to IPFS */
-      const data = JSON.stringify({
-          name: itemName,
-          description: itemDesc,
-          image: itemImage,
-          encryptedAsset: encryptedAsset,
-      });
-      const added = await client.add(data);
-      const ipfsHash = `${added.path}`;
+      const signer = provider.getSigner();
 
       const shopContract = new ethers.Contract(
         router.query.shop,
         Shop.abi,
         signer
       );
-      console.log(
-        'creating item: metadtaUrl, file url', 
-        ipfsHash,
-        digitalProductFile
-      );
 
-      console.log('createItem: ', digitalProductFile, itemPrice);
       if (!itemPrice) {
         throw Error("Item price is required");
       }
-      
+      const currTokenId = lastTokenId;
       await shopContract.createItem(
         web3.utils.toWei(itemPrice, "ether"),
-        digitalProductFile,
-        ipfsHash
+        ""
       );
       await getShopData();
+
+      const {
+        encryptedFileIPFSHash,
+        encryptedSymmetricKey
+      } = await lit.encrypt(digitalProductFileRef, nftAddress, currTokenId);
+
+      /* first, upload to IPFS */
+      const data = JSON.stringify({
+          name: itemName,
+          description: itemDesc,
+          image: itemImage,
+          file: encryptedFileIPFSHash,
+          encryptedSymmetricKey: encryptedSymmetricKey
+          // external_url
+      });
+      const added = await client.add(data);
+      const ipfsHash = `${added.path}`;
+      
+      const nftContract = new ethers.Contract(
+        nftAddress,
+        ItemToken.abi,
+        signer
+      );
+      await nftContract.setTokenURI(
+        currTokenId,
+        ipfsHash
+      );
 
       toast(`You successfully created ${itemName}!`, {
         position: "top-right",
@@ -214,8 +219,6 @@ const ShopPage = (props: Props) => {
   };
 
   const saveKeyForFile = async (fileUrl: string, secretKey: string) => {
-    // const keyRef = doc(db, 'fileKeys', web3React.account);
-    debugger;
     console.log('save key for file: ', fileUrl);
     
     await addDoc(collection(db, 'fileKeys'), {
@@ -233,48 +236,11 @@ const ShopPage = (props: Props) => {
   }
 
   const uploadDigitalProduct = async (e: any) => {
-    console.log('uploadDigitalProduct e: ', e);
     setDigitalProductFileRef(e);
-    return;
-    // console.log('digital product');
-    // let secretKey = crypto.randomBytes(48).toString('base64');
-    // secretKey = crypto.createHash('sha256').update(String(secretKey)).digest('base64').substr(0, 32);
-
-    // console.log('secretKey: ', secretKey);
-    // // todo: encrypt file and set in SC
-    // const res = await encryptFile(e, completeFileEncryption, secretKey);
-
-    // console.log('encrypt res: ', res);
-    // setDigitalProductFile(await handleImageUpload(e));
-  }
-  console.log("transactions: ", transactions);
-  console.log("encryptedUrl: ", encryptedUrl);
-
-  const downloadAndDecrypt = async () => {
-    axios.get(encryptedUrl, {
-      responseType: 'arraybuffer'
-    })
-    .then(response => {
-      // Buffer.from(response.data, 'binary').toString('base64')
-      // fs.writeFile('/temp/decrypted.md', response.data, (err) => {
-      //   if (err) throw err;
-      //   console.log('The file has been saved!');
-      // });
-      console.log("response data: ", response.data);
-
-      const decrypted = decrypt(Buffer.from(response.data, 'binary'));
-
-      const url = window.URL.createObjectURL(new Blob([decrypted]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'encrypted.txt');
-      document.body.appendChild(link);
-      link.click();
-    })
   }
   
   if (!router.query.shop) {
-    return <h1>Try navigating to this page from the home page</h1>;
+    return <h1>Yikes. Try navigating to this page from the home page</h1>;
   }
   const renderAffiliate = (aff: any, isApproved: boolean) => {
     return (
@@ -300,7 +266,7 @@ const ShopPage = (props: Props) => {
           <Text fontSize="2xl" fontWeight="bold" mb="2">Active:</Text>
             {activeAffiliates.filter((aff: any) => aff.percentage?.toString() != '0').map((aff: any) => renderAffiliate(aff, true))}
         </Flex>
-        );
+      );
     }
     return (
       <Box>
@@ -312,7 +278,9 @@ const ShopPage = (props: Props) => {
                 .map((aff: any, i: number) => {
                   return (
                     <Box key={`proposed-aff-${i}`}>
-                      <Text fontWeight="bold" fontSize="xl">Your Affiliate proposal for {aff.percentage?.toString()}% is pending</Text>
+                      <Text fontWeight="bold" fontSize="xl">
+                        Your Affiliate proposal for {aff.percentage?.toString()}% is pending
+                      </Text>
                     </Box>
                   )
                 })
@@ -324,7 +292,11 @@ const ShopPage = (props: Props) => {
                 .map((aff: any, i:number) => {
                   return (
                     <Box key={`aff-${i}`}>
-                      <Text fontWeight="bold" fontSize="xl"> <a href={`${window.location.href}/${web3React.account}`}>Here is your affiliate link for {aff.percentage?.toString()}%:</a></Text>
+                      <Text fontWeight="bold" fontSize="xl">
+                        <a href={`${window.location.href}/${web3React.account}`}>
+                          Here is your affiliate link for {aff.percentage?.toString()}%:
+                        </a>
+                      </Text>
                     </Box>
                   )
                 })
@@ -365,15 +337,14 @@ const ShopPage = (props: Props) => {
             align="center"
             direction={isMobile ? "column" : "row"}
           >
-            {/* <Box width={isMobile ? "90%" : "200px"} m="2"> */}
             <Image
               borderRadius="12px"
               src={image}
               width={isMobile ? "90%" : "200px"}
               height={isMobile ? "90%" : "200px"}
               mr="6"
+              boxShadow="xl"
             />
-            {/* </Box> */}
             <Box>
               {" "}
               <Text fontSize="6xl">{name}</Text>
@@ -401,6 +372,11 @@ const ShopPage = (props: Props) => {
                   shop address: {router.query.shop.slice(0, 5)}...
                 </Link>
               </Flex>
+              <Flex color="white" >
+                {tags.split(', ').map(
+                  (tag: string) => (<Box backgroundColor="brand.400" m="2" boxShadow="lg" py="1" px="2" borderRadius="8px">{tag}</Box>))
+                }
+              </Flex>
               <Flex m={"4"}>
                 {isOwner && (
                   <Button mr={"4"} onClick={onOpen}>
@@ -409,7 +385,7 @@ const ShopPage = (props: Props) => {
                 )}
                 {isOwner && <Button onClick={handleEdit}>Edit Shop</Button>}
               </Flex>
-            <Button mr={"4"} onClick={downloadAndDecrypt}>download and decrypt file</Button>
+            {/* <Button mr={"4"} onClick={downloadAndDecrypt}>download and decrypt file</Button> */}
             </Box>
           </Flex>
 
@@ -423,7 +399,13 @@ const ShopPage = (props: Props) => {
               <TabPanel>
                 <Flex justify={"center"} align={"center"} direction={"column"}>
                   {items.map((elem: any, i: number) => !elem[2] && (
-                    <CatalogItem key={`item-${i}`} data={elem} nftAddress={nftAddress} shopAddress={router.query.shop} isOwner={isOwner} />
+                    <CatalogItem
+                      key={`item-${i}`}
+                      data={elem}
+                      nftAddress={nftAddress}
+                      shopAddress={router.query.shop}
+                      isOwner={isOwner}
+                    />
                   ))}
                 </Flex>
               </TabPanel>
@@ -461,6 +443,7 @@ const ShopPage = (props: Props) => {
                 src={itemImage ? itemImage : "/images/placeholder-image.png"}
                 width="200px"
                 height="200px"
+                boxShadow="xl"
               />
             </Flex>
             <Box mt={"4"}>
@@ -502,7 +485,6 @@ const ShopPage = (props: Props) => {
                 />
             </Box>
           </ModalBody>
-
           <ModalFooter>
             <Button colorScheme="blue" mr={3} onClick={onClose}>
               Close

@@ -2,8 +2,10 @@ import LitJsSdk from 'lit-js-sdk'
 import { create as ipfsHttpClient } from 'ipfs-http-client'
 
 const client = new LitJsSdk.LitNodeClient()
-const chain = 'polygon'
-const standardContractType = 'ERC1155'
+// const chain = 'polygon'
+const chain = 'localhost'
+// / todo: must use erc1155 - convert 
+const standardContractType = 'ERC721'
 
 class Lit {
     litNodeClient
@@ -13,7 +15,7 @@ class Lit {
         this.litNodeClient = client
     }
 
-    async encrypt(file: any, tokenAddress: string, tokenId: string) {
+    async encrypt(file: any, tokenAddress: string, tokenId: number) {
         if (!this.litNodeClient) {
             await this.connect()
         }
@@ -25,7 +27,7 @@ class Lit {
             chain,
             method: 'ownerOf',
             parameters: [
-              ':tokenId'
+              tokenId
             ],
             returnValueTest: {
               comparator: '=',

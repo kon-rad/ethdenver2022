@@ -29,7 +29,7 @@ contract ItemToken is ERC721Modified {
         isPaused = !isPaused;
     }
 
-    function getTotal() public view returns (uint256) {
+    function getTotal() external view returns (uint256) {
         return _tokenId.current() - 1;
     }
 
@@ -49,6 +49,11 @@ contract ItemToken is ERC721Modified {
 
     modifier onlyShop() {
         require(msg.sender == shop, "ERC721:01");
+        _;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "ERC721:04");
         _;
     }
 
@@ -78,6 +83,10 @@ contract ItemToken is ERC721Modified {
         templateTokenIds.push(currentTokenId);
         _setTokenURI(currentTokenId, _uri);
         _tokenId.increment();
+    }
+
+    function setTokenURI(uint256 tokenId, string memory _uri) external onlyOwner {
+        _setTokenURI(tokenId, _uri);
     }
 
     // todo: create resale transfer options: yes / no / max / min price

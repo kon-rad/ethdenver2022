@@ -1,7 +1,5 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { parseUnits, hexStripZeros } = require("ethers/lib/utils");
-const { loadFixture } = require("./_helpers");
 
 const TOKEN_NAME = 'Digital Good Token';
 const DUMMY_URI = 'https://someuri.com';

@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import Web3Modal from "web3modal";
 import { Box, Flex, Image, Text, Input, Button, useMediaQuery } from "@chakra-ui/react";
 import ShopFactory from "../artifacts/contracts/ShopFactory.sol/ShopFactory.json";
 import { handleImageUpload } from "../utils/ipfs";
 import { toast } from "react-toastify";
 import Router from "next/router";
-import web3 from 'web3';
+import { useWeb3React } from "@web3-react/core";
 
 const Create = () => {
   const [isMobile] = useMediaQuery('(max-width: 600px)')
@@ -14,10 +13,10 @@ const Create = () => {
   const [name, setName] = useState<string>("");
   const [tags, setTags] = useState<string>("");
   const [fileUrl, setImageIPFSHash] = useState<string>("");
+  const web3React = useWeb3React();
+
   const handleSubmit = async () => {
-    const web3Modal = new Web3Modal();
-    const connection = await web3Modal.connect();
-    const provider = new ethers.providers.Web3Provider(connection);
+    const provider = web3React.library;
     const signer = provider.getSigner();
     const contract = new ethers.Contract(
       process.env.NEXT_PUBLIC_FACTORY_ADDRESS,
@@ -25,7 +24,6 @@ const Create = () => {
       signer
     );
     try {
-      // const sendValue = web3.utils.toWei('10', 'ether');
       const transaction = await contract.createShop(
         name,
         fileUrl,

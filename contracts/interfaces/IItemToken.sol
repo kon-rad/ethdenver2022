@@ -6,4 +6,5 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol
 interface IItemToken is IERC1155MetadataURI {
     function batchSale(address _to, uint256[] memory _tokenIds, uint256[] memory _amounts) external;
     function createItem(uint256 _tokenId, string memory _uri) external;
+    function getTotal() external view returns (uint256);
 }
