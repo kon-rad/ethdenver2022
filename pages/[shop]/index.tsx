@@ -262,9 +262,17 @@ const ShopPage = (props: Props) => {
       return (
         <Flex flexDirection="column" justify="center">
           <Text fontSize="2xl" fontWeight="bold" mb="2">Proposals:</Text>
-            {proposedAffiliates.filter((aff: any) => aff.percentage?.toString() != '0').map((aff: any) => renderAffiliate(aff, false))}
+            {
+              proposedAffiliates.filter(
+                (aff: any) => aff.percentage?.toString() != '0').map((aff: any) => renderAffiliate(aff, false)
+              )
+            }
           <Text fontSize="2xl" fontWeight="bold" mb="2">Active:</Text>
-            {activeAffiliates.filter((aff: any) => aff.percentage?.toString() != '0').map((aff: any) => renderAffiliate(aff, true))}
+            {
+              activeAffiliates.filter(
+                (aff: any) => aff.percentage?.toString() != '0').map((aff: any) => renderAffiliate(aff, true)
+              )
+            }
         </Flex>
       );
     }

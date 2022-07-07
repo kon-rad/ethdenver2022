@@ -78,15 +78,15 @@ export declare namespace Shop {
 export interface ShopInterface extends utils.Interface {
   contractName: "Shop";
   functions: {
+    "_templateItemIds(uint256)": FunctionFragment;
     "_transactionsCount()": FunctionFragment;
     "affiliates(address)": FunctionFragment;
     "approveAffiliate(address)": FunctionFragment;
     "approvedAffArr(uint256)": FunctionFragment;
     "cancelAffiliate(address)": FunctionFragment;
-    "createItem(uint256,string,string)": FunctionFragment;
+    "createItem(uint256,string)": FunctionFragment;
     "deleteItem(uint256)": FunctionFragment;
     "fetchCatalogItems()": FunctionFragment;
-    "fetchItemLink(uint256)": FunctionFragment;
     "fetchTransactions()": FunctionFragment;
     "freeTransactions()": FunctionFragment;
     "getApprovedAffiliates()": FunctionFragment;
@@ -104,13 +104,16 @@ export interface ShopInterface extends utils.Interface {
     "proposedAffiliates(address)": FunctionFragment;
     "selfDestruct()": FunctionFragment;
     "setFreeTransactions(uint256)": FunctionFragment;
-    "setItemLink(uint256,string)": FunctionFragment;
     "setTags(string)": FunctionFragment;
     "shopId()": FunctionFragment;
     "tags()": FunctionFragment;
     "transactions(uint256)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "_templateItemIds",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "_transactionsCount",
     values?: undefined
@@ -130,7 +133,7 @@ export interface ShopInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "createItem",
-    values: [BigNumberish, string, string]
+    values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "deleteItem",
@@ -139,10 +142,6 @@ export interface ShopInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "fetchCatalogItems",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "fetchItemLink",
-    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "fetchTransactions",
@@ -200,10 +199,6 @@ export interface ShopInterface extends utils.Interface {
     functionFragment: "setFreeTransactions",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setItemLink",
-    values: [BigNumberish, string]
-  ): string;
   encodeFunctionData(functionFragment: "setTags", values: [string]): string;
   encodeFunctionData(functionFragment: "shopId", values?: undefined): string;
   encodeFunctionData(functionFragment: "tags", values?: undefined): string;
@@ -212,6 +207,10 @@ export interface ShopInterface extends utils.Interface {
     values: [BigNumberish]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "_templateItemIds",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "_transactionsCount",
     data: BytesLike
@@ -233,10 +232,6 @@ export interface ShopInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "deleteItem", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "fetchCatalogItems",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "fetchItemLink",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -284,10 +279,6 @@ export interface ShopInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setFreeTransactions",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setItemLink",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setTags", data: BytesLike): Result;
@@ -340,6 +331,11 @@ export interface Shop extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    _templateItemIds(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     _transactionsCount(
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { _value: BigNumber }>;
@@ -378,7 +374,6 @@ export interface Shop extends BaseContract {
 
     createItem(
       _price: BigNumberish,
-      _filePath: string,
       _tokenURI: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -389,11 +384,6 @@ export interface Shop extends BaseContract {
     ): Promise<ContractTransaction>;
 
     fetchCatalogItems(overrides?: CallOverrides): Promise<[ItemStructOutput[]]>;
-
-    fetchItemLink(
-      _itemId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
 
     fetchTransactions(
       overrides?: CallOverrides
@@ -479,12 +469,6 @@ export interface Shop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setItemLink(
-      _itemId: BigNumberish,
-      _fileLink: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     setTags(
       _tags: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -508,6 +492,11 @@ export interface Shop extends BaseContract {
       }
     >;
   };
+
+  _templateItemIds(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   _transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -545,7 +534,6 @@ export interface Shop extends BaseContract {
 
   createItem(
     _price: BigNumberish,
-    _filePath: string,
     _tokenURI: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -556,11 +544,6 @@ export interface Shop extends BaseContract {
   ): Promise<ContractTransaction>;
 
   fetchCatalogItems(overrides?: CallOverrides): Promise<ItemStructOutput[]>;
-
-  fetchItemLink(
-    _itemId: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<string>;
 
   fetchTransactions(
     overrides?: CallOverrides
@@ -646,12 +629,6 @@ export interface Shop extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setItemLink(
-    _itemId: BigNumberish,
-    _fileLink: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   setTags(
     _tags: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -676,6 +653,11 @@ export interface Shop extends BaseContract {
   >;
 
   callStatic: {
+    _templateItemIds(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     _transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
 
     affiliates(
@@ -706,7 +688,6 @@ export interface Shop extends BaseContract {
 
     createItem(
       _price: BigNumberish,
-      _filePath: string,
       _tokenURI: string,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -714,11 +695,6 @@ export interface Shop extends BaseContract {
     deleteItem(_id: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     fetchCatalogItems(overrides?: CallOverrides): Promise<ItemStructOutput[]>;
-
-    fetchItemLink(
-      _itemId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<string>;
 
     fetchTransactions(
       overrides?: CallOverrides
@@ -802,12 +778,6 @@ export interface Shop extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setItemLink(
-      _itemId: BigNumberish,
-      _fileLink: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     setTags(_tags: string, overrides?: CallOverrides): Promise<void>;
 
     shopId(overrides?: CallOverrides): Promise<BigNumber>;
@@ -838,6 +808,11 @@ export interface Shop extends BaseContract {
   };
 
   estimateGas: {
+    _templateItemIds(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     _transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
 
     affiliates(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -859,7 +834,6 @@ export interface Shop extends BaseContract {
 
     createItem(
       _price: BigNumberish,
-      _filePath: string,
       _tokenURI: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -870,11 +844,6 @@ export interface Shop extends BaseContract {
     ): Promise<BigNumber>;
 
     fetchCatalogItems(overrides?: CallOverrides): Promise<BigNumber>;
-
-    fetchItemLink(
-      _itemId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     fetchTransactions(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -942,12 +911,6 @@ export interface Shop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setItemLink(
-      _itemId: BigNumberish,
-      _fileLink: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     setTags(
       _tags: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -964,6 +927,11 @@ export interface Shop extends BaseContract {
   };
 
   populateTransaction: {
+    _templateItemIds(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     _transactionsCount(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -990,7 +958,6 @@ export interface Shop extends BaseContract {
 
     createItem(
       _price: BigNumberish,
-      _filePath: string,
       _tokenURI: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1001,11 +968,6 @@ export interface Shop extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     fetchCatalogItems(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    fetchItemLink(
-      _itemId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     fetchTransactions(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1074,12 +1036,6 @@ export interface Shop extends BaseContract {
 
     setFreeTransactions(
       _freeTransactions: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setItemLink(
-      _itemId: BigNumberish,
-      _fileLink: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

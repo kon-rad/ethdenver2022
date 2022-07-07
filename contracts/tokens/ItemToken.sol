@@ -30,7 +30,7 @@ contract ItemToken is ERC721Modified {
     }
 
     function getTotal() external view returns (uint256) {
-        return _tokenId.current() - 1;
+        return _tokenId.current();
     }
 
     function getTemplateTokenIds() public view returns (uint256[] memory) {

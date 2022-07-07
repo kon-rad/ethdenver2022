@@ -98,7 +98,7 @@ contract Shop {
         string memory _tokenURI
     ) public onlyOwner payable {
         uint256 itemId = IItemToken(nftAddress).getTotal() + 1;
-        IItemToken(nftAddress).createItem(itemId, _tokenURI);
+        IItemToken(nftAddress).createItem(_tokenURI);
 
         catalog.createItem(
             Item({

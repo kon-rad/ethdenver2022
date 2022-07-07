@@ -199,11 +199,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "_tokenId",
-        type: "uint256",
-      },
-      {
         internalType: "string",
         name: "_uri",
         type: "string",
@@ -212,6 +207,19 @@ const _abi = [
     name: "createItem",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getTotal",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {

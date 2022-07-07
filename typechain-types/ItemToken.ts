@@ -35,6 +35,7 @@ export interface ItemTokenInterface extends utils.Interface {
     "ownerOf(uint256)": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
+    "setTokenURI(uint256,string)": FunctionFragment;
     "shop()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
@@ -85,6 +86,10 @@ export interface ItemTokenInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setApprovalForAll",
     values: [string, boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setTokenURI",
+    values: [BigNumberish, string]
   ): string;
   encodeFunctionData(functionFragment: "shop", values?: undefined): string;
   encodeFunctionData(
@@ -137,6 +142,10 @@ export interface ItemTokenInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setApprovalForAll",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setTokenURI",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "shop", data: BytesLike): Result;
@@ -294,6 +303,12 @@ export interface ItemToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    setTokenURI(
+      tokenId: BigNumberish,
+      _uri: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     shop(overrides?: CallOverrides): Promise<[string]>;
 
     supportsInterface(
@@ -397,6 +412,12 @@ export interface ItemToken extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setTokenURI(
+    tokenId: BigNumberish,
+    _uri: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   shop(overrides?: CallOverrides): Promise<string>;
 
   supportsInterface(
@@ -491,6 +512,12 @@ export interface ItemToken extends BaseContract {
     setApprovalForAll(
       operator: string,
       approved: boolean,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setTokenURI(
+      tokenId: BigNumberish,
+      _uri: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -631,6 +658,12 @@ export interface ItemToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    setTokenURI(
+      tokenId: BigNumberish,
+      _uri: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     shop(overrides?: CallOverrides): Promise<BigNumber>;
 
     supportsInterface(
@@ -740,6 +773,12 @@ export interface ItemToken extends BaseContract {
     setApprovalForAll(
       operator: string,
       approved: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setTokenURI(
+      tokenId: BigNumberish,
+      _uri: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
