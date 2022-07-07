@@ -12,7 +12,8 @@ const Create = () => {
   const [isMobile] = useMediaQuery('(max-width: 600px)')
   const [symbol, setSymbol] = useState<string>("");
   const [name, setName] = useState<string>("");
-  const [fileUrl, setFileUrl] = useState<string>("");
+  const [tags, setTags] = useState<string>("");
+  const [fileUrl, setImageIPFSHash] = useState<string>("");
   const handleSubmit = async () => {
     const web3Modal = new Web3Modal();
     const connection = await web3Modal.connect();
@@ -28,6 +29,7 @@ const Create = () => {
       const transaction = await contract.createShop(
         name,
         fileUrl,
+        tags,
         symbol
       );
       await transaction.wait();
@@ -55,8 +57,15 @@ const Create = () => {
     Router.push("/");
   };
   const handleImageSelect = async (e: any) => {
-    setFileUrl(await handleImageUpload(e));
+    setImageIPFSHash(await handleImageUpload(e));
   };
+  const validateAndSetTAgs = (val: string) => {
+    let valArr = val.split(', ');
+    if (valArr.length > 5) {
+      valArr = valArr.slice(0, 5);
+    }
+    setTags(valArr.join(', '))
+  }
   return (
     <Box>
       <Flex align="center" direction="column">
@@ -66,17 +75,16 @@ const Create = () => {
           </Text>
         </Box>
         <Box
-          maxWidth={isMobile ? '100%' : "800px"}
-          border="solid"
-          borderRadius="8px"
+          maxWidth={isMobile ? '100%' : "700px"}
+          boxShadow='xl'
+          borderRadius="12px"
           borderColor="Background.400"
           p="12"
         >
           <Flex justify="center" height="200px" mb="4">
             <Box
               borderRadius="12px"
-              border="solid"
-              borderColor="brand.400"
+              boxShadow='xl'
               width="204px"
               height="204px"
               mb="4"
@@ -91,6 +99,7 @@ const Create = () => {
               className="mr-2"
               onChange={handleImageSelect}
             />
+          <Text fontSize="xs" mb="4">image to represent your shop, make sure you like it, once it is set you will not be able to change it</Text>
           </Box>
           <Input
             mb="1"
@@ -100,7 +109,7 @@ const Create = () => {
             name={"name"}
             placeholder={"shop name"}
           />
-          <Text fontSize="xs" mb="2">The name of your shop and NFT contract</Text>
+          <Text fontSize="xs" mb="2">The name of your shop and NFT contract, it is not editable.</Text>
           <Input
             mb="1"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -112,6 +121,16 @@ const Create = () => {
             placeholder={"shop symbol"}
           />
           <Text fontSize="xs" mb="2">All caps, no spaces, 10 max character length</Text>
+          <Input
+            mb="1"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              validateAndSetTAgs(e.target.value)
+            }
+            value={tags}
+            name={"tags"}
+            placeholder={"shop tags"}
+          />
+          <Text fontSize="xs" mb="2">Tags describe your shop for easy searching and navigation by customers. They are seperated by comma and a space ', '. Max number of tags is 5.</Text>
         </Box>
         <Box p="12">
           <Button color="brand.400" onClick={handleSubmit}>

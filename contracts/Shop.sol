@@ -7,15 +7,18 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "./interfaces/IItemToken.sol";
 import "./library/Catalog.sol";
+import "./library/StringUtils.sol";
 
 contract Shop {
     using SafeMath for uint;
     using Counters for Counters.Counter;
     using Catalog for ItemsCatalogArray;
+    // using StringUtils for string;
 
     string public name;
     uint public shopId;
     string public image;
+    string public tags;
     address payable public owner;
     address payable public governor;
     address payable public nftAddress;
@@ -59,15 +62,18 @@ contract Shop {
         address _owner,
         string memory _name,
         string memory _image,
+        string memory _tags,
         uint _shopId,
         address _governor,
         address _nftAddress
     ) external {
-        require(initialized == false, "Shop00");
+        require(initialized == false, "S:00");
+        require(StringUtils.strlen(_tags) < 280, "S:01 Tags must be less than 280 characters");
         initialized = true;
         owner = payable(address(_owner));
         name = _name;
         image = _image;
+        tags = _tags;
         shopId = _shopId;
         governor = payable(address(_governor));
         nftAddress = payable(address(_nftAddress));
@@ -81,6 +87,11 @@ contract Shop {
     modifier onlyGovernor() {
         require(msg.sender == governor, "Shop03");
         _;
+    }
+
+    function setTags(string memory _tags) external onlyOwner {
+        require(StringUtils.strlen(_tags) < 280, "S:01 Tags must be less than 280 characters");
+        tags = _tags;
     }
 
     function createItem(

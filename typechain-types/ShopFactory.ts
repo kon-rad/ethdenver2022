@@ -22,7 +22,7 @@ export interface ShopFactoryInterface extends utils.Interface {
   contractName: "ShopFactory";
   functions: {
     "allShops(uint256)": FunctionFragment;
-    "createShop(string,string,string)": FunctionFragment;
+    "createShop(string,string,string,string)": FunctionFragment;
     "deleteShop(address)": FunctionFragment;
     "fetchAllShops()": FunctionFragment;
     "getBalance()": FunctionFragment;
@@ -41,7 +41,7 @@ export interface ShopFactoryInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "createShop",
-    values: [string, string, string]
+    values: [string, string, string, string]
   ): string;
   encodeFunctionData(functionFragment: "deleteShop", values: [string]): string;
   encodeFunctionData(
@@ -157,6 +157,7 @@ export interface ShopFactory extends BaseContract {
     createShop(
       _name: string,
       _image: string,
+      _tags: string,
       nftSymbol_: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -202,6 +203,7 @@ export interface ShopFactory extends BaseContract {
   createShop(
     _name: string,
     _image: string,
+    _tags: string,
     nftSymbol_: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -247,6 +249,7 @@ export interface ShopFactory extends BaseContract {
     createShop(
       _name: string,
       _image: string,
+      _tags: string,
       nftSymbol_: string,
       overrides?: CallOverrides
     ): Promise<string>;
@@ -304,6 +307,7 @@ export interface ShopFactory extends BaseContract {
     createShop(
       _name: string,
       _image: string,
+      _tags: string,
       nftSymbol_: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -353,6 +357,7 @@ export interface ShopFactory extends BaseContract {
     createShop(
       _name: string,
       _image: string,
+      _tags: string,
       nftSymbol_: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

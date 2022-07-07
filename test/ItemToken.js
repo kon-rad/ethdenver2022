@@ -31,7 +31,7 @@ describe("ItemToken", async () => {
 
         const actualName = await itemToken.name();
         console.log('actualName: ', actualName);
-        expect(actualName).to.equal(TOKEN_NAME);f
+        expect(actualName).to.equal(TOKEN_NAME);
     });
 
     it('can create a new item', async () => {

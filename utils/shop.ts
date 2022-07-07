@@ -9,7 +9,7 @@ export const getAffiliates = async (
   shopAbi: any,
   shopAddress: string,
 ) => {
-  console.log("getAffiliates is called");
+  console.log("getAffiliates is called", shopAddress);
   // const provider = web3React.library;
 
   const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);

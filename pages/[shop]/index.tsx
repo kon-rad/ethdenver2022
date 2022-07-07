@@ -96,16 +96,22 @@ const ShopPage = (props: Props) => {
   const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);
 
   const router = useRouter();
+  console.log("router.query.shop: ", router.query.shop);
   useEffect(() => {
     getShopData();
-    getAffiliates(
-      web3React,
-      setProposedAffiliates,
-      setActiveAffiliates,
-      Shop.abi,
-      router.query.shop
-    );
   }, []);
+  useEffect(() => {
+    if (router.query.shop) {
+      getAffiliates(
+        web3React,
+        setProposedAffiliates,
+        setActiveAffiliates,
+        Shop.abi,
+        router.query.shop
+      );
+    }
+  }, [router.query.shop]);
+  
   useEffect(() => {
     setIsOwner(web3React.account === owner);
     console.log("addr changed isOwner: ", isOwner);
