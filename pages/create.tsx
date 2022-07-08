@@ -6,6 +6,7 @@ import { handleImageUpload } from "../utils/ipfs";
 import { toast } from "react-toastify";
 import Router from "next/router";
 import { useWeb3React } from "@web3-react/core";
+import { useSigner, useContract, useAccount } from 'wagmi'
 
 const Create = () => {
   const [isMobile] = useMediaQuery('(max-width: 600px)')
@@ -13,18 +14,17 @@ const Create = () => {
   const [name, setName] = useState<string>("");
   const [tags, setTags] = useState<string>("");
   const [fileUrl, setImageIPFSHash] = useState<string>("");
-  const web3React = useWeb3React();
+  const { data: signer } = useSigner();
+
+  const factoryContract = useContract({
+    addressOrName: process.env.NEXT_PUBLIC_FACTORY_ADDRESS,
+    contractInterface: ShopFactory.abi,
+    signerOrProvider: signer,
+  });
 
   const handleSubmit = async () => {
-    const provider = web3React.library;
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(
-      process.env.NEXT_PUBLIC_FACTORY_ADDRESS,
-      ShopFactory.abi,
-      signer
-    );
     try {
-      const transaction = await contract.createShop(
+      const transaction = await factoryContract.createShop(
         name,
         fileUrl,
         tags,
@@ -57,7 +57,7 @@ const Create = () => {
   const handleImageSelect = async (e: any) => {
     setImageIPFSHash(await handleImageUpload(e));
   };
-  const validateAndSetTAgs = (val: string) => {
+  const validateAndSetTags = (val: string) => {
     let valArr = val.split(', ');
     if (valArr.length > 5) {
       valArr = valArr.slice(0, 5);
@@ -75,6 +75,7 @@ const Create = () => {
         <Box
           maxWidth={isMobile ? '100%' : "700px"}
           boxShadow='xl'
+          backgroundColor="white"
           borderRadius="12px"
           borderColor="Background.400"
           p="12"
@@ -122,7 +123,7 @@ const Create = () => {
           <Input
             mb="1"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              validateAndSetTAgs(e.target.value)
+              validateAndSetTags(e.target.value)
             }
             value={tags}
             name={"tags"}

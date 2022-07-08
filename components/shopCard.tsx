@@ -12,26 +12,54 @@ import Link from "next/link";
 import Shop from "../artifacts/contracts/Shop.sol/Shop.json";
 import { ethers } from "ethers";
 import { useWeb3React } from "@web3-react/core";
+import { useSigner, useContract, useAccount, useContractReads } from 'wagmi'
+
 interface Props {
   address: string;
 }
-const ShopCard = (props: Props) => {
-  const web3React = useWeb3React();
-  const [owner, setOwner] = useState<string>("");
-  const [name, setName] = useState<string>("");
-  const [image, setImage] = useState<string>("");
-  const [isMobile] = useMediaQuery("(max-width: 600px)");
-  useEffect(() => {
-    getShopData();
-  }, []);
 
-  const getShopData = async () => {
-    const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);
-    const shopContract = new ethers.Contract(props.address, Shop.abi, provider);
-    setName(await shopContract.name());
-    setImage(await shopContract.image());
-    setOwner(await shopContract.owner());
-  };
+const ShopCard = (props: Props) => {
+  const { data: signer } = useSigner();
+  const { address, isConnecting, isDisconnected } = useAccount()
+  const [isMobile] = useMediaQuery("(max-width: 600px)");
+
+  const shopContract = useContract({
+    addressOrName: props.address,
+    contractInterface: Shop.abi,
+    signerOrProvider: signer,
+  });
+
+  const shopFactoryContractData = {
+    addressOrName: props.address,
+    contractInterface: Shop.abi,
+  }
+  let name: any = [];
+  let image: any = 0;
+  let owner: any = 0;
+
+  const { data, isError, isLoading } = useContractReads({
+    contracts: [
+      {
+        ...shopFactoryContractData,
+        functionName: 'name',
+      },
+      {
+        ...shopFactoryContractData,
+        functionName: 'image',
+      },
+      {
+        ...shopFactoryContractData,
+        functionName: 'owner',
+      }
+    ],
+  })
+  console.log('data -> ', data);
+  if (data) {
+    name = data[0];
+    image = data[1];
+    owner = data[2];
+  }
+
   return (
     <Box
       mb="4"
@@ -39,20 +67,21 @@ const ShopCard = (props: Props) => {
       borderRadius="12px"
       p="4"
       boxShadow='xl'
+      backgroundColor="white"
     >
       <Flex>
         <Box width="200px" m="2">
           <Image borderRadius="12px" src={image} width="200px" height="200px" />
         </Box>
         <Box>
-          <Text fontSize="2xl" color="black.700">
-            {name}
-          </Text>
+          <Text fontSize="2xl" color="black.700">{name}</Text>
         </Box>
         <Spacer />
         <Link href={`/${encodeURIComponent(props.address)}`}>
-            <Button backgroundColor="brand.400" color="gray.900">
-                Go</Button></Link>
+          <Button backgroundColor="brand.400" color="gray.900">
+            Go
+          </Button>
+        </Link>
       </Flex>
     </Box>
   );

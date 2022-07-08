@@ -35,7 +35,7 @@ interface ItemType {
 
 interface Props {
   data: ItemType;
-  shopAddress: string;
+  shopAddress: any;
   nftAddress: string;
   isOwner: boolean;
 }

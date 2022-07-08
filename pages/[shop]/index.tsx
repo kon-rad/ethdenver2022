@@ -49,6 +49,7 @@ import {
     updateDoc,
 } from "firebase/firestore";
 import lit from '../../utils/lit';
+import { useContract, useSigner, useContractReads, useAccount, useProvider, useContractRead } from 'wagmi'
 
 interface Props {}
 
@@ -64,13 +65,9 @@ const db = getFirestore();
 
 const ShopPage = (props: Props) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [owner, setOwner] = useState<string>("");
-  const [name, setName] = useState<string>("");
-  const [tags, setTags] = useState<string>("");
-  const [nftAddress, setNftAddress] = useState<string>("");
-  const [lastTokenId, setLastTokenId] = useState<number>(1);
+  const [lastTokenId, setLastTokenId] = useState<number | undefined>();
   const [desc, setDesc] = useState<string>("");
-  const [image, setImage] = useState<string>("");
+  // const [image, setImage] = useState<string>("");
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [digitalProductFile, setDigitalProductFile] = useState<string>("");
   const [digitalProductFileRef, setDigitalProductFileRef] = useState<string>("");
@@ -84,57 +81,84 @@ const ShopPage = (props: Props) => {
   const [itemImage, setItemImage] = useState<string>("");
   const [itemPrice, setItemPrice] = useState<string>("");
 
-  const [items, setItems] = useState<any>([]);
-  const [transactions, setTransactions] = useState<any>([]);
   const [isMobile] = useMediaQuery("(max-width: 600px)");
-
-  const web3React = useWeb3React();
-  const provider = web3React.library;
-
+  const provider = useProvider();
+  const { data: signer } = useSigner();
   const router = useRouter();
-  console.log("router.query.shop: ", router.query.shop);
+  const { address } = useAccount();
+
+  const shopContractData = {
+    addressOrName: router.query.shop,
+    contractInterface: Shop.abi,
+  }
+  let name = "";
+  let image = "";
+  let owner = "";
+  let tags = "";
+  let nftAddress = "";
+  let items = [];
+  let transactions = [];
+
+  const { data, isError, isLoading } = useContractReads({
+    contracts: [
+      {
+        ...shopContractData,
+        functionName: 'name',
+      },
+      {
+        ...shopContractData,
+        functionName: 'image',
+      },
+      {
+        ...shopContractData,
+        functionName: 'owner',
+      },
+      {
+        ...shopContractData,
+        functionName: 'tags',
+      },
+      {
+        ...shopContractData,
+        functionName: 'nftAddress',
+      },
+      {
+        ...shopContractData,
+        functionName: 'fetchCatalogItems',
+      },
+      {
+        ...shopContractData,
+        functionName: 'fetchTransactions',
+      }
+    ] as any
+  })
+  if (data) {
+    [name, image, owner, tags, nftAddress, items, transactions] = [...data] as any ;
+  }
+
   useEffect(() => {
-    getShopData();
-  }, []);
+    getNftData();
+  }, [data]);
+
   useEffect(() => {
-    if (router.query.shop) {
-      getAffiliates(
-        web3React.library,
-        setProposedAffiliates,
-        setActiveAffiliates,
-        Shop.abi,
-        router.query.shop
-      );
-    }
+    if (!router.query.shop) return;
+    getAffiliates(
+      provider,
+      setProposedAffiliates,
+      setActiveAffiliates,
+      Shop.abi,
+      router.query.shop
+    );
   }, [router.query.shop]);
   
   useEffect(() => {
-    setIsOwner(web3React.account === owner);
-    console.log("addr changed isOwner: ", isOwner);
-  }, [web3React.account, web3React, owner]);
-  console.log("addr: ", web3React.account);
+    setIsOwner(address === owner);
+  }, [address, owner]);
 
-  const getShopData = async () => {
-    if (!router.query.shop) return;
-
-    const shopContract = new ethers.Contract(
-      router.query.shop,
-      Shop.abi,
-      provider
-    );
-    setName(await shopContract.name());
-    setImage(await shopContract.image());
-    setOwner(await shopContract.owner());
-    setTags(await shopContract.tags());
-    const freshNftAddress = await shopContract.nftAddress();
-    setNftAddress(freshNftAddress);
-
-    setItems(await shopContract.fetchCatalogItems());
-    setTransactions(await shopContract.fetchTransactions());
-    console.log("shop data is set");
+  const getNftData = async () => {
+    if (!provider || lastTokenId) return;
 
     const itemTokenContract = new ethers.Contract(
-      freshNftAddress,
+      nftAddress,
       ItemToken.abi,
       provider
     );
@@ -143,7 +167,6 @@ const ShopPage = (props: Props) => {
 
   const handleCreate = async () => {
     try {
-      const signer = provider.getSigner();
 
       const shopContract = new ethers.Contract(
         router.query.shop,
@@ -159,7 +182,6 @@ const ShopPage = (props: Props) => {
         web3.utils.toWei(itemPrice, "ether"),
         ""
       );
-      await getShopData();
 
       const {
         encryptedFileIPFSHash,
@@ -218,23 +240,6 @@ const ShopPage = (props: Props) => {
     setItemImage(await handleImageUpload(e));
   };
 
-  const saveKeyForFile = async (fileUrl: string, secretKey: string) => {
-    console.log('save key for file: ', fileUrl);
-    
-    await addDoc(collection(db, 'fileKeys'), {
-      tokenId: items.length,
-      nftAddress: nftAddress,
-      fileURI: fileUrl,
-      ownerAddress: web3React.account,
-      secretKey: secretKey,
-    });
-  }
-
-  const completeFileEncryption = async (fileUrl: string, secretKey: string) => {
-    setEncryptedUrl(fileUrl);
-    await saveKeyForFile(fileUrl, secretKey);
-  }
-
   const uploadDigitalProduct = async (e: any) => {
     setDigitalProductFileRef(e);
   }
@@ -262,17 +267,17 @@ const ShopPage = (props: Props) => {
       return (
         <Flex flexDirection="column" justify="center">
           <Text fontSize="2xl" fontWeight="bold" mb="2">Proposals:</Text>
-            {
-              proposedAffiliates.filter(
-                (aff: any) => aff.percentage?.toString() != '0').map((aff: any) => renderAffiliate(aff, false)
-              )
-            }
+          {
+            proposedAffiliates.filter(
+              (aff: any) => aff.percentage?.toString() != '0').map((aff: any) => renderAffiliate(aff, false)
+            )
+          }
           <Text fontSize="2xl" fontWeight="bold" mb="2">Active:</Text>
-            {
-              activeAffiliates.filter(
-                (aff: any) => aff.percentage?.toString() != '0').map((aff: any) => renderAffiliate(aff, true)
-              )
-            }
+          {
+            activeAffiliates.filter(
+              (aff: any) => aff.percentage?.toString() != '0').map((aff: any) => renderAffiliate(aff, true)
+            )
+          }
         </Flex>
       );
     }
@@ -282,7 +287,7 @@ const ShopPage = (props: Props) => {
           <Text>Proposals:</Text>
             {
               proposedAffiliates
-                .filter((aff: any) => aff.affAddr == web3React.account)
+                .filter((aff: any) => aff.affAddr == address)
                 .map((aff: any, i: number) => {
                   return (
                     <Box key={`proposed-aff-${i}`}>
@@ -296,12 +301,12 @@ const ShopPage = (props: Props) => {
           <Text>Active:</Text>
             {
               activeAffiliates
-                .filter((aff: any) => aff.affAddr == web3React.account)
+                .filter((aff: any) => aff.affAddr == address)
                 .map((aff: any, i:number) => {
                   return (
                     <Box key={`aff-${i}`}>
                       <Text fontWeight="bold" fontSize="xl">
-                        <a href={`${window.location.href}/${web3React.account}`}>
+                        <a href={`${window.location.href}/${address}`}>
                           Here is your affiliate link for {aff.percentage?.toString()}%:
                         </a>
                       </Text>
@@ -382,7 +387,7 @@ const ShopPage = (props: Props) => {
               </Flex>
               <Flex color="white" >
                 {tags.split(', ').map(
-                  (tag: string) => (<Box backgroundColor="brand.400" m="2" boxShadow="lg" py="1" px="2" borderRadius="8px">{tag}</Box>))
+                  (tag: string, i: number) => (<Box key={`key-${tag}-${i}`} backgroundColor="brand.400" m="2" boxShadow="lg" py="1" px="2" borderRadius="8px">{tag}</Box>))
                 }
               </Flex>
               <Flex m={"4"}>
@@ -424,7 +429,7 @@ const ShopPage = (props: Props) => {
                       key={`aff-${i}`}
                       data={elem}
                       shopAddress={router.query.shop}
-                      currentAddress={web3React.account}
+                      currentAddress={address}
                     />
                   ))}
                 </Flex>
@@ -484,7 +489,7 @@ const ShopPage = (props: Props) => {
             />
               <Box mt={"4"}>
                 <Text mb={"1"}>Upload Digital Product</Text>
-                <Text mb={"2"} fontSize="xs">any digital asset file that you intend to sell</Text>
+                <Text mb={"2"} fontSize="xs">your digital asset file</Text>
                 <input
                   type="file"
                   name="Asset"

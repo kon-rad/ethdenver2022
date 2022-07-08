@@ -3,7 +3,7 @@ import { create as ipfsHttpClient } from 'ipfs-http-client'
 
 const client = new LitJsSdk.LitNodeClient()
 // const chain = 'polygon'
-const chain = 'localhost'
+const chain = process.env.NEXT_PUBLIC_NETWORK;
 // / todo: must use erc1155 - convert 
 const standardContractType = 'ERC721'
 

@@ -3,16 +3,14 @@ import { toast } from "react-toastify";
 import { formatAddress } from '../utils/web3';
 
 export const getAffiliates = async (
-  web3React: any,
+  provider: any,
   setProposedAffiliates: any,
   setActiveAffiliates: any,
   shopAbi: any,
-  shopAddress: string,
+  shopAddress: any,
 ) => {
   console.log("getAffiliates is called", shopAddress);
-  // const provider = web3React.library;
 
-  const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);
   const factoryContract = new ethers.Contract(
     shopAddress,
     shopAbi,
@@ -48,7 +46,7 @@ export const makeAffiliateProposal = async (
   });
 };
 
-export const updateAffiliate = async (affAddr: string, provider: any, shopAddress: string, shopAbi: any, isApproved: boolean) => {
+export const updateAffiliate = async (affAddr: string, provider: any, shopAddress: any, shopAbi: any, isApproved: boolean) => {
     const signer = provider.getSigner();
   
     const shopContract = new ethers.Contract(shopAddress, shopAbi, signer);

@@ -24,7 +24,7 @@ import Shop from "../artifacts/contracts/Shop.sol/Shop.json";
 
 interface Prop {
   data: any;
-  shopAddress: string;
+  shopAddress: any;
   currentAddress: string;
 }
 

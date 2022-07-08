@@ -1,6 +1,5 @@
 import "../styles/globals.css";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
-import { Web3ReactProvider } from "@web3-react/core";
 import type { AppProps } from "next/app";
 import { getProvider } from "../utils/web3";
 import Layout from "../components/layout";
@@ -10,6 +9,21 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AppStateProvider } from "../context/appState";
 import { AuthProvider } from "../context/auth";
+import {
+  getDefaultWallets,
+  RainbowKitProvider,
+  darkTheme
+} from '@rainbow-me/rainbowkit';
+import {
+  chain,
+  configureChains,
+  createClient,
+  WagmiConfig,
+} from 'wagmi';
+import { getDefaultProvider } from 'ethers';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
+import "@rainbow-me/rainbowkit/styles.css";
+import { infuraProvider } from 'wagmi/providers/infura'
 
 // /* CSS HEX */
 // https://coolors.co/202a25-5f4bb6-86a5d9-26f0f1-c4ebc8
@@ -37,9 +51,65 @@ const theme = extendTheme({
   },
 });
 
+const infuraId = process.env.INFURA_ID
+
+console.log("chain: ", chain);
+export const RPC_URLS = {
+  1: "https://mainnet.infura.io/v3/84842078b09946638c03157f83405213",
+  4: "https://rinkeby.infura.io/v3/84842078b09946638c03157f83405213",
+  69: "https://kovan.optimism.io/",
+  80001: "https://matic-mumbai.chainstacklabs.com/", // mumbai
+};
+
+const mumbaiChain = {
+  id: 80001,
+  name: 'Mumbai',
+  network: 'mumbai',
+  gas: 2100000,
+  gasPrice: 8000000000,
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Matic',
+    symbol: 'MATIC',
+  },
+  rpcUrls: {
+    default: RPC_URLS[80001],
+  },
+  testnet: true,
+}
+
+const { provider, chains } = configureChains(
+  [mumbaiChain],
+  [
+    infuraProvider({ infuraId }),
+    jsonRpcProvider({
+      rpc: (chain) => {
+        if (chain.id !== mumbaiChain.id) return null
+        return { http: chain.rpcUrls.default }
+      },
+    }),
+  ]
+)
+
+const { connectors } = getDefaultWallets({
+  appName: 'dCom',
+  chains
+});
+const wagmiClient = createClient({
+  autoConnect: true,
+  connectors,
+  provider
+})
+
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <Web3ReactProvider getLibrary={getProvider}>
+    <WagmiConfig client={wagmiClient}>
+      <RainbowKitProvider chains={chains} theme={darkTheme({
+          accentColor: '#FF3E60',
+          accentColorForeground: 'white',
+          borderRadius: 'small',
+          fontStack: 'system'
+        })}>
       <ChakraProvider theme={theme}>
         <AuthProvider>
           <AppStateProvider>
@@ -61,7 +131,8 @@ function MyApp({ Component, pageProps }: AppProps) {
           </AppStateProvider>
         </AuthProvider>
       </ChakraProvider>
-    </Web3ReactProvider>
+      </RainbowKitProvider>
+    </WagmiConfig>
   );
 }
 

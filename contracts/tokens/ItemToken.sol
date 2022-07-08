@@ -79,7 +79,7 @@ contract ItemToken is ERC721Modified {
         _tokenId.increment();
         uint256 currentTokenId = _tokenId.current();
         // mint to shop the template Item
-        _safeMint(address(shop), currentTokenId);
+        _safeMint(address(owner), currentTokenId);
         templateTokenIds.push(currentTokenId);
         _setTokenURI(currentTokenId, _uri);
         _tokenId.increment();
