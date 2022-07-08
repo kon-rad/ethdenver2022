@@ -10,7 +10,7 @@ import { useSigner, useContract, useAccount } from 'wagmi'
 
 const Create = () => {
   const [isMobile] = useMediaQuery('(max-width: 600px)')
-  const [symbol, setSymbol] = useState<string>("");
+  // const [symbol, setSymbol] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [tags, setTags] = useState<string>("");
   const [fileUrl, setImageIPFSHash] = useState<string>("");
@@ -27,8 +27,7 @@ const Create = () => {
       const transaction = await factoryContract.createShop(
         name,
         fileUrl,
-        tags,
-        symbol
+        tags
       );
       await transaction.wait();
     } catch (e: any) {
@@ -109,7 +108,7 @@ const Create = () => {
             placeholder={"shop name"}
           />
           <Text fontSize="xs" mb="2">The name of your shop and NFT contract, it is not editable.</Text>
-          <Input
+          {/* <Input
             mb="1"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setSymbol((e.target.value || "").toUpperCase().replace(" ", "").slice(0, 10))
@@ -118,7 +117,7 @@ const Create = () => {
             value={symbol}
             name={"symbol"}
             placeholder={"shop symbol"}
-          />
+          /> */}
           <Text fontSize="xs" mb="2">All caps, no spaces, 10 max character length</Text>
           <Input
             mb="1"

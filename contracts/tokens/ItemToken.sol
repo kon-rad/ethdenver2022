@@ -57,21 +57,13 @@ contract ItemToken is ERC721Modified {
         _;
     }
 
-    function batchSale(address _to, uint256[] memory _templateTokenIds, uint256[] memory _amounts) external onlyShop {
+    function batchSale(address _to, uint256 _amount) external onlyShop {
         // mint to new owner
-        require(_templateTokenIds.length == _amounts.length, "ERC721:02");
-        uint256 len = _templateTokenIds.length;
         uint256 i;
-        for (i = 0; i < len; i++) {
-            require(_amounts[i] > 0, "ERC721:03");
-            uint256 j = 0;
-            for (j; j < _amounts[i]; j++) {
-                uint256 currentTokenId = _tokenId.current();
-                _safeMint(_to, currentTokenId);
-                // get the token URI from the template token
-                _setTokenURI(currentTokenId, _tokenURIs[_templateTokenIds[i]]);
-                _tokenId.increment();
-            }
+        for (i = 0; i < _amount; i++) {
+            uint256 currentTokenId = _tokenId.current();
+            _safeMint(_to, currentTokenId);
+            _tokenId.increment();
         }
     }
 
@@ -80,7 +72,6 @@ contract ItemToken is ERC721Modified {
         uint256 currentTokenId = _tokenId.current();
         // mint to shop the template Item
         _safeMint(address(owner), currentTokenId);
-        templateTokenIds.push(currentTokenId);
         _setTokenURI(currentTokenId, _uri);
         _tokenId.increment();
     }

@@ -46,7 +46,7 @@ const Home: NextPage = () => {
           <Box>{isLoading && (<Box fontSize="xl" m="4">Loading ...</Box>)}</Box>
           <Box>{isError && (<Box fontSize="xl" m="4" color="red.500">Yikes, there was an Error; try refreshing</Box>)}</Box>
           <Flex align="center" justify="center" direction="column">
-            {shops.map((addr: any, i: number) => (
+            {(shops || []).map((addr: any, i: number) => (
               <ShopCard key={`shop_${i}`} address={addr} />
             ))}
           </Flex>

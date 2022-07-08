@@ -22,12 +22,14 @@ export type ItemStruct = {
   itemId: BigNumberish;
   price: BigNumberish;
   isDeleted: boolean;
+  itemAddress: string;
 };
 
-export type ItemStructOutput = [BigNumber, BigNumber, boolean] & {
+export type ItemStructOutput = [BigNumber, BigNumber, boolean, string] & {
   itemId: BigNumber;
   price: BigNumber;
   isDeleted: boolean;
+  itemAddress: string;
 };
 
 export declare namespace Shop {
@@ -78,13 +80,12 @@ export declare namespace Shop {
 export interface ShopInterface extends utils.Interface {
   contractName: "Shop";
   functions: {
-    "_templateItemIds(uint256)": FunctionFragment;
     "_transactionsCount()": FunctionFragment;
     "affiliates(address)": FunctionFragment;
     "approveAffiliate(address)": FunctionFragment;
     "approvedAffArr(uint256)": FunctionFragment;
     "cancelAffiliate(address)": FunctionFragment;
-    "createItem(uint256,string)": FunctionFragment;
+    "createItem(string,string,uint256,string)": FunctionFragment;
     "deleteItem(uint256)": FunctionFragment;
     "fetchCatalogItems()": FunctionFragment;
     "fetchTransactions()": FunctionFragment;
@@ -95,9 +96,10 @@ export interface ShopInterface extends utils.Interface {
     "governor()": FunctionFragment;
     "image()": FunctionFragment;
     "initialize(address,string,string,string,uint256,address,address)": FunctionFragment;
+    "itemAddresses(uint256)": FunctionFragment;
     "makeTransaction(uint256[],uint256[],address)": FunctionFragment;
     "name()": FunctionFragment;
-    "nftAddress()": FunctionFragment;
+    "nftTemplate()": FunctionFragment;
     "owner()": FunctionFragment;
     "proposeAffiliate(uint256)": FunctionFragment;
     "proposedAffArr(uint256)": FunctionFragment;
@@ -110,10 +112,6 @@ export interface ShopInterface extends utils.Interface {
     "transactions(uint256)": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "_templateItemIds",
-    values: [BigNumberish]
-  ): string;
   encodeFunctionData(
     functionFragment: "_transactionsCount",
     values?: undefined
@@ -133,7 +131,7 @@ export interface ShopInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "createItem",
-    values: [BigNumberish, string]
+    values: [string, string, BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "deleteItem",
@@ -170,12 +168,16 @@ export interface ShopInterface extends utils.Interface {
     values: [string, string, string, string, BigNumberish, string, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "itemAddresses",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "makeTransaction",
     values: [BigNumberish[], BigNumberish[], string]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "nftAddress",
+    functionFragment: "nftTemplate",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -207,10 +209,6 @@ export interface ShopInterface extends utils.Interface {
     values: [BigNumberish]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "_templateItemIds",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "_transactionsCount",
     data: BytesLike
@@ -255,11 +253,18 @@ export interface ShopInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "image", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "itemAddresses",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "makeTransaction",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "nftAddress", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "nftTemplate",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeAffiliate",
@@ -290,15 +295,15 @@ export interface ShopInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "ItemCreated(uint256,uint256)": EventFragment;
+    "ItemCreated(uint256,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "ItemCreated"): EventFragment;
 }
 
 export type ItemCreatedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  { itemId: BigNumber; price: BigNumber }
+  [BigNumber, string, BigNumber],
+  { itemId: BigNumber; itemAddress: string; price: BigNumber }
 >;
 
 export type ItemCreatedEventFilter = TypedEventFilter<ItemCreatedEvent>;
@@ -331,11 +336,6 @@ export interface Shop extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    _templateItemIds(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     _transactionsCount(
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { _value: BigNumber }>;
@@ -373,6 +373,8 @@ export interface Shop extends BaseContract {
     ): Promise<ContractTransaction>;
 
     createItem(
+      _name: string,
+      _nftSymbol: string,
       _price: BigNumberish,
       _tokenURI: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
@@ -416,9 +418,14 @@ export interface Shop extends BaseContract {
       _tags: string,
       _shopId: BigNumberish,
       _governor: string,
-      _nftAddress: string,
+      _nftTemplate: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    itemAddresses(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     makeTransaction(
       itemIds: BigNumberish[],
@@ -429,7 +436,7 @@ export interface Shop extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<[string]>;
 
-    nftAddress(overrides?: CallOverrides): Promise<[string]>;
+    nftTemplate(overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -493,11 +500,6 @@ export interface Shop extends BaseContract {
     >;
   };
 
-  _templateItemIds(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   _transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
 
   affiliates(
@@ -533,6 +535,8 @@ export interface Shop extends BaseContract {
   ): Promise<ContractTransaction>;
 
   createItem(
+    _name: string,
+    _nftSymbol: string,
     _price: BigNumberish,
     _tokenURI: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
@@ -576,9 +580,11 @@ export interface Shop extends BaseContract {
     _tags: string,
     _shopId: BigNumberish,
     _governor: string,
-    _nftAddress: string,
+    _nftTemplate: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  itemAddresses(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
   makeTransaction(
     itemIds: BigNumberish[],
@@ -589,7 +595,7 @@ export interface Shop extends BaseContract {
 
   name(overrides?: CallOverrides): Promise<string>;
 
-  nftAddress(overrides?: CallOverrides): Promise<string>;
+  nftTemplate(overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -653,11 +659,6 @@ export interface Shop extends BaseContract {
   >;
 
   callStatic: {
-    _templateItemIds(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     _transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
 
     affiliates(
@@ -687,6 +688,8 @@ export interface Shop extends BaseContract {
     cancelAffiliate(affAddr: string, overrides?: CallOverrides): Promise<void>;
 
     createItem(
+      _name: string,
+      _nftSymbol: string,
       _price: BigNumberish,
       _tokenURI: string,
       overrides?: CallOverrides
@@ -727,9 +730,14 @@ export interface Shop extends BaseContract {
       _tags: string,
       _shopId: BigNumberish,
       _governor: string,
-      _nftAddress: string,
+      _nftTemplate: string,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    itemAddresses(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     makeTransaction(
       itemIds: BigNumberish[],
@@ -740,7 +748,7 @@ export interface Shop extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<string>;
 
-    nftAddress(overrides?: CallOverrides): Promise<string>;
+    nftTemplate(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -800,19 +808,19 @@ export interface Shop extends BaseContract {
   };
 
   filters: {
-    "ItemCreated(uint256,uint256)"(
+    "ItemCreated(uint256,address,uint256)"(
       itemId?: null,
+      itemAddress?: null,
       price?: null
     ): ItemCreatedEventFilter;
-    ItemCreated(itemId?: null, price?: null): ItemCreatedEventFilter;
+    ItemCreated(
+      itemId?: null,
+      itemAddress?: null,
+      price?: null
+    ): ItemCreatedEventFilter;
   };
 
   estimateGas: {
-    _templateItemIds(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     _transactionsCount(overrides?: CallOverrides): Promise<BigNumber>;
 
     affiliates(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -833,6 +841,8 @@ export interface Shop extends BaseContract {
     ): Promise<BigNumber>;
 
     createItem(
+      _name: string,
+      _nftSymbol: string,
       _price: BigNumberish,
       _tokenURI: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
@@ -870,8 +880,13 @@ export interface Shop extends BaseContract {
       _tags: string,
       _shopId: BigNumberish,
       _governor: string,
-      _nftAddress: string,
+      _nftTemplate: string,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    itemAddresses(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     makeTransaction(
@@ -883,7 +898,7 @@ export interface Shop extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
-    nftAddress(overrides?: CallOverrides): Promise<BigNumber>;
+    nftTemplate(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -927,11 +942,6 @@ export interface Shop extends BaseContract {
   };
 
   populateTransaction: {
-    _templateItemIds(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     _transactionsCount(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -957,6 +967,8 @@ export interface Shop extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     createItem(
+      _name: string,
+      _nftSymbol: string,
       _price: BigNumberish,
       _tokenURI: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
@@ -998,8 +1010,13 @@ export interface Shop extends BaseContract {
       _tags: string,
       _shopId: BigNumberish,
       _governor: string,
-      _nftAddress: string,
+      _nftTemplate: string,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    itemAddresses(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     makeTransaction(
@@ -1011,7 +1028,7 @@ export interface Shop extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    nftAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    nftTemplate(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

@@ -25,14 +25,13 @@ contract ShopFactory is Ownable {
     function createShop(
             string memory _name,
             string memory _image,
-            string memory _tags,
-            string memory nftSymbol_
+            string memory _tags
         ) external payable returns (address) {
         require(msg.value >= shopPrice, "CS0");
         require(StringUtils.strlen(_name) < 280, "SF:01 Name must be less than 280 characters");
         require(StringUtils.strlen(_tags) < 280, "SF:01 Tags must be less than 280 characters");
 
-        ItemToken itemToken = ItemToken(_createClone(nftTemplate));
+        // ItemToken itemToken = ItemToken(_createClone(nftTemplate));
         Shop shop = Shop(_createClone(shopTemplate));
         shop.initialize(
             msg.sender,
@@ -41,9 +40,9 @@ contract ShopFactory is Ownable {
             _tags,
             shopCount,
             address(this),
-            address(itemToken)
+            nftTemplate
         );
-        itemToken.initialize(address(msg.sender), address(shop), _name, nftSymbol_);
+        // itemToken.initialize(address(msg.sender), address(shop), _name, nftSymbol_);
 
         emit ShopCreated(address(shop), _name);
 

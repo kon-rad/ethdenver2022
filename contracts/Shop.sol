@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "./interfaces/IItemToken.sol";
 import "./library/Catalog.sol";
 import "./library/StringUtils.sol";
+import "./tokens/ItemToken.sol";
 
 contract Shop {
     using SafeMath for uint;
@@ -21,14 +22,15 @@ contract Shop {
     string public tags;
     address payable public owner;
     address payable public governor;
-    address payable public nftAddress;
+    address payable public nftTemplate;
     uint256 public freeTransactions = 1000;
     bool private initialized = false;
     ItemsCatalogArray private catalog;
-    uint256[] public _templateItemIds;
+    Counters.Counter private _itemIds;
     Counters.Counter private _affiliateId;
     Counters.Counter private _transIds;
     Counters.Counter public _transactionsCount;
+    address[] public itemAddresses;
     Affiliate[] public proposedAffArr;
     Affiliate[] public approvedAffArr;
     mapping(address => Affiliate) public proposedAffiliates;
@@ -54,6 +56,7 @@ contract Shop {
     }
     event ItemCreated (
         uint256 itemId,
+        address itemAddress,
         uint256 price
     );
     
@@ -64,7 +67,7 @@ contract Shop {
         string memory _tags,
         uint256 _shopId,
         address _governor,
-        address _nftAddress
+        address _nftTemplate
     ) external {
         require(initialized == false, "S:00");
         require(StringUtils.strlen(_tags) < 280, "S:01 Tags must be less than 280 characters");
@@ -75,7 +78,7 @@ contract Shop {
         tags = _tags;
         shopId = _shopId;
         governor = payable(address(_governor));
-        nftAddress = payable(address(_nftAddress));
+        nftTemplate = payable(address(_nftTemplate));
     }
 
     modifier onlyOwner() {
@@ -94,22 +97,29 @@ contract Shop {
     }
 
     function createItem(
+        string memory _name,
+        string memory _nftSymbol,
         uint256 _price,
         string memory _tokenURI
     ) public onlyOwner payable {
-        uint256 itemId = IItemToken(nftAddress).getTotal() + 1;
-        IItemToken(nftAddress).createItem(_tokenURI);
+        _itemIds.increment();
+
+        ItemToken itemToken = ItemToken(_createClone(nftTemplate));
+        itemToken.initialize(address(msg.sender), address(this), _name, _nftSymbol);
+
+        IItemToken(address(itemToken)).createItem(_tokenURI);
+        itemAddresses.push(address(itemToken));
 
         catalog.createItem(
             Item({
-                itemId: itemId,
+                itemId: _itemIds.current(),
                 price: _price,
-                isDeleted: false
+                isDeleted: false,
+                itemAddress: address(itemToken)
             })
         );
-        _templateItemIds.push(itemId);
 
-        emit ItemCreated(itemId, _price);
+        emit ItemCreated(_itemIds.current(), address(itemToken), _price);
     }
 
     function fetchCatalogItems() public view returns (Item[] memory) {
@@ -190,7 +200,9 @@ contract Shop {
         }
         require(msg.value >= total, "MT1");
 
-        IItemToken(nftAddress).batchSale(msg.sender, itemIds, itemQty);
+        for (i = 0; i < len; i++) {
+            IItemToken(catalog.catalog[itemIds[i]].itemAddress).batchSale(msg.sender, itemQty);
+        }
         _transactionsCount.increment();
         uint256 affShare = 0;
         uint256 govShare = 0;
@@ -234,5 +246,16 @@ contract Shop {
 
     function setFreeTransactions(uint256 _freeTransactions) public onlyGovernor {
         freeTransactions = _freeTransactions;
+    }
+
+    function _createClone(address target) internal returns (address result) {
+        bytes20 targetBytes = bytes20(target);
+        assembly {
+            let clone := mload(0x40)
+            mstore(clone, 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000)
+            mstore(add(clone, 0x14), targetBytes)
+            mstore(add(clone, 0x28), 0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000)
+            result := create(0, clone, 0x37)
+        }
     }
 }

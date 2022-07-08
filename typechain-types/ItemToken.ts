@@ -22,7 +22,7 @@ export interface ItemTokenInterface extends utils.Interface {
   functions: {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
-    "batchSale(address,uint256[],uint256[])": FunctionFragment;
+    "batchSale(address,uint256)": FunctionFragment;
     "createItem(string)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "getTemplateTokenIds()": FunctionFragment;
@@ -52,7 +52,7 @@ export interface ItemTokenInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(
     functionFragment: "batchSale",
-    values: [string, BigNumberish[], BigNumberish[]]
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "createItem", values: [string]): string;
   encodeFunctionData(
@@ -238,8 +238,7 @@ export interface ItemToken extends BaseContract {
 
     batchSale(
       _to: string,
-      _templateTokenIds: BigNumberish[],
-      _amounts: BigNumberish[],
+      _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -350,8 +349,7 @@ export interface ItemToken extends BaseContract {
 
   batchSale(
     _to: string,
-    _templateTokenIds: BigNumberish[],
-    _amounts: BigNumberish[],
+    _amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -456,8 +454,7 @@ export interface ItemToken extends BaseContract {
 
     batchSale(
       _to: string,
-      _templateTokenIds: BigNumberish[],
-      _amounts: BigNumberish[],
+      _amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -593,8 +590,7 @@ export interface ItemToken extends BaseContract {
 
     batchSale(
       _to: string,
-      _templateTokenIds: BigNumberish[],
-      _amounts: BigNumberish[],
+      _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -709,8 +705,7 @@ export interface ItemToken extends BaseContract {
 
     batchSale(
       _to: string,
-      _templateTokenIds: BigNumberish[],
-      _amounts: BigNumberish[],
+      _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
