@@ -25,7 +25,6 @@ import {
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
-import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
 import CatalogItem from "../../components/catalogItem";
 import Shop from "../../artifacts/contracts/Shop.sol/Shop.json";
@@ -49,7 +48,7 @@ import {
     updateDoc,
 } from "firebase/firestore";
 import lit from '../../utils/lit';
-import { useContract, useSigner, useContractReads, useAccount, useProvider, useContractRead } from 'wagmi'
+import { useSignMessage, useContract, useSigner, useContractReads, useAccount, useProvider, useContractRead } from 'wagmi'
 
 interface Props {}
 
@@ -57,6 +56,8 @@ interface CartType {
   qty: number;
   itemId: string;
 }
+
+const SIGNATURE_MESSAGE = 'why yes I am the owner of this NFT on dcom.market!';
 
 // @ts-ignore
 const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0');
@@ -86,6 +87,9 @@ const ShopPage = (props: Props) => {
   const { data: signer } = useSigner();
   const router = useRouter();
   const { address } = useAccount();
+  const { data: signMessageData, isError: signMessageIsError, isLoading: signMessageIsLoading, isSuccess: signMessageIsSuccess, signMessage } = useSignMessage({
+    message: SIGNATURE_MESSAGE,
+  })
 
   const shopContractData = {
     addressOrName: router.query.shop,
@@ -155,7 +159,9 @@ const ShopPage = (props: Props) => {
   }, [address, owner]);
 
   const getNftData = async () => {
-    if (!provider || lastTokenId) return;
+
+    console.log("nftAddress -> ", nftAddress);
+    if (!provider || lastTokenId || !nftAddress) return;
 
     const itemTokenContract = new ethers.Contract(
       nftAddress,
@@ -167,7 +173,6 @@ const ShopPage = (props: Props) => {
 
   const handleCreate = async () => {
     try {
-
       const shopContract = new ethers.Contract(
         router.query.shop,
         Shop.abi,
@@ -182,11 +187,27 @@ const ShopPage = (props: Props) => {
         web3.utils.toWei(itemPrice, "ether"),
         ""
       );
+      // const { data: signMessageData, isError: signMessageIsError, isLoading: signMessageIsLoading, isSuccess: signMessageIsSuccess, signMessage } = useSignMessage({
+
+      let authSig = {
+        sig: signMessageData,
+        derivedVia: "web3.eth.personal.sign",
+        signedMessage: SIGNATURE_MESSAGE,
+        address,
+      };
+      //   {
+      //     "sig": "0x18720b54cf0d29d618a90793d5e76f4838f04b559b02f1f01568d8e81c26ae9536e11bb90ad311b79a5bc56149b14103038e5e03fee83931a146d93d150eb0f61c",
+      //     "derivedVia": "web3.eth.personal.sign",
+      //     "signedMessage": "localhost wants you to sign in with your Ethereum account:\n0x1cD4147AF045AdCADe6eAC4883b9310FD286d95a\n\nThis is a test statement.  You can put anything you want here.\n\nURI: https://localhost/login\nVersion: 1\nChain ID: 1\nNonce: gzdlw7mR57zMcGFzz\nIssued At: 2022-04-15T22:58:44.754Z",
+      //     "address": "0x1cD4147AF045AdCADe6eAC4883b9310FD286d95a"
+      // }
+      console.log('authSig -> ', authSig);
 
       const {
         encryptedFileIPFSHash,
         encryptedSymmetricKey
-      } = await lit.encrypt(digitalProductFileRef, nftAddress, currTokenId);
+      } = await lit.encrypt(digitalProductFileRef, nftAddress, currTokenId, authSig);
+      console.log('file encrypted, encryptedFileIPFSHash, encryptedSymmetricKey - ', encryptedFileIPFSHash, encryptedSymmetricKey)
 
       /* first, upload to IPFS */
       const data = JSON.stringify({
@@ -209,6 +230,7 @@ const ShopPage = (props: Props) => {
         currTokenId,
         ipfsHash
       );
+      console.log('set token uri, currTokenId, ipfsHash: ', currTokenId, ipfsHash)
 
       toast(`You successfully created ${itemName}!`, {
         position: "top-right",
@@ -233,6 +255,10 @@ const ShopPage = (props: Props) => {
       });
     }
   };
+  const signMessageLocally = () => {
+
+    signMessage();
+  }
   const handleEdit = () => {
     console.log("edit ");
   };
@@ -499,6 +525,9 @@ const ShopPage = (props: Props) => {
             </Box>
           </ModalBody>
           <ModalFooter>
+            <Button variant="primary" onClick={signMessageLocally}>
+              Sign Message
+            </Button>
             <Button colorScheme="blue" mr={3} onClick={onClose}>
               Close
             </Button>

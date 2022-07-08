@@ -7,6 +7,8 @@ const chain = process.env.NEXT_PUBLIC_NETWORK;
 // / todo: must use erc1155 - convert 
 const standardContractType = 'ERC721'
 
+const IPFSClient = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0' as any);
+
 class Lit {
     litNodeClient
 
@@ -15,9 +17,10 @@ class Lit {
         this.litNodeClient = client
     }
 
-    async encrypt(file: any, tokenAddress: string, tokenId: number) {
+    async encrypt(file: any, tokenAddress: string, tokenId: number, authSig: any) {
         if (!this.litNodeClient) {
             await this.connect()
+            console.log('--- lit node connected')
         }
 
         const accessControlConditions = [
@@ -36,8 +39,12 @@ class Lit {
           }
         ]
 
-        const authSig = await LitJsSdk.checkAndSignAuthMessage({ chain })
-        const { encryptedFile, symmetricKey } = await LitJsSdk.encryptFile(file)
+        // const authSig = await LitJsSdk.checkAndSignAuthMessage({ chain })
+        console.log(' --- checkAndSignAuthMessage authSig done ')
+
+        // const { encryptedFile, symmetricKey } = await LitJsSdk.encryptFile(file)
+        const { encryptedString, symmetricKey } = await LitJsSdk.encryptString('hello world LIT!!!!')
+        console.log('--- file encrypted encryptFile - symmetricKey: ', symmetricKey);
 
         const encryptedSymmetricKey = await this.litNodeClient.saveEncryptionKey({
             accessControlConditions,
@@ -46,8 +53,12 @@ class Lit {
             chain,
         })
 
-        const added = await client.add(encryptedFile);
-        const encryptedFileIPFSHash = `${added.path}`;
+        console.log('--- key encrypted saveEncryptionKey: ', encryptedSymmetricKey);
+
+        // const ipfsPinResult = await IPFSClient.add(encryptedFile);
+        // const encryptedFileIPFSHash = `${ipfsPinResult.path}`;
+        const encryptedFileIPFSHash = encryptedString;
+        console.log('--- encryptedFile added to ipfs: ', encryptedString);
 
         return {
             encryptedFileIPFSHash,

@@ -11,15 +11,7 @@ import { signMessage } from '../utils/eth';
 import { toast } from "react-toastify";
 import { ethers } from "ethers";
 import ItemToken from '../artifacts/contracts/tokens/ItemToken.sol/ItemToken.json';
-
-// interface ItemType {
-//   name: string;
-//   description: string;
-//   image: string;
-//   price: any;
-//   itemId: any;
-//   inStock: boolean;
-// }
+import { useContract, useContractReads, useAccount, useProvider, useContractRead } from 'wagmi'
 
 interface BigNumberType {
   _isBigNumber: boolean,
@@ -55,22 +47,27 @@ const CatalogItem = (props: Props) => {
     cartShopAddress,
     setCartShopAddress,
   } = useAppState();
-
-  const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);
+  const { address } = useAccount();
+  const provider = useProvider();
 
   const { getUser, user }  = useAuth();
   useEffect(() => {
-    if (user.length === 0 && web3React.account) {
-      getUser(web3React.account);
+    if (user.length === 0 && address) {
+      getUser(address);
     }
     fetchNFTData();
-  }, [web3React.account]);
+  }, [address]);
 
   const fetchNFTData = async () => {
+    console.log('fetchNFTData');
+    
     const nftContract = new ethers.Contract(props.nftAddress, ItemToken.abi, provider);
 
-    const tokenUri = await nftContract.uri(props.data.itemId.toNumber());
+    const tokenUri = await nftContract.tokenURI(props.data.itemId.toNumber());
+    console.log('tokenUri - ', tokenUri, ' itemId - ', props.data.itemId.toNumber());
+    
     const _metadata = await axios.get(tokenUri);
+
     setMetadata(_metadata.data);
     console.log("_metadata: ", _metadata);
     const currentStoreItems = catalogItems[props.shopAddress] || {};
