@@ -53,7 +53,6 @@ const theme = extendTheme({
 
 const infuraId = process.env.INFURA_ID
 
-console.log("chain: ", chain);
 export const RPC_URLS = {
   1: "https://mainnet.infura.io/v3/84842078b09946638c03157f83405213",
   4: "https://rinkeby.infura.io/v3/84842078b09946638c03157f83405213",
@@ -77,14 +76,21 @@ const mumbaiChain = {
   },
   testnet: true,
 }
+console.log('chain -', chain);
 
 const { provider, chains } = configureChains(
-  [mumbaiChain],
+  // [mumbaiChain],
+  // [chain.hardhat],
+  [chain.polygon],
   [
     infuraProvider({ infuraId }),
     jsonRpcProvider({
       rpc: (chain) => {
-        if (chain.id !== mumbaiChain.id) return null
+        if (chain.id !== mumbaiChain.id) {
+          return {
+            http: `http://localhost:8545`,
+          };
+        }
         return { http: chain.rpcUrls.default }
       },
     }),

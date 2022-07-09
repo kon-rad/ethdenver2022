@@ -91,6 +91,7 @@ export interface ShopInterface extends utils.Interface {
     "fetchTransactions()": FunctionFragment;
     "freeTransactions()": FunctionFragment;
     "getApprovedAffiliates()": FunctionFragment;
+    "getItemAddresses()": FunctionFragment;
     "getProposedAffiliates()": FunctionFragment;
     "giveReview(uint256,uint256)": FunctionFragment;
     "governor()": FunctionFragment;
@@ -151,6 +152,10 @@ export interface ShopInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getApprovedAffiliates",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getItemAddresses",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -242,6 +247,10 @@ export interface ShopInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getApprovedAffiliates",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getItemAddresses",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -396,6 +405,8 @@ export interface Shop extends BaseContract {
     getApprovedAffiliates(
       overrides?: CallOverrides
     ): Promise<[Shop.AffiliateStructOutput[]]>;
+
+    getItemAddresses(overrides?: CallOverrides): Promise<[string[]]>;
 
     getProposedAffiliates(
       overrides?: CallOverrides
@@ -559,6 +570,8 @@ export interface Shop extends BaseContract {
     overrides?: CallOverrides
   ): Promise<Shop.AffiliateStructOutput[]>;
 
+  getItemAddresses(overrides?: CallOverrides): Promise<string[]>;
+
   getProposedAffiliates(
     overrides?: CallOverrides
   ): Promise<Shop.AffiliateStructOutput[]>;
@@ -708,6 +721,8 @@ export interface Shop extends BaseContract {
     getApprovedAffiliates(
       overrides?: CallOverrides
     ): Promise<Shop.AffiliateStructOutput[]>;
+
+    getItemAddresses(overrides?: CallOverrides): Promise<string[]>;
 
     getProposedAffiliates(
       overrides?: CallOverrides
@@ -861,6 +876,8 @@ export interface Shop extends BaseContract {
 
     getApprovedAffiliates(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getItemAddresses(overrides?: CallOverrides): Promise<BigNumber>;
+
     getProposedAffiliates(overrides?: CallOverrides): Promise<BigNumber>;
 
     giveReview(
@@ -988,6 +1005,8 @@ export interface Shop extends BaseContract {
     getApprovedAffiliates(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    getItemAddresses(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getProposedAffiliates(
       overrides?: CallOverrides

@@ -118,7 +118,7 @@ const Create = () => {
             name={"symbol"}
             placeholder={"shop symbol"}
           /> */}
-          <Text fontSize="xs" mb="2">All caps, no spaces, 10 max character length</Text>
+          {/* <Text fontSize="xs" mb="2">All caps, no spaces, 10 max character length</Text> */}
           <Input
             mb="1"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>

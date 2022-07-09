@@ -96,6 +96,10 @@ contract Shop {
         tags = _tags;
     }
 
+    function getItemAddresses() external view returns (address[] memory) {
+        return itemAddresses;
+    }
+
     function createItem(
         string memory _name,
         string memory _nftSymbol,
@@ -107,7 +111,7 @@ contract Shop {
         ItemToken itemToken = ItemToken(_createClone(nftTemplate));
         itemToken.initialize(address(msg.sender), address(this), _name, _nftSymbol);
 
-        IItemToken(address(itemToken)).createItem(_tokenURI);
+        itemToken.createItem(_tokenURI);
         itemAddresses.push(address(itemToken));
 
         catalog.createItem(

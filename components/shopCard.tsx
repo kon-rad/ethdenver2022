@@ -53,7 +53,7 @@ const ShopCard = (props: Props) => {
       }
     ],
   })
-  console.log('data -> ', data);
+  console.log('shopCard data ->  (name, image, owner)', data);
   if (data) {
     name = data[0];
     image = data[1];

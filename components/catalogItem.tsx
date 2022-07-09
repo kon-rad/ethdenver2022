@@ -63,10 +63,11 @@ const CatalogItem = (props: Props) => {
     
     const nftContract = new ethers.Contract(props.nftAddress, ItemToken.abi, provider);
 
-    const tokenUri = await nftContract.tokenURI(props.data.itemId.toNumber());
-    console.log('tokenUri - ', tokenUri, ' itemId - ', props.data.itemId.toNumber());
+    const tokenUri = await nftContract.tokenURI(1);
+    console.log('tokenUri - ', tokenUri, ' itemId - ', 1);
     
-    const _metadata = await axios.get(tokenUri);
+    const url = `https://ipfs.infura.io/ipfs/${tokenUri}`;
+    const _metadata = await axios.get(url);
 
     setMetadata(_metadata.data);
     console.log("_metadata: ", _metadata);
@@ -115,51 +116,7 @@ const CatalogItem = (props: Props) => {
       },
     });
   };
-  const setNewFile = async (e: any) => {
-    const newFileUrl = await uploadFile(e);
-    setFileUrl(newFileUrl);
-  }
-  const handleUploadFile = async () => {
-    console.log('user: ', user);
-    
-    if (!fileUrl || !user.nonce || !props.shopAddress) {
-      return;
-    }
-    const body = `I am the owner of shop address ${props.shopAddress} with user nonce: ${user.nonce}`
-    let sig = '';
-    try {
-      sig = await signMessage({ body })
-    } catch (error) {
-      toast.error(`Error: ${JSON.stringify(error)}`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-      return
-    }
-
-    // todo: get signature of user w/ message of nonce from localstorage in authContext
-
-    const result = await axios.get(
-      '/api/createFile',
-      { 
-        params:
-        { 
-          shopAddress: props.shopAddress,
-          signature: sig,
-          itemId: props.data.itemId.toNumber(),
-          filePath: fileUrl,
-          ownerAddress: web3React.account 
-        }
-      }
-    );
-    console.log("result: ", result);
-  }
-  console.log("data: ", props.data);
+  // console.log("catalogItem data = : ", props.data);
 
   return (
     <Box mb="4" borderRadius="12px" border="solid" borderWidth={1} borderColor={"black.600"} p={"6"} boxShadow="md">

@@ -1,6 +1,6 @@
 import LitJsSdk from 'lit-js-sdk'
 import { create as ipfsHttpClient } from 'ipfs-http-client'
-
+// var reader = new FileReader();
 const client = new LitJsSdk.LitNodeClient()
 // const chain = 'polygon'
 const chain = process.env.NEXT_PUBLIC_NETWORK;
@@ -17,7 +17,7 @@ class Lit {
         this.litNodeClient = client
     }
 
-    async encrypt(file: any, tokenAddress: string, tokenId: number, authSig: any) {
+    async encrypt(file: any, tokenAddress: string, authSig: any) {
         if (!this.litNodeClient) {
             await this.connect()
             console.log('--- lit node connected')
@@ -28,13 +28,13 @@ class Lit {
             contractAddress: tokenAddress,
             standardContractType,
             chain,
-            method: 'ownerOf',
+            method: 'balanceOf',
             parameters: [
-              tokenId
+              ':userAddress'
             ],
             returnValueTest: {
-              comparator: '=',
-              value: ':userAddress'
+              comparator: '>',
+              value: '0'
             }
           }
         ]
@@ -42,8 +42,8 @@ class Lit {
         // const authSig = await LitJsSdk.checkAndSignAuthMessage({ chain })
         console.log(' --- checkAndSignAuthMessage authSig done ')
 
-        // const { encryptedFile, symmetricKey } = await LitJsSdk.encryptFile(file)
-        const { encryptedString, symmetricKey } = await LitJsSdk.encryptString('hello world LIT!!!!')
+        const { encryptedFile, symmetricKey } = await LitJsSdk.encryptFile(file)
+        // const { encryptedString, symmetricKey } = await LitJsSdk.encryptString('hello world LIT!!!!')
         console.log('--- file encrypted encryptFile - symmetricKey: ', symmetricKey);
 
         const encryptedSymmetricKey = await this.litNodeClient.saveEncryptionKey({
@@ -55,35 +55,36 @@ class Lit {
 
         console.log('--- key encrypted saveEncryptionKey: ', encryptedSymmetricKey);
 
-        // const ipfsPinResult = await IPFSClient.add(encryptedFile);
-        // const encryptedFileIPFSHash = `${ipfsPinResult.path}`;
-        const encryptedFileIPFSHash = encryptedString;
-        console.log('--- encryptedFile added to ipfs: ', encryptedString);
+        const added = await IPFSClient.add(encryptedFile);
+        // const encryptedFileIPFSHash = `${added.path}`;
+        const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+        // const encryptedFileIPFSHash = encryptedString;
+        // console.log('--- encryptedFile added to ipfs: ', encryptedString);
 
         return {
-            encryptedFileIPFSHash,
+            encryptedFileIPFSHash: (url),
             encryptedSymmetricKey: LitJsSdk.uint8arrayToString(encryptedSymmetricKey, "base16")
         }
     }
-    async decrypt(encryptedFile, encryptedSymmetricKey, tokenAddress) {
+    async decrypt(encryptedFile: any, encryptedSymmetricKey: string, tokenAddress: any) {
         if (!this.litNodeClient) {
           await this.connect()
         }
 
         const accessControlConditions = [
-            {
-                contractAddress: tokenAddress,
-                standardContractType,
-                chain,
-                method: 'ownerOf',
-                parameters: [
-                ':tokenId'
-                ],
-                returnValueTest: {
-                comparator: '=',
-                value: ':userAddress'
-                }
+          {
+            contractAddress: tokenAddress,
+            standardContractType,
+            chain,
+            method: 'balanceOf',
+            parameters: [
+              ':userAddress'
+            ],
+            returnValueTest: {
+              comparator: '>',
+              value: '0'
             }
+          }
         ]
     
         const authSig = await LitJsSdk.checkAndSignAuthMessage({ chain })
