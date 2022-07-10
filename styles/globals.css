@@ -1,13 +1,16 @@
 :root {
   --light-pink: #f6eaf5;
+  --dark-text: #020e64;
 }
 
 html,
 body {
   padding: 0;
   margin: 0;
-  font-family: 'Cabin', sans-serif!important;
+  /* font-family: 'Cabin', sans-serif!important; */
   /* background-color: var(--light-pink)!important; */
+
+  font-family: 'Lato', sans-serif!important;
 }
 
 a {
@@ -20,17 +23,71 @@ a {
 }
 
 .hero {
-  /* background-image: url('/images/vendor-2.jpeg'); */
   height: 440px;
-  width: 100%;
-  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/images/vendor-2.jpeg');
-  /* height: 100%; */
+  /* background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/images/background/nyc-south.JPG'); */
+  background: linear-gradient(rgb(81 179 183 / 48%), rgb(91 251 53 / 26%)), url(/images/background/nyc-south.JPG);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+
+  padding: 20px;
+  border-radius: 20px;
+  margin: 20px;
 }
 
 .header-container {
-  background: rgb(131,58,180);
-background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(247,37,133,1) 50%, rgba(252,176,69,1) 100%);
+  padding: 10px;
+  border-radius: 20px;
+  margin: 20px;
+  background: rgb(255,230,50);
+  background: linear-gradient(48deg, rgba(255,230,50,1) 0%, rgba(252,251,173,1) 62%, rgba(239,255,0,1) 100%);
+  /* background: rgb(131,58,180);
+  background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(247,37,133,1) 50%, rgba(252,176,69,1) 100%); */
+}
+.footer {
+  background: rgb(255,230,50);
+  background: linear-gradient(48deg, rgba(255,230,50,1) 0%, rgba(252,251,173,1) 62%, rgba(239,255,0,1) 100%);
+  padding: 10px;
+  border-radius: 20px;
+  margin: 20px;
+}
+
+.title {
+  font-family: 'Righteous', cursive;
+}
+
+p {
+  font-family: 'Lato', sans-serif;
+}
+.catalog_item:hover {
+  height: 266px;
+  width: 806px;
+  cursor: pointer;
+}
+/* .text-highlight {
+  background-image: linear-gradient(transparent 60%,var(--color-selection-bg) 60%);
+  background-size: 80% 100%;
+  background-repeat: no-repeat;
+  background-position: top center;
+} */
+
+.hero-text-container {
+  display: inline-block;
+}
+.hero-text {
+  font-size: 67px;
+  width: 80%;
+  overflow: hidden;
+  border-right: .15em solid orange;
+  white-space: nowrap;
+
+  font-size: 1.6rem;
+  width: 0;
+  animation: 
+    typing 1s steps(20, end) forwards,
+    blink .8s infinite;
+}
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
 }

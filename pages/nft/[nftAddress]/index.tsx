@@ -31,10 +31,12 @@ import { ethers } from "ethers";
 import web3 from "web3";
 import { create as ipfsHttpClient } from 'ipfs-http-client'
 import axios from "axios";
+import { useAppState } from "../../../context/appState";
 import lit from '../../../utils/lit';
 import { useSignMessage, useContract, useSigner, useContractReads, useAccount, useProvider, useContractRead } from 'wagmi'
 import ItemToken from "../../../artifacts/contracts/tokens/ItemToken.sol/ItemToken.json";
 import { SIGNATURE_MESSAGE } from '../../../utils/constants';
+
 interface Props {
     nftAddress: string;
 }
@@ -57,6 +59,7 @@ export function createAndDownloadBlobFile(body, filename, extension = 'zip') {
 const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0');
 
 const NFTPage = (props: Props) => {
+    const [qty, setQty] = useState<number>(1);
     console.log('props ', props);
     const provider = useProvider()
     const { address } = useAccount()
@@ -69,7 +72,16 @@ const NFTPage = (props: Props) => {
     const [tokenURI, setTokenURI] = useState<string | undefined>();
     const [metadata, setMetadata] = useState<any>();
     const [balance, setBalance] = useState<any>();
-
+    const {
+        cart,
+        cartMetaData,
+        catalogItems,
+        setCatalogItems,
+        setCart,
+        setCartMetaData,
+        cartShopAddress,
+        setCartShopAddress,
+      } = useAppState();
     useEffect(() => {
         fetchNFTData();
     }, []);
@@ -110,13 +122,49 @@ const NFTPage = (props: Props) => {
     createAndDownloadBlobFile(decryptedFile, 'cyber-punk', 'zip');
     console.log('decryptedFile -', decryptedFile);
   }
+
+  const handleAddToCart = () => {
+    const id = props.data.itemId.toNumber();
+
+    if (props.shopAddress !== cartShopAddress) {
+      setCartShopAddress(props.shopAddress);
+    }
+
+    if (cartMetaData.hasOwnProperty(id)) {
+      const currCart = cart.map((item: any) => {
+        console.log("item.itemId === id", item.itemId, id);
+        if (item.itemId === id) {
+          return {
+            ...item,
+            qty: item.qty + Number(qty),
+          };
+        }
+        return item;
+      });
+      setCart(currCart);
+    } else {
+      setCart([
+        ...cart,
+        { qty: Number(qty), itemId: props.data.itemId.toNumber() },
+      ]);
+    }
+    setCartMetaData({
+      ...cartMetaData,
+      [props.data.itemId.toNumber()]: {
+        name: metadata.name,
+        description: metadata.description,
+        image: metadata.image,
+        price: new BigNumber(web3.utils.fromWei(props.data.price.toString(), 'ether')),
+      },
+    });
+  };
   if (!props.nftAddress) {
     return <h1>Yikes. Try navigating to this page from the home page</h1>;
   }
   return (
     <Box>
       <Flex justify={"center"} align={"center"} direction={"column"}>
-        <Box m="6" width={"600px"} textAlign="center">
+        <Box m="6" width={"1200px"} textAlign="center">
           <Flex
             justify="center"
             align="center"
@@ -132,7 +180,7 @@ const NFTPage = (props: Props) => {
             />
             <Box>
               {" "}
-              <Text fontSize="6xl">{metadata?.name}</Text>
+              <Text fontSize="4xl" className="title">{metadata?.name}</Text>
               <Text color="gray.600">{metadata?.description}</Text>
               <Text color="yello.700">stars: {4.75}</Text>
               <Text color="gray.600">balance: {balance?.toString()}</Text>
@@ -148,6 +196,16 @@ const NFTPage = (props: Props) => {
                   shop address: {props.nftAddress.slice(0, 5)}...
                 </Link>
               </Flex>
+                <>
+                <Input
+                    placeholder="Quantity"
+                    width="80px"
+                    onChange={(e: any) => setQty(e.target.value)}
+                    value={qty}
+                    mr={"4"}
+                />
+                <Button m={'2'} onClick={handleAddToCart}>Add to Cart</Button>
+                </>
             </Box>
           </Flex>
         </Box>

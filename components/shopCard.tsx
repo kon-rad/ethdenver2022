@@ -63,18 +63,18 @@ const ShopCard = (props: Props) => {
   return (
     <Box
       mb="4"
-      width={isMobile ? "100%" : "700px"}
+      width={isMobile ? "100%" : "800px"}
       borderRadius="12px"
       p="4"
       boxShadow='xl'
       backgroundColor="white"
     >
-      <Flex>
+      <Flex padding="20px">
         <Box width="200px" m="2">
           <Image borderRadius="12px" src={image} width="200px" height="200px" />
         </Box>
         <Box>
-          <Text fontSize="2xl" color="black.700">{name}</Text>
+          <Text fontSize="2xl" color="black.700" className="title">{name}</Text>
         </Box>
         <Spacer />
         <Link href={`/${encodeURIComponent(props.address)}`}>

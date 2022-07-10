@@ -26,7 +26,7 @@ const ListHeader = ({ children }: { children: ReactNode }) => {
 export default function Footer() {
     return (
         <>
-            <Box bg={'brand.gradienta'}>
+            <Box className={'footer'}>
                 <Container as={Stack} maxW={'6xl'} py={10}>
                     <SimpleGrid
                         templateColumns={{
@@ -39,13 +39,13 @@ export default function Footer() {
                             <Box>
                                 <Image
                                     borderRadius="xl"
-                                    src="/images/logos/dcom_circle.png"
+                                    src="/images/logos/logo1-circle.png"
                                     w="100px"
                                     h="100px"
                                 />
                             </Box>
                             <Text fontSize={'sm'}>
-                                © 2022 dCom. All rights
+                                © 2022 dcom.market All rights
                                 reserved
                             </Text>
                         </Stack>

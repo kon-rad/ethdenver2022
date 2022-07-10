@@ -43,10 +43,10 @@ const theme = extendTheme({
       100: "#202a25ff",
       200: "#5f4bb6ff",
       300: "#86a5d9ff",
-      400: "#f72585",
+      400: "#fac8ff",
       500: "#c4ebc8ff",
       600: "#ea3546", // red
-      900: '#4cc9f0', // blue https://coolors.co/palette/f72585-b5179e-7209b7-560bad-480ca8-3a0ca3-3f37c9-4361ee-4895ef-4cc9f0
+      900: 'var(--dark-text)',
     },
   },
 });
@@ -97,7 +97,7 @@ const { provider, chains } = configureChains(
 )
 
 const { connectors } = getDefaultWallets({
-  appName: 'dCom',
+  appName: 'dcom.market',
   chains
 });
 const wagmiClient = createClient({

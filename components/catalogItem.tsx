@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { ethers } from "ethers";
 import ItemToken from '../artifacts/contracts/tokens/ItemToken.sol/ItemToken.json';
 import { useContract, useContractReads, useAccount, useProvider, useContractRead } from 'wagmi'
+import { useRouter } from 'next/router'
 
 interface BigNumberType {
   _isBigNumber: boolean,
@@ -33,9 +34,9 @@ interface Props {
 }
 
 const CatalogItem = (props: Props) => {
-  const [qty, setQty] = useState<number>(1);
   const [fileUrl, setFileUrl] = useState<string>("");
   const [metadata, setMetadata] = useState<any>();
+  const router = useRouter()
   const web3React = useWeb3React();
   const {
     cart,
@@ -81,45 +82,12 @@ const CatalogItem = (props: Props) => {
     })
   }
 
-  const handleAddToCart = () => {
-    const id = props.data.itemId.toNumber();
-
-    if (props.shopAddress !== cartShopAddress) {
-      setCartShopAddress(props.shopAddress);
-    }
-
-    if (cartMetaData.hasOwnProperty(id)) {
-      const currCart = cart.map((item: any) => {
-        console.log("item.itemId === id", item.itemId, id);
-        if (item.itemId === id) {
-          return {
-            ...item,
-            qty: item.qty + Number(qty),
-          };
-        }
-        return item;
-      });
-      setCart(currCart);
-    } else {
-      setCart([
-        ...cart,
-        { qty: Number(qty), itemId: props.data.itemId.toNumber() },
-      ]);
-    }
-    setCartMetaData({
-      ...cartMetaData,
-      [props.data.itemId.toNumber()]: {
-        name: metadata.name,
-        description: metadata.description,
-        image: metadata.image,
-        price: new BigNumber(web3.utils.fromWei(props.data.price.toString(), 'ether')),
-      },
-    });
-  };
-  // console.log("catalogItem data = : ", props.data);
-
+  const handleItemClick = (e: any) => {
+    e.preventDefault();
+    router.push(`/nft/${encodeURIComponent(props.nftAddress)}`);
+  }
   return (
-    <Box mb="4" borderRadius="12px" border="solid" borderWidth={1} borderColor={"black.600"} p={"6"} boxShadow="md">
+    <Box mb="4" onClick={handleItemClick} borderRadius="12px"  p={"6"} boxShadow="xl" width="800px" height="260px" className="catalog_item">
       <Flex>
         {
           metadata && (<Image
@@ -139,21 +107,6 @@ const CatalogItem = (props: Props) => {
           <Text fontSize="md" mb={"2"} color="black.700">
             MATIC: {web3.utils.fromWei(props.data.price.toString(), 'ether')}
           </Text>
-            <>
-              <Input
-                placeholder="Quantity"
-                width="80px"
-                onChange={(e: any) => setQty(e.target.value)}
-                value={qty}
-                mr={"4"}
-              />
-              <Button m={'2'} onClick={handleAddToCart}>Add to Cart</Button>
-            </>
-          <Link href={`/nft/${encodeURIComponent(props.nftAddress)}`}>
-            <Button backgroundColor="brand.400" color="gray.900">
-              Go
-            </Button>
-          </Link>
           {/* {props.isOwner && (
             <Box m={"2"}>
               <input

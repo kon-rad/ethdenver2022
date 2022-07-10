@@ -402,7 +402,7 @@ const ShopPage = (props: Props) => {
   return (
     <Box>
       <Flex justify={"center"} align={"center"} direction={"column"}>
-        <Box m="6" width={isMobile ? "100%" : "600px"} textAlign="center">
+        <Box m="6" width={isMobile ? "100%" : "1200px"} textAlign="center">
           <Flex
             justify="center"
             align="center"
@@ -418,7 +418,7 @@ const ShopPage = (props: Props) => {
             />
             <Box>
               {" "}
-              <Text fontSize="6xl">{name}</Text>
+              <Text fontSize="4xl" className="title">{name}</Text>
               <Text color="gray.600">{desc}</Text>
               <Text color="yello.700">stars: {4.75}</Text>
               <Flex mb={"2"} direction="column">
@@ -445,7 +445,7 @@ const ShopPage = (props: Props) => {
               </Flex>
               <Flex color="white" >
                 {tags.split(', ').map(
-                  (tag: string, i: number) => (<Box key={`key-${tag}-${i}`} backgroundColor="brand.400" m="2" boxShadow="lg" py="1" px="2" borderRadius="8px">{tag}</Box>))
+                  (tag: string, i: number) => (<Box key={`key-${tag}-${i}`} backgroundColor="brand.400" color="black" m="2" boxShadow="lg" py="1" px="2" borderRadius="8px">{tag}</Box>))
                 }
               </Flex>
               <Flex m={"4"}>
