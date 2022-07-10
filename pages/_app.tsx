@@ -76,7 +76,6 @@ const mumbaiChain = {
   },
   testnet: true,
 }
-console.log('chain -', chain);
 
 const { provider, chains } = configureChains(
   // [mumbaiChain],

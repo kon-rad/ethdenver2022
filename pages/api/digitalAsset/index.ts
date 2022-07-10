@@ -1,15 +1,24 @@
 import { createFile } from '../../../utils/cloudFunctions';
+import axios from 'axios';
+import stream from 'stream';
+import { promisify } from 'util';
+
+const pipeline = promisify(stream.pipeline);
 
 export default async function handler(req, res) {
-    console.log('req: ', req.query);
-    const { shopAddress, nftAddress, signature, itemId, fileUrl, ownerAddress } = req.query;
-    
-    console.log("shopAddress, signature, itemId, filePath, ownerAddress: ", shopAddress, signature, itemId, filePath, ownerAddress);
-    
-    const result = await createFile({ shopAddress, signature, itemId, fileUrl, ownerAddress });
-    
-    console.log('result on createFile API: ', result);
-    res.status(200).json(result);
-  }
+    console.log('digital asset api ---- ')
+  const apiRes = await axios({
+    method: 'get',
+    url: 'https://ipfs.io/ipfs/bafybeid7cb2nmq6k26lvyqcwpemm4cvpikph3z2nfrw3srspzteexyasbe',
+    responseType: 'stream'
+  });
+  console.log('apiRes -> ', apiRes);
+  
+
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', 'attachment; filename=vravatar.zip');
+  await pipeline(apiRes, res);
+  // res.status(200).json(apiRes);
+}
 
  

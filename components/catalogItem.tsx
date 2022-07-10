@@ -1,4 +1,4 @@
-import { Box, Text, Flex, Image, Button, Input } from "@chakra-ui/react";
+import { Box, Text, Link, Flex, Image, Button, Input } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useAppState } from "../context/appState";
 import web3 from 'web3';
@@ -66,8 +66,8 @@ const CatalogItem = (props: Props) => {
     const tokenUri = await nftContract.tokenURI(1);
     console.log('tokenUri - ', tokenUri, ' itemId - ', 1);
     
-    const url = `https://ipfs.infura.io/ipfs/${tokenUri}`;
-    const _metadata = await axios.get(url);
+    // const url = `https://ipfs.infura.io/ipfs/${tokenUri}`;
+    const _metadata = await axios.get(tokenUri);
 
     setMetadata(_metadata.data);
     console.log("_metadata: ", _metadata);
@@ -149,6 +149,11 @@ const CatalogItem = (props: Props) => {
               />
               <Button m={'2'} onClick={handleAddToCart}>Add to Cart</Button>
             </>
+          <Link href={`/nft/${encodeURIComponent(props.nftAddress)}`}>
+            <Button backgroundColor="brand.400" color="gray.900">
+              Go
+            </Button>
+          </Link>
           {/* {props.isOwner && (
             <Box m={"2"}>
               <input

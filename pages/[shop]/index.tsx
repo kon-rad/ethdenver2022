@@ -40,6 +40,7 @@ import { create as ipfsHttpClient } from 'ipfs-http-client'
 import axios from "axios";
 import lit from '../../utils/lit';
 import { useSignMessage, useContractEvent, useSigner, useContractReads, useAccount, useProvider, useContractRead } from 'wagmi'
+import { SIGNATURE_MESSAGE } from '../../utils/constants';
 
 interface Props {
   shop: string;
@@ -50,7 +51,6 @@ interface CartType {
   itemId: string;
 }
 
-const SIGNATURE_MESSAGE = 'why yes I am the owner of this NFT on dcom.market!';
 
 // @ts-ignore
 const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0');
@@ -74,9 +74,11 @@ const ShopPage = (props: Props) => {
   const [percent, setPercent] = useState("3");
   const [encryptedUrl, setEncryptedUrl] = useState<string>("");
   const [newItemCreated, setNewItemCreated] = useState<any>();
-  const [newItemAddress, setNewItemAddress] = useState<any>();
+  const [newItemAddress, setNewItemAddress] = useState<any>("0xB618BcB4e983266C121Df2B9f02863a4650d7A36");
   const [newItemId, setNewItemId] = useState<number | undefined>();
-  const [createItemStage, setCreateItemStage] = useState<number>(1);
+  const [createItemStage, setCreateItemStage] = useState<number>(2);
+  const [encryptedFileURL, setEncryptedFileURL] = useState<string | undefined>();
+  const [encryptedSymmetricKey, setEncryptedSymmetricKey] = useState<any>();
 
   const [itemName, setItemName] = useState<string>("");
   const [itemSymbol, setItemSymbol] = useState<string>("");
@@ -85,20 +87,10 @@ const ShopPage = (props: Props) => {
   const [itemPrice, setItemPrice] = useState<string>("");
   const router = useRouter();
 
-  useContractEvent({
-    addressOrName: props.shop,
-    contractInterface: Shop.abi,
-    eventName: 'ItemCreated',
-    listener: (event) => handleItemCreatedEvent(event),
-  })
-
   const [isMobile] = useMediaQuery("(max-width: 600px)");
   const provider = useProvider();
   const { data: signer } = useSigner();
   const { address } = useAccount();
-  const { data: signMessageData, isError: signMessageIsError, isLoading: signMessageIsLoading, isSuccess: signMessageIsSuccess, signMessage } = useSignMessage({
-    message: SIGNATURE_MESSAGE,
-  })
 
   const shopContractData = {
     addressOrName: props.shop,
@@ -148,8 +140,6 @@ const ShopPage = (props: Props) => {
     setTransactions(_transactions);
     setItemAddresses(_itemAddresses);
   }, [data])
-  console.log('shop data ------- ', data)
-  console.log('itemAddresses -> ', itemAddresses);
 
   useEffect(() => {
     if (!props.shop) return;
@@ -165,58 +155,6 @@ const ShopPage = (props: Props) => {
   useEffect(() => {
     setIsOwner(address === owner);
   }, [address, owner]);
-
-  const handleItemCreatedEvent = (event: any) => {
-    if (event[0]?.toNumber() === newItemId) {
-      setNewItemAddress(event[1]);
-      // handleStage1Phase2(event[1]);
-    }
-  }
-  const handleStage1Phase2 = async (newItemAddress: string) => {
-
-    const itemContract = new ethers.Contract(
-      newItemAddress,
-      ItemToken.abi,
-      signer
-    );
-    /* first, upload to IPFS */
-    const data = JSON.stringify({
-        name: itemName,
-        description: itemDesc,
-        image: itemImage,
-        // file: encryptedFileIPFSHash,
-        // encryptedSymmetricKey: encryptedSymmetricKey
-        file: 'some file here',
-        encryptedSymmetricKey: 'encrypted symmetric key'
-        // external_url
-    });
-    const added = await client.add(data);
-    const ipfsHash = `${added.path}`;
-    const url = `https://ipfs.infura.io/ipfs/${added.path}`;
-
-    
-    // const nftContract = new ethers.Contract(
-    //   nftAddress,
-    //   ItemToken.abi,
-    //   signer
-    // );
-    await itemContract.setTokenURI(
-      1,
-      url
-    );
-    console.log('set token uri, currTokenId, ipfsHash: ', ipfsHash)
-
-    toast(`You successfully created ${itemName}!`, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
-    onClose();
-  }
 
   const handleStage1 = async () => {
     try {
@@ -238,12 +176,11 @@ const ShopPage = (props: Props) => {
           image: itemImage,
           // file: encryptedFileIPFSHash,
           // encryptedSymmetricKey: encryptedSymmetricKey
-          file: 'some file here',
-          encryptedSymmetricKey: 'encrypted symmetric key'
+          // file: 'some file here',
+          // encryptedSymmetricKey: 'encrypted symmetric key'
           // external_url
       });
       const added = await client.add(data);
-      const ipfsHash = `${added.path}`;
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
 
       const createResponse = await shopContract.createItem(
@@ -280,32 +217,26 @@ const ShopPage = (props: Props) => {
       return;
     }
 
-    // signMessage();
     let signature = await signer.signMessage(SIGNATURE_MESSAGE);
     console.log(signature);
       // stage 2 - sign message and upload file
 
-      let authSig = {
-        sig: signature,
-        derivedVia: "web3.eth.personal.sign",
-        signedMessage: SIGNATURE_MESSAGE,
-        address,
-      };
-      //   {
-      //     "sig": "0x18720b54cf0d29d618a90793d5e76f4838f04b559b02f1f01568d8e81c26ae9536e11bb90ad311b79a5bc56149b14103038e5e03fee83931a146d93d150eb0f61c",
-      //     "derivedVia": "web3.eth.personal.sign",
-      //     "signedMessage": "localhost wants you to sign in with your Ethereum account:\n0x1cD4147AF045AdCADe6eAC4883b9310FD286d95a\n\nThis is a test statement.  You can put anything you want here.\n\nURI: https://localhost/login\nVersion: 1\nChain ID: 1\nNonce: gzdlw7mR57zMcGFzz\nIssued At: 2022-04-15T22:58:44.754Z",
-      //     "address": "0x1cD4147AF045AdCADe6eAC4883b9310FD286d95a"
-      // }
-      console.log('authSig -> ', authSig);
+    let authSig = {
+      sig: signature,
+      derivedVia: "web3.eth.personal.sign",
+      signedMessage: SIGNATURE_MESSAGE,
+      // user address
+      address,
+    };
+    console.log('authSig -> ', authSig);
 
-      const {
-        encryptedFileIPFSHash,
-        encryptedSymmetricKey
-      } = await lit.encrypt(digitalProductFileRef, newItemAddress, authSig);
-      console.log('file encrypted, encryptedFileIPFSHash, encryptedSymmetricKey - ', encryptedFileIPFSHash, encryptedSymmetricKey)
-
-
+    const {
+      encryptedFileURL,
+      encryptedSymmetricKey
+    } = await lit.encrypt(digitalProductFileRef, newItemAddress, authSig);
+    console.log('file encrypted, encryptedFileURL, encryptedSymmetricKey - ', encryptedFileURL, encryptedSymmetricKey)
+    setEncryptedFileURL(encryptedFileURL);
+    setEncryptedSymmetricKey(encryptedSymmetricKey);
     // stage 3 - update token URI
     setCreateItemStage(3);
   }
@@ -314,34 +245,33 @@ const ShopPage = (props: Props) => {
       console.error("Error: item creation stage is not correct.");
       return;
     }
+    const itemContract = new ethers.Contract(
+      newItemAddress,
+      ItemToken.abi,
+      signer
+    );
+
+    const newItemUri = await itemContract.tokenURI(1);
+    const metadata = await axios.get(newItemUri);
+    console.log('newItemUri -> ', newItemUri);
+    console.log('metadata -> ', metadata);
+    console.log('encryptedFileURL -> ', encryptedFileURL);
+    console.log('encryptedSymmetricKey -> ', encryptedSymmetricKey);
 
     const data = JSON.stringify({
-      name: itemName,
-      description: itemDesc,
-      image: itemImage,
-      // file: encryptedFileIPFSHash,
-      // encryptedSymmetricKey: encryptedSymmetricKey
-      file: 'some file here',
-      encryptedSymmetricKey: 'encrypted symmetric key'
+      ...metadata.data,
+      file: encryptedFileURL,
+      encryptedSymmetricKey: encryptedSymmetricKey,
+      // file: 'some file here',
+      // encryptedSymmetricKey: 'encrypted symmetric key'
+      // todo: optional field -> 
       // external_url
   });
   const added = await client.add(data);
   const ipfsHash = `${added.path}`;
   const url = `https://ipfs.infura.io/ipfs/${added.path}`;
 
-    const newItemNFTContract = items[items.length - 1].itemAddress;
-
-    const itemContract = new ethers.Contract(
-      newItemNFTContract,
-      ItemToken.abi,
-      signer
-    );
     
-    // const nftContract = new ethers.Contract(
-    //   nftAddress,
-    //   ItemToken.abi,
-    //   signer
-    // );
     await itemContract.setTokenURI(
       1,
       url
@@ -357,8 +287,8 @@ const ShopPage = (props: Props) => {
       draggable: true,
       progress: undefined,
     });
-    onClose();
     setCreateItemStage(1);
+    onClose();
   }
   const handleEdit = () => {
     console.log("edit ");
@@ -368,7 +298,8 @@ const ShopPage = (props: Props) => {
   };
 
   const uploadDigitalProduct = async (e: any) => {
-    setDigitalProductFileRef(e);
+    console.log("e.target.files[0] -> ", e.target.files[0]);
+    setDigitalProductFileRef(e.target.files[0]);
   }
   
   if (!props.shop) {
@@ -645,7 +576,7 @@ const ShopPage = (props: Props) => {
                     name="Asset"
                     className="mr-2"
                     disabled={!(createItemStage == 2)}
-                    onChange={(e: any) => uploadDigitalProduct(e)}
+                    onChange={uploadDigitalProduct}
                   />
                 </Box>
                 <Button variant="primary" onClick={handleStage2}>
