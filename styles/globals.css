@@ -2,6 +2,7 @@
   --light-pink: #f6eaf5;
   --dark-text: #020e64;
   --seduce: #a3ff8b;
+  --seduceHover: #76ff53;
   --independence: #7bceff;
   --confirmed: #2fff00;
   --independenceHover: #5af9ff;
@@ -15,9 +16,6 @@ html,
 body {
   padding: 0;
   margin: 0;
-  /* font-family: 'Cabin', sans-serif!important; */
-  /* background-color: var(--light-pink)!important; */
-
   font-family: 'Lato', sans-serif!important;
 }
 
@@ -32,7 +30,6 @@ a {
 
 .hero {
   height: 440px;
-  /* background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/images/background/nyc-south.JPG'); */
   background: linear-gradient(rgb(81 179 183 / 48%), rgb(91 251 53 / 26%)), url(/images/background/nyc-south.JPG);
   background-position: center;
   background-repeat: no-repeat;
@@ -49,8 +46,6 @@ a {
   margin: 20px;
   background: rgb(255,230,50);
   background: linear-gradient(48deg, rgba(255,230,50,1) 0%, rgba(252,251,173,1) 62%, rgba(239,255,0,1) 100%);
-  /* background: rgb(131,58,180);
-  background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(247,37,133,1) 50%, rgba(252,176,69,1) 100%); */
 }
 .footer {
   background: rgb(255,230,50);
@@ -69,6 +64,7 @@ p {
 }
 .catalog_item {
   transition: 0.3s;
+  background-color: white;
 }
 .catalog_item:hover {
   height: 266px;
@@ -79,6 +75,7 @@ p {
   height: 288px;
   width: 800px;
   transition: 0.3s;
+  background-color: white!important;
 }
 .shopCard:hover {
   height: 294px;
@@ -120,17 +117,15 @@ p {
   to { width: 100% }
 } */
 
-.green-box {
-  /* background-color: #d2f7d2; */
+.bluehaze-box {
   margin: 20px;
   border-radius: 20px;
   padding: 40px;
   background: rgb(206,227,255);
   background: radial-gradient(circle, rgba(206,227,255,1) 0%, rgba(220,248,255,1) 44%, rgba(182,255,249,1) 100%);
-
-
-  /* background: rgb(179,255,169);
-  background: linear-gradient(27deg, rgba(179,255,169,1) 0%, rgba(236,251,222,1) 31%, rgba(210,247,210,1) 100%); */
+}
+.bluehaze-box input {
+  background-color: white;
 }
 
 .pink-box {
@@ -139,13 +134,7 @@ p {
   padding: 100px 40px;
 
   background: rgb(255,244,251);
-background: linear-gradient(304deg, rgba(255,244,251,1) 0%, rgba(253,244,254,1) 67%, rgba(255,247,255,1) 100%);
-
-
-  /* background: rgb(251,236,245);
-  background: linear-gradient(304deg, rgba(251,236,245,1) 0%, rgba(252,230,254,1) 67%, rgba(255,237,255,1) 100%); */
-  /* background: rgb(255,138,204);
-  background: linear-gradient(304deg, rgba(255,138,204,1) 0%, rgba(252,230,254,1) 67%, rgba(255,188,254,1) 100%); */
+  background: linear-gradient(304deg, rgba(255,244,251,1) 0%, rgba(253,244,254,1) 67%, rgba(255,247,255,1) 100%);
 }
 
 .purple-box {
@@ -189,4 +178,8 @@ background: radial-gradient(circle, rgba(182,255,234,1) 0%, rgba(254,236,253,1) 
 }
 .blue-purple-box textarea {
   background: white;
+}
+
+.tag-button {
+  cursor: pointer;
 }

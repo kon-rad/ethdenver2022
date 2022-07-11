@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { Box, Flex, Image, Text, Input, Button, useMediaQuery, Textarea } from "@chakra-ui/react";
 import ShopFactory from "../artifacts/contracts/ShopFactory.sol/ShopFactory.json";
-import { handleImageUpload } from "../utils/ipfs";
+import { handleIPFSUpload } from "../utils/ipfs";
 import { toast } from "react-toastify";
 import Router from "next/router";
 import { useWeb3React } from "@web3-react/core";
@@ -14,6 +14,7 @@ const Create = () => {
   const [name, setName] = useState<string>("");
   const [tags, setTags] = useState<string>("");
   const [fileUrl, setImageIPFSHash] = useState<string>("");
+  const [longDescription, setLongDescription] = useState<string>("");
   const { data: signer } = useSigner();
 
   const factoryContract = useContract({
@@ -24,10 +25,16 @@ const Create = () => {
 
   const handleSubmit = async () => {
     try {
+      const shopMetadata = {
+        image: fileUrl,
+        tags,
+        description,
+        longDescription
+      }
+      const shopURL = await handleIPFSUpload(shopMetadata)
       const transaction = await factoryContract.createShop(
         name,
-        fileUrl,
-        tags
+        shopURL
       );
       await transaction.wait();
     } catch (e: any) {
@@ -54,7 +61,7 @@ const Create = () => {
     Router.push("/");
   };
   const handleImageSelect = async (e: any) => {
-    setImageIPFSHash(await handleImageUpload(e));
+    setImageIPFSHash(await handleIPFSUpload(e));
   };
   const validateAndSetTags = (val: string) => {
     let valArr = val.split(', ');
@@ -76,7 +83,7 @@ const Create = () => {
         >
         <Box p="8">
           <Text color="brand.darkText" fontSize="6xl" className="title" textAlign="center">
-            create a shop
+            create a store
           </Text>
         </Box>
           <Flex justify="center" height="200px" mb="4">
@@ -97,7 +104,7 @@ const Create = () => {
               className="mr-2"
               onChange={handleImageSelect}
             />
-          <Text fontSize="xs" mb="4">image to represent your shop</Text>
+          <Text fontSize="xs" mb="4">image to represent your store</Text>
           </Box>
           <Input
             mb="1"
@@ -107,7 +114,7 @@ const Create = () => {
             name={"name"}
             placeholder={"name"}
           />
-          <Text fontSize="xs" mb="2">The name of your shop and NFT contract, it is not editable.</Text>
+          <Text fontSize="xs" mb="2">The name of your store and NFT contract, it is not editable.</Text>
 
            {/* <Text fontSize="xs" mb="2">All caps, no spaces, 10 max character length</Text>  */}
           <Input
@@ -119,7 +126,7 @@ const Create = () => {
             name={"tags"}
             placeholder={"tags"}
           />
-          <Text fontSize="xs" mb="2">Tags describe your shop for easy searching and navigation by customers. They are seperated by (', ') comma and a space. Max number of tags is 10.</Text>
+          <Text fontSize="xs" mb="2">Tags describe your store for easy searching and navigation by customers. They are seperated by (', ') comma and a space. Max number of tags is 10.</Text>
           <Textarea
             mb="1"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -129,9 +136,20 @@ const Create = () => {
             name={"description"}
             placeholder={"description"}
           /> 
+          <Textarea
+            mb="1"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setLongDescription((e.target.value))
+            }
+            value={longDescription}
+            name={"long_description"}
+            placeholder={"long description"}
+            height="400px"
+            mt="2"
+          /> 
           <Flex justify={"center"} m="4">
             <Box p="12">
-              <Button color="brand.darkText" onClick={handleSubmit}>
+              <Button bg="brand.independence" _hover={{ bg: "brand.independenceHover" }} onClick={handleSubmit}>
                 Submit
               </Button>
             </Box>

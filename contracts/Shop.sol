@@ -14,12 +14,10 @@ contract Shop {
     using SafeMath for uint;
     using Counters for Counters.Counter;
     using Catalog for ItemsCatalogArray;
-    // using StringUtils for string;
 
     string public name;
     uint256 public shopId;
-    string public image;
-    string public tags;
+    string public metadataUrl;
     address payable public owner;
     address payable public governor;
     address payable public nftTemplate;
@@ -65,19 +63,16 @@ contract Shop {
     function initialize(
         address _owner,
         string memory _name,
-        string memory _image,
-        string memory _tags,
+        string memory _metadataUrl,
         uint256 _shopId,
         address _governor,
         address _nftTemplate
     ) external {
         require(initialized == false, "S:00");
-        require(StringUtils.strlen(_tags) < 280, "S:01 Tags must be less than 280 characters");
         initialized = true;
         owner = payable(address(_owner));
         name = _name;
-        image = _image;
-        tags = _tags;
+        metadataUrl = _metadataUrl;
         shopId = _shopId;
         governor = payable(address(_governor));
         nftTemplate = payable(address(_nftTemplate));
@@ -93,9 +88,8 @@ contract Shop {
         _;
     }
 
-    function setTags(string memory _tags) external onlyOwner {
-        require(StringUtils.strlen(_tags) < 280, "S:01 Tags must be less than 280 characters");
-        tags = _tags;
+    function setMetadata(string memory _metadataUrl) external onlyOwner {
+        metadataUrl = _metadataUrl;
     }
 
     function getItemAddresses() external view returns (address[] memory) {

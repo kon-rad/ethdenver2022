@@ -31,7 +31,7 @@ import { ethers } from "ethers";
 import CatalogItem from "../../components/catalogItem";
 import Shop from "../../artifacts/contracts/Shop.sol/Shop.json";
 import ItemToken from "../../artifacts/contracts/tokens/ItemToken.sol/ItemToken.json";
-import { handleImageUpload, encryptFile } from "../../utils/ipfs";
+import { handleIPFSUpload, encryptFile } from "../../utils/ipfs";
 import TransactionItem from "../../components/transactionItem";
 import web3 from "web3";
 import { formatAddress } from "../../utils/web3";
@@ -321,7 +321,7 @@ const ShopPage = (props: Props) => {
     console.log("edit ");
   };
   const uploadImage = async (e: any) => {
-    setItemImage(await handleImageUpload(e));
+    setItemImage(await handleIPFSUpload(e));
   };
 
   const uploadDigitalProduct = async (e: any) => {
@@ -443,7 +443,7 @@ const ShopPage = (props: Props) => {
               mr="6"
               boxShadow="xl"
             />
-            <Box>
+            <Box textAlign="left">
               {" "}
               <Text fontSize="4xl" className="title">{name}</Text>
               <Text color="gray.600">{desc}</Text>
@@ -457,7 +457,7 @@ const ShopPage = (props: Props) => {
                   isExternal
                 >
                   <ExternalLinkIcon />
-                  owner: {owner && owner.slice(0, 5)}...
+                  owner: {owner.slice(0, 4)}...{owner.slice(-4)}
                 </Link>
                 <Link
                   target={"_blank"}
@@ -467,21 +467,21 @@ const ShopPage = (props: Props) => {
                   isExternal
                 >
                   <ExternalLinkIcon />
-                  shop address: {props.shop.slice(0, 5)}...
+                  store: {props.shop.slice(0, 4)}...{props.shop.slice(-4)}
                 </Link>
               </Flex>
               <Flex color="white" >
                 {tags && tags.split(', ').map(
-                  (tag: string, i: number) => (<Box key={`key-${tag}-${i}`} backgroundColor="brand.lowKeyKool" _hover={{ bg: 'brand.lowKeyKoolHover' }} color="black" m="2" boxShadow="lg" py="1" px="2" borderRadius="8px">{tag}</Box>))
+                  (tag: string, i: number) => (<Box key={`key-${tag}-${i}`} backgroundColor="brand.lowKeyKool" _hover={{ bg: 'brand.lowKeyKoolHover' }} color="black" m="2" boxShadow="lg" py="1" px="2" borderRadius="8px" className="tag-button">{tag}</Box>))
                 }
               </Flex>
               <Flex m={"4"}>
                 {isOwner && (
-                  <Button mr={"4"} onClick={onOpen}>
+                  <Button bg="brand.independence" _hover={{ bg: "brand.independenceHover" }} mr={"4"} onClick={onOpen}>
                     Add Catalog Item
                   </Button>
                 )}
-                {isOwner && <Button onClick={handleEdit}>Edit Shop</Button>}
+                {isOwner && <Button bg="brand.independence" _hover={{ bg: "brand.independenceHover" }} onClick={handleEdit}>Edit Shop</Button>}
               </Flex>
             {/* <Button mr={"4"} onClick={downloadAndDecrypt}>download and decrypt file</Button> */}
             </Box>

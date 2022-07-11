@@ -180,7 +180,7 @@ const NFTPage = (props: Props) => {
   return (
     <Box>
       <Flex justify={"center"} align={"center"} direction={"column"}>
-        <Box m="6" width={"1200px"} textAlign="center">
+        <Box m="6" width={"1200px"} textAlign="left">
           <Flex
             justify="center"
             align="center"
@@ -204,15 +204,16 @@ const NFTPage = (props: Props) => {
                 <Link
                   target={"_blank"}
                   mb={"2"}
-                  href={`${process.env.NEXT_PUBLIC_ETHERSCAN}`}
+                  href={`${process.env.NEXT_PUBLIC_ETHERSCAN}/${props.nftAddress}`}
                   color="gray.600"
                   isExternal
                 >
                   <ExternalLinkIcon />
-                  shop address: {props.nftAddress.slice(0, 5)}...
+                  NFT address: {props.nftAddress.slice(0, 4)}...{props.nftAddress.slice(-4)}
                 </Link>
               </Flex>
-                <>
+                <Flex justify="left" align="center">
+                <Text fontSize="lg" m="2">Quantity</Text>
                 <Input
                     placeholder="Quantity"
                     width="80px"
@@ -220,15 +221,15 @@ const NFTPage = (props: Props) => {
                     value={qty}
                     mr={"4"}
                 />
-                <Button m={'2'} onClick={handleAddToCart}>Add to Cart</Button>
-                </>
+                <Button m={'2'} bg={'brand.seduce'} _hover={{ bg: 'brand.seduceHover' }} onClick={handleAddToCart}>Add to Cart</Button>
+                </Flex>
             </Box>
           </Flex>
         </Box>
       </Flex>
         <Flex justify="center" align="center">
             <Box m="4">
-                <Button onClick={handleDownload}>Download File</Button>
+                <Button onClick={handleDownload} bg={'brand.independence'} _hover={{ bg: 'brand.independenceHover'}}>Download File</Button>
             </Box>
         </Flex>
     </Box>

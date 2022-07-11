@@ -85,7 +85,7 @@ const Cart = () => {
   };
 
   return (
-    <Box className="green-box">
+    <Box className="bluehaze-box">
       <Flex justify="center">
         <Box width={isMobile ? "80%" : "600px"}>
           <Text mb="6" textAlign="center" fontSize="6xl" className="title">
@@ -121,7 +121,7 @@ const Cart = () => {
                 Total MATIC: {getCartTotal(cart, cartMetaData).toString()}
               </Text>
               <Flex mt="8" justify="center">
-                <Button backgroundColor={"brand.600"} onClick={handleCheckout}>
+                <Button backgroundColor={"brand.seduce"} _hover={{ bg: 'brand.seduceHover' }} onClick={handleCheckout}>
                   Check Out
                 </Button>
               </Flex>

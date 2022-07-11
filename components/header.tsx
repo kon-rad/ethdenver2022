@@ -34,13 +34,6 @@ const Header = () => {
               width="40px"
               height="40px"
             />
-            {isMobile ? (
-              ""
-            ) : (
-              <Text fontWeight="bold" fontSize="2xl" color="brand.900" className="title">
-                dcom
-              </Text>
-            )}
           </Flex>
         </NextLink>
       </LinkBox>

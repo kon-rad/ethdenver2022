@@ -40,7 +40,7 @@ const Home: NextPage = () => {
   return (
     <div>
       <Hero />
-      <Flex align="center" justify="center" direction="column" className="green-box">
+      <Flex align="center" justify="center" direction="column" className="bluehaze-box">
         <Text fontSize="6xl" color="Background.darkText" className="title" my="4">Stores</Text>
         <Box p={"6"}>
           {address && <GovernorDashboard balance={balance} />}

@@ -1,11 +1,10 @@
 import { url } from "inspector";
 import { create as ipfsHttpClient } from "ipfs-http-client";
-import { encrypt } from '../services/encryption';
 import { NFTStorage } from "nft.storage";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0" as any);
 
-export async function handleImageUpload(e: any) {
+export async function handleIPFSUpload(e: any) {
   if (!e || !e.target || !e.target.files || !e.target.files[0]) {
     return;
   }
@@ -30,27 +29,27 @@ const toBuffer = (ab: any) => {
   return buffer;
 }
 
-export const encryptFile = (e: any, completeFileEncryption: any, secretKey: string) => {
-  if (!e || !e.target || !e.target.files || !e.target.files[0]) {
-    return;
-  }
-  const file = e.target.files[0];
-  const fileReader = new FileReader();
-  fileReader.readAsArrayBuffer(file);
+// export const encryptFile = (e: any, completeFileEncryption: any, secretKey: string) => {
+//   if (!e || !e.target || !e.target.files || !e.target.files[0]) {
+//     return;
+//   }
+//   const file = e.target.files[0];
+//   const fileReader = new FileReader();
+//   fileReader.readAsArrayBuffer(file);
 
-  fileReader.onload = async (event) => {
-    const data = encrypt(toBuffer(fileReader.result), secretKey);
-    try {
-      const added = await client.add(data, {
-        progress: (prog) => console.log(`received: ${prog}`),
-      });
-      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
-      completeFileEncryption(url, secretKey);
-    } catch (error) {
-      console.log(`Error uploading file: ${error}`);
-    }
-  }
-}
+//   fileReader.onload = async (event) => {
+//     const data = encrypt(toBuffer(fileReader.result), secretKey);
+//     try {
+//       const added = await client.add(data, {
+//         progress: (prog) => console.log(`received: ${prog}`),
+//       });
+//       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+//       completeFileEncryption(url, secretKey);
+//     } catch (error) {
+//       console.log(`Error uploading file: ${error}`);
+//     }
+//   }
+// }
 
 // function for uploading a file to IPFS
 export async function uploadFile(e: any): Promise<string> {

@@ -47,6 +47,7 @@ const theme = extendTheme({
       lowKeyKoolHover: 'var(--lowKeyKoolHover)',
       500: "#c4ebc8ff",
       seduce: "var(--seduce)",
+      seduceHover: "var(--seduceHover)",
       lightGreen: 'var(--seduce)',
       900: 'var(--dark-text)',
       darkText: 'var(--dark-text)',
