@@ -181,9 +181,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint256[]",
-        name: "_amounts",
-        type: "uint256[]",
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
       },
     ],
     name: "batchSale",

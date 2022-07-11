@@ -59,6 +59,7 @@ const ShopPage = (props: Props) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [desc, setDesc] = useState<string>("");
   const [name, setName] = useState<string>("");
+  const [metadata, setMetadata] = useState<any>();
   const [image, setImage] = useState<string>("");
   const [owner, setOwner] = useState<string>("");
   const [tags, setTags] = useState<string>("");
@@ -120,15 +121,11 @@ const ShopPage = (props: Props) => {
       },
       {
         ...shopContractData,
-        functionName: 'image',
+        functionName: 'metadataUrl',
       },
       {
         ...shopContractData,
         functionName: 'owner',
-      },
-      {
-        ...shopContractData,
-        functionName: 'tags',
       },
       {
         ...shopContractData,
@@ -146,15 +143,22 @@ const ShopPage = (props: Props) => {
   })
   useEffect(() => {
     if (!data) return;
-    let [_name, _image, _owner, _tags, _items, _transactions, _itemAddresses] = [...data] as any;
+    let [_name, _metadataURL, _owner, _items, _transactions, _itemAddresses] = [...data] as any;
     setName(_name);
-    setImage(_image);
     setOwner(_owner);
-    setTags(_tags);
     setItems(_items);
     setTransactions(_transactions);
     setItemAddresses(_itemAddresses);
-  }, [data])
+    fetchMetadata(_metadataURL);
+  }, [data]);
+  const fetchMetadata = async (_metadataURL) => {
+    const data = await axios.get(_metadataURL);
+    setMetadata(data.data as any);
+    setImage(data.data.image);
+    setTags(data.data.tags);
+  }
+  console.log(' catalog items ---- ', items);
+  
 
   useEffect(() => {
     if (!props.shop) return;
@@ -429,18 +433,18 @@ const ShopPage = (props: Props) => {
   return (
     <Box>
       <Flex justify={"center"} align={"center"} direction={"column"}>
-        <Box m="6" width={isMobile ? "100%" : "1200px"} textAlign="center">
+        <Box m="6" width={isMobile ? "100%" : "1200px"}>
           <Flex
-            justify="center"
+            justify="start"
             align="center"
             direction={isMobile ? "column" : "row"}
           >
             <Image
               borderRadius="12px"
               src={image}
-              width={isMobile ? "90%" : "200px"}
-              height={isMobile ? "90%" : "200px"}
-              mr="6"
+              width={isMobile ? "90%" : "300px"}
+              height={isMobile ? "90%" : "300px"}
+              mr="120px"
               boxShadow="xl"
             />
             <Box textAlign="left">
@@ -448,13 +452,14 @@ const ShopPage = (props: Props) => {
               <Text fontSize="4xl" className="title">{name}</Text>
               <Text color="gray.600">{desc}</Text>
               <Text color="yello.700">stars: {4.75}</Text>
-              <Flex mb={"2"} direction="column">
+              <Flex mb={"2"} direction="row" justify={"space-between"}>
                 <Link
                   target={"_blank"}
                   mb={"2"}
                   href={`${process.env.NEXT_PUBLIC_ETHERSCAN}${owner}`}
                   color="gray.600"
                   isExternal
+                  mr="6"
                 >
                   <ExternalLinkIcon />
                   owner: {owner.slice(0, 4)}...{owner.slice(-4)}
@@ -483,6 +488,8 @@ const ShopPage = (props: Props) => {
                 )}
                 {isOwner && <Button bg="brand.independence" _hover={{ bg: "brand.independenceHover" }} onClick={handleEdit}>Edit Shop</Button>}
               </Flex>
+              <Box p="4">{metadata?.description}</Box>
+              <Box p="4">{metadata?.longDescription}</Box>
             {/* <Button mr={"4"} onClick={downloadAndDecrypt}>download and decrypt file</Button> */}
             </Box>
           </Flex>

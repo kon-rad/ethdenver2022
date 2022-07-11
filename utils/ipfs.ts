@@ -5,12 +5,21 @@ import { NFTStorage } from "nft.storage";
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0" as any);
 
 export async function handleIPFSUpload(e: any) {
-  if (!e || !e.target || !e.target.files || !e.target.files[0]) {
-    return;
-  }
   const file = e.target.files[0];
   try {
     const added = await client.add(file, {
+      progress: (prog) => console.log(`received: ${prog}`),
+    });
+    const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+    return url;
+  } catch (error) {
+    console.log(`Error uploading file: ${error}`);
+  }
+}
+export async function handleIPFSUploadJSON(json: any) {
+  debugger;
+  try {
+    const added = await client.add(JSON.stringify(json), {
       progress: (prog) => console.log(`received: ${prog}`),
     });
     const url = `https://ipfs.infura.io/ipfs/${added.path}`;

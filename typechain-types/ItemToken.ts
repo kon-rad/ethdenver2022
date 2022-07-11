@@ -27,12 +27,14 @@ export interface ItemTokenInterface extends utils.Interface {
     "getApproved(uint256)": FunctionFragment;
     "getTemplateTokenIds()": FunctionFragment;
     "getTotal()": FunctionFragment;
-    "initialize(address,address,string,string)": FunctionFragment;
+    "initialize(address,address,string,string,uint256,uint256)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "isPaused()": FunctionFragment;
+    "itemId()": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
+    "price()": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
     "setTokenURI(uint256,string)": FunctionFragment;
@@ -66,19 +68,21 @@ export interface ItemTokenInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "getTotal", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [string, string, string, string]
+    values: [string, string, string, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [string, string]
   ): string;
   encodeFunctionData(functionFragment: "isPaused", values?: undefined): string;
+  encodeFunctionData(functionFragment: "itemId", values?: undefined): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "ownerOf",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "price", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "safeTransferFrom",
     values: [string, string, BigNumberish]
@@ -133,9 +137,11 @@ export interface ItemTokenInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "isPaused", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "itemId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "price", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "safeTransferFrom",
     data: BytesLike
@@ -171,11 +177,17 @@ export interface ItemTokenInterface extends utils.Interface {
   events: {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
+    "BatchSale(address,uint256)": EventFragment;
+    "CreateItem(string)": EventFragment;
+    "SetTokenURI(uint256,string)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "BatchSale"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "CreateItem"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetTokenURI"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
@@ -192,6 +204,24 @@ export type ApprovalForAllEvent = TypedEvent<
 >;
 
 export type ApprovalForAllEventFilter = TypedEventFilter<ApprovalForAllEvent>;
+
+export type BatchSaleEvent = TypedEvent<
+  [string, BigNumber],
+  { _to: string; _amounts: BigNumber }
+>;
+
+export type BatchSaleEventFilter = TypedEventFilter<BatchSaleEvent>;
+
+export type CreateItemEvent = TypedEvent<[string], { _uri: string }>;
+
+export type CreateItemEventFilter = TypedEventFilter<CreateItemEvent>;
+
+export type SetTokenURIEvent = TypedEvent<
+  [BigNumber, string],
+  { _tokenId: BigNumber; _uri: string }
+>;
+
+export type SetTokenURIEventFilter = TypedEventFilter<SetTokenURIEvent>;
 
 export type TransferEvent = TypedEvent<
   [string, string, BigNumber],
@@ -261,6 +291,8 @@ export interface ItemToken extends BaseContract {
       _shop: string,
       name_: string,
       symbol_: string,
+      _price: BigNumberish,
+      _itemId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -272,6 +304,8 @@ export interface ItemToken extends BaseContract {
 
     isPaused(overrides?: CallOverrides): Promise<[boolean]>;
 
+    itemId(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     name(overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
@@ -280,6 +314,8 @@ export interface ItemToken extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    price(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: string,
@@ -372,6 +408,8 @@ export interface ItemToken extends BaseContract {
     _shop: string,
     name_: string,
     symbol_: string,
+    _price: BigNumberish,
+    _itemId: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -383,11 +421,15 @@ export interface ItemToken extends BaseContract {
 
   isPaused(overrides?: CallOverrides): Promise<boolean>;
 
+  itemId(overrides?: CallOverrides): Promise<BigNumber>;
+
   name(overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
   ownerOf(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+  price(overrides?: CallOverrides): Promise<BigNumber>;
 
   "safeTransferFrom(address,address,uint256)"(
     from: string,
@@ -474,6 +516,8 @@ export interface ItemToken extends BaseContract {
       _shop: string,
       name_: string,
       symbol_: string,
+      _price: BigNumberish,
+      _itemId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -485,11 +529,15 @@ export interface ItemToken extends BaseContract {
 
     isPaused(overrides?: CallOverrides): Promise<boolean>;
 
+    itemId(overrides?: CallOverrides): Promise<BigNumber>;
+
     name(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
     ownerOf(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+    price(overrides?: CallOverrides): Promise<BigNumber>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: string,
@@ -567,6 +615,21 @@ export interface ItemToken extends BaseContract {
       approved?: null
     ): ApprovalForAllEventFilter;
 
+    "BatchSale(address,uint256)"(
+      _to?: null,
+      _amounts?: null
+    ): BatchSaleEventFilter;
+    BatchSale(_to?: null, _amounts?: null): BatchSaleEventFilter;
+
+    "CreateItem(string)"(_uri?: null): CreateItemEventFilter;
+    CreateItem(_uri?: null): CreateItemEventFilter;
+
+    "SetTokenURI(uint256,string)"(
+      _tokenId?: null,
+      _uri?: null
+    ): SetTokenURIEventFilter;
+    SetTokenURI(_tokenId?: null, _uri?: null): SetTokenURIEventFilter;
+
     "Transfer(address,address,uint256)"(
       from?: string | null,
       to?: string | null,
@@ -613,6 +676,8 @@ export interface ItemToken extends BaseContract {
       _shop: string,
       name_: string,
       symbol_: string,
+      _price: BigNumberish,
+      _itemId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -624,6 +689,8 @@ export interface ItemToken extends BaseContract {
 
     isPaused(overrides?: CallOverrides): Promise<BigNumber>;
 
+    itemId(overrides?: CallOverrides): Promise<BigNumber>;
+
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -632,6 +699,8 @@ export interface ItemToken extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    price(overrides?: CallOverrides): Promise<BigNumber>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: string,
@@ -730,6 +799,8 @@ export interface ItemToken extends BaseContract {
       _shop: string,
       name_: string,
       symbol_: string,
+      _price: BigNumberish,
+      _itemId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -741,6 +812,8 @@ export interface ItemToken extends BaseContract {
 
     isPaused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    itemId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -749,6 +822,8 @@ export interface ItemToken extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    price(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: string,

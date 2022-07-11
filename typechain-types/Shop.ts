@@ -95,10 +95,10 @@ export interface ShopInterface extends utils.Interface {
     "getProposedAffiliates()": FunctionFragment;
     "giveReview(uint256,uint256)": FunctionFragment;
     "governor()": FunctionFragment;
-    "image()": FunctionFragment;
-    "initialize(address,string,string,string,uint256,address,address)": FunctionFragment;
+    "initialize(address,string,string,uint256,address,address)": FunctionFragment;
     "itemAddresses(uint256)": FunctionFragment;
     "makeTransaction(uint256[],uint256[],address)": FunctionFragment;
+    "metadataUrl()": FunctionFragment;
     "name()": FunctionFragment;
     "nftTemplate()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -107,9 +107,8 @@ export interface ShopInterface extends utils.Interface {
     "proposedAffiliates(address)": FunctionFragment;
     "selfDestruct()": FunctionFragment;
     "setFreeTransactions(uint256)": FunctionFragment;
-    "setTags(string)": FunctionFragment;
+    "setMetadata(string)": FunctionFragment;
     "shopId()": FunctionFragment;
-    "tags()": FunctionFragment;
     "transactions(uint256)": FunctionFragment;
   };
 
@@ -167,10 +166,9 @@ export interface ShopInterface extends utils.Interface {
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "governor", values?: undefined): string;
-  encodeFunctionData(functionFragment: "image", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [string, string, string, string, BigNumberish, string, string]
+    values: [string, string, string, BigNumberish, string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "itemAddresses",
@@ -179,6 +177,10 @@ export interface ShopInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "makeTransaction",
     values: [BigNumberish[], BigNumberish[], string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "metadataUrl",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
@@ -206,9 +208,8 @@ export interface ShopInterface extends utils.Interface {
     functionFragment: "setFreeTransactions",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "setTags", values: [string]): string;
+  encodeFunctionData(functionFragment: "setMetadata", values: [string]): string;
   encodeFunctionData(functionFragment: "shopId", values?: undefined): string;
-  encodeFunctionData(functionFragment: "tags", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transactions",
     values: [BigNumberish]
@@ -259,7 +260,6 @@ export interface ShopInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "giveReview", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "governor", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "image", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "itemAddresses",
@@ -267,6 +267,10 @@ export interface ShopInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "makeTransaction",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "metadataUrl",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
@@ -295,20 +299,31 @@ export interface ShopInterface extends utils.Interface {
     functionFragment: "setFreeTransactions",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setTags", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setMetadata",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "shopId", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "tags", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transactions",
     data: BytesLike
   ): Result;
 
   events: {
+    "ApproveAffiliate(address)": EventFragment;
     "ItemCreated(uint256,address,uint256)": EventFragment;
+    "MakeTransaction(uint256[],uint256[],address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "ApproveAffiliate"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ItemCreated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MakeTransaction"): EventFragment;
 }
+
+export type ApproveAffiliateEvent = TypedEvent<[string], { affAddr: string }>;
+
+export type ApproveAffiliateEventFilter =
+  TypedEventFilter<ApproveAffiliateEvent>;
 
 export type ItemCreatedEvent = TypedEvent<
   [BigNumber, string, BigNumber],
@@ -316,6 +331,13 @@ export type ItemCreatedEvent = TypedEvent<
 >;
 
 export type ItemCreatedEventFilter = TypedEventFilter<ItemCreatedEvent>;
+
+export type MakeTransactionEvent = TypedEvent<
+  [BigNumber[], BigNumber[], string],
+  { itemIds: BigNumber[]; itemQty: BigNumber[]; affAddr: string }
+>;
+
+export type MakeTransactionEventFilter = TypedEventFilter<MakeTransactionEvent>;
 
 export interface Shop extends BaseContract {
   contractName: "Shop";
@@ -420,13 +442,10 @@ export interface Shop extends BaseContract {
 
     governor(overrides?: CallOverrides): Promise<[string]>;
 
-    image(overrides?: CallOverrides): Promise<[string]>;
-
     initialize(
       _owner: string,
       _name: string,
-      _image: string,
-      _tags: string,
+      _metadataUrl: string,
       _shopId: BigNumberish,
       _governor: string,
       _nftTemplate: string,
@@ -444,6 +463,8 @@ export interface Shop extends BaseContract {
       affAddr: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    metadataUrl(overrides?: CallOverrides): Promise<[string]>;
 
     name(overrides?: CallOverrides): Promise<[string]>;
 
@@ -487,14 +508,12 @@ export interface Shop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setTags(
-      _tags: string,
+    setMetadata(
+      _metadataUrl: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     shopId(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    tags(overrides?: CallOverrides): Promise<[string]>;
 
     transactions(
       arg0: BigNumberish,
@@ -584,13 +603,10 @@ export interface Shop extends BaseContract {
 
   governor(overrides?: CallOverrides): Promise<string>;
 
-  image(overrides?: CallOverrides): Promise<string>;
-
   initialize(
     _owner: string,
     _name: string,
-    _image: string,
-    _tags: string,
+    _metadataUrl: string,
     _shopId: BigNumberish,
     _governor: string,
     _nftTemplate: string,
@@ -605,6 +621,8 @@ export interface Shop extends BaseContract {
     affAddr: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  metadataUrl(overrides?: CallOverrides): Promise<string>;
 
   name(overrides?: CallOverrides): Promise<string>;
 
@@ -648,14 +666,12 @@ export interface Shop extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setTags(
-    _tags: string,
+  setMetadata(
+    _metadataUrl: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   shopId(overrides?: CallOverrides): Promise<BigNumber>;
-
-  tags(overrides?: CallOverrides): Promise<string>;
 
   transactions(
     arg0: BigNumberish,
@@ -736,13 +752,10 @@ export interface Shop extends BaseContract {
 
     governor(overrides?: CallOverrides): Promise<string>;
 
-    image(overrides?: CallOverrides): Promise<string>;
-
     initialize(
       _owner: string,
       _name: string,
-      _image: string,
-      _tags: string,
+      _metadataUrl: string,
       _shopId: BigNumberish,
       _governor: string,
       _nftTemplate: string,
@@ -760,6 +773,8 @@ export interface Shop extends BaseContract {
       affAddr: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    metadataUrl(overrides?: CallOverrides): Promise<string>;
 
     name(overrides?: CallOverrides): Promise<string>;
 
@@ -801,11 +816,9 @@ export interface Shop extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setTags(_tags: string, overrides?: CallOverrides): Promise<void>;
+    setMetadata(_metadataUrl: string, overrides?: CallOverrides): Promise<void>;
 
     shopId(overrides?: CallOverrides): Promise<BigNumber>;
-
-    tags(overrides?: CallOverrides): Promise<string>;
 
     transactions(
       arg0: BigNumberish,
@@ -823,6 +836,9 @@ export interface Shop extends BaseContract {
   };
 
   filters: {
+    "ApproveAffiliate(address)"(affAddr?: null): ApproveAffiliateEventFilter;
+    ApproveAffiliate(affAddr?: null): ApproveAffiliateEventFilter;
+
     "ItemCreated(uint256,address,uint256)"(
       itemId?: null,
       itemAddress?: null,
@@ -833,6 +849,17 @@ export interface Shop extends BaseContract {
       itemAddress?: null,
       price?: null
     ): ItemCreatedEventFilter;
+
+    "MakeTransaction(uint256[],uint256[],address)"(
+      itemIds?: null,
+      itemQty?: null,
+      affAddr?: null
+    ): MakeTransactionEventFilter;
+    MakeTransaction(
+      itemIds?: null,
+      itemQty?: null,
+      affAddr?: null
+    ): MakeTransactionEventFilter;
   };
 
   estimateGas: {
@@ -888,13 +915,10 @@ export interface Shop extends BaseContract {
 
     governor(overrides?: CallOverrides): Promise<BigNumber>;
 
-    image(overrides?: CallOverrides): Promise<BigNumber>;
-
     initialize(
       _owner: string,
       _name: string,
-      _image: string,
-      _tags: string,
+      _metadataUrl: string,
       _shopId: BigNumberish,
       _governor: string,
       _nftTemplate: string,
@@ -912,6 +936,8 @@ export interface Shop extends BaseContract {
       affAddr: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    metadataUrl(overrides?: CallOverrides): Promise<BigNumber>;
 
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -943,14 +969,12 @@ export interface Shop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setTags(
-      _tags: string,
+    setMetadata(
+      _metadataUrl: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     shopId(overrides?: CallOverrides): Promise<BigNumber>;
-
-    tags(overrides?: CallOverrides): Promise<BigNumber>;
 
     transactions(
       arg0: BigNumberish,
@@ -1020,13 +1044,10 @@ export interface Shop extends BaseContract {
 
     governor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    image(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     initialize(
       _owner: string,
       _name: string,
-      _image: string,
-      _tags: string,
+      _metadataUrl: string,
       _shopId: BigNumberish,
       _governor: string,
       _nftTemplate: string,
@@ -1044,6 +1065,8 @@ export interface Shop extends BaseContract {
       affAddr: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    metadataUrl(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1075,14 +1098,12 @@ export interface Shop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setTags(
-      _tags: string,
+    setMetadata(
+      _metadataUrl: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     shopId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    tags(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transactions(
       arg0: BigNumberish,

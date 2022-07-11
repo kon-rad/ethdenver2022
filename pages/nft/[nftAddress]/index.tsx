@@ -6,34 +6,17 @@ import {
   Button,
   Image,
   Link,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  useDisclosure,
   Input,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  useMediaQuery,
-  Spinner,
-  Textarea
 } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
-import { useRouter } from "next/router";
 import { ethers } from "ethers";
 import web3 from "web3";
 import { create as ipfsHttpClient } from 'ipfs-http-client'
 import axios from "axios";
 import { useAppState } from "../../../context/appState";
 import lit from '../../../utils/lit';
-import { useSignMessage, useContract, useSigner, useContractReads, useAccount, useProvider, useContractRead } from 'wagmi'
+import { useContract, useSigner, useAccount, useProvider } from 'wagmi'
 import ItemToken from "../../../artifacts/contracts/tokens/ItemToken.sol/ItemToken.json";
 import { SIGNATURE_MESSAGE } from '../../../utils/constants';
 import { BigNumber } from 'bignumber.js';
@@ -72,6 +55,7 @@ const NFTPage = (props: Props) => {
     });
     const [tokenURI, setTokenURI] = useState<string | undefined>();
     const [metadata, setMetadata] = useState<any>();
+    const [itemId, setItemId] = useState<any>();
     const [balance, setBalance] = useState<any>();
     const [owner, setOwner] = useState<any>();
     const [shopAddress, setShopAddress] = useState<string | undefined>();
@@ -94,12 +78,13 @@ const NFTPage = (props: Props) => {
         setTokenURI(_tokenURI);
         const _shopAddress = await itemTokenContract.shop();
         setShopAddress(_shopAddress);
+        const _itemId = await itemTokenContract.itemId();
+        setItemId(_itemId.toNumber());
         const _metadata = await  axios.get(_tokenURI);
         // setMetadata({ ..._metadata.data, itemId: '1', price: '100000000000000000' });
         // todo: dev mode
         setMetadata({
           ..._metadata.data,
-          itemId: '1',
           price: '100000000000000000',
           shopAddress: _shopAddress
         });
@@ -138,9 +123,11 @@ const NFTPage = (props: Props) => {
     createAndDownloadBlobFile(decryptedFile, 'cyber-punk', 'zip');
     console.log('decryptedFile -', decryptedFile);
   }
+  console.log('item id ', itemId);
+  
 
   const handleAddToCart = () => {
-    const id = metadata.itemId || '1';
+    const id = itemId;
 
     if (metadata.shopAddress !== cartShopAddress) {
       setCartShopAddress(metadata.shopAddress);
@@ -161,12 +148,12 @@ const NFTPage = (props: Props) => {
     } else {
       setCart([
         ...cart,
-        { qty: Number(qty), itemId: metadata.itemId },
+        { qty: Number(qty), itemId: itemId },
       ]);
     }
     setCartMetaData({
       ...cartMetaData,
-      [metadata.itemId]: {
+      [itemId]: {
         name: metadata.name,
         description: metadata.description,
         image: metadata.image,

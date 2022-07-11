@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { Box, Flex, Image, Text, Input, Button, useMediaQuery, Textarea } from "@chakra-ui/react";
 import ShopFactory from "../artifacts/contracts/ShopFactory.sol/ShopFactory.json";
-import { handleIPFSUpload } from "../utils/ipfs";
+import { handleIPFSUpload, handleIPFSUploadJSON } from "../utils/ipfs";
 import { toast } from "react-toastify";
 import Router from "next/router";
 import { useWeb3React } from "@web3-react/core";
@@ -17,6 +17,8 @@ const Create = () => {
   const [longDescription, setLongDescription] = useState<string>("");
   const { data: signer } = useSigner();
 
+  console.log('process.env.NEXT_PUBLIC_FACTORY_ADDRESS - ', process.env.NEXT_PUBLIC_FACTORY_ADDRESS, signer, ShopFactory.abi);
+  
   const factoryContract = useContract({
     addressOrName: process.env.NEXT_PUBLIC_FACTORY_ADDRESS,
     contractInterface: ShopFactory.abi,
@@ -24,31 +26,39 @@ const Create = () => {
   });
 
   const handleSubmit = async () => {
-    try {
+    // try {
       const shopMetadata = {
         image: fileUrl,
         tags,
         description,
         longDescription
       }
-      const shopURL = await handleIPFSUpload(shopMetadata)
+      const shopURL = await handleIPFSUploadJSON(shopMetadata)
+
+
+      console.log('factoryContract -', factoryContract, 
+      name,
+      shopURL);
+      
+
+
       const transaction = await factoryContract.createShop(
         name,
         shopURL
       );
       await transaction.wait();
-    } catch (e: any) {
-        toast.error(`Error: ${JSON.stringify(e.message)}`, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-      });
-      return;
-    }
+    // } catch (e: any) {
+    //     toast.error(`Error: ${JSON.stringify(e.message)}`, {
+    //       position: "top-right",
+    //       autoClose: 5000,
+    //       hideProgressBar: false,
+    //       closeOnClick: true,
+    //       pauseOnHover: true,
+    //       draggable: true,
+    //       progress: undefined,
+    //   });
+    //   return;
+    // }
     toast(`You successfully created ${name}!`, {
       position: "top-right",
       autoClose: 5000,

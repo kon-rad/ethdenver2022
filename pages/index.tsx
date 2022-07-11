@@ -34,6 +34,8 @@ const Home: NextPage = () => {
     shops = data[0];
     balance = data[1];
   }
+  console.log('shops: ', shops);
+  
 
   const [isMobile] = useMediaQuery('(max-width: 600px)');
 

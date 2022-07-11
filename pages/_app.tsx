@@ -24,6 +24,7 @@ import { getDefaultProvider } from 'ethers';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 import "@rainbow-me/rainbowkit/styles.css";
 import { infuraProvider } from 'wagmi/providers/infura'
+import { publicProvider } from 'wagmi/providers/public'
 
 // /* CSS HEX */
 // https://coolors.co/202a25-5f4bb6-86a5d9-26f0f1-c4ebc8
@@ -86,24 +87,31 @@ const mumbaiChain = {
   testnet: true,
 }
 
-const { provider, chains } = configureChains(
-  // [mumbaiChain],
-  // [chain.hardhat],
-  [chain.polygon],
-  [
-    infuraProvider({ infuraId }),
-    jsonRpcProvider({
-      rpc: (chain) => {
-        if (chain.id !== mumbaiChain.id) {
-          return {
-            http: `http://localhost:8545`,
-          };
-        }
-        return { http: chain.rpcUrls.default }
-      },
-    }),
-  ]
-)
+  // connectors: [new InjectedConnector({ chains: [chain.hardhat] })
+// const { provider, chains } = configureChains(
+//   // [mumbaiChain],
+//   [chain.hardhat],
+//   // [chain.polygon],
+//   [
+//     infuraProvider({ infuraId }),
+//     jsonRpcProvider({
+//       rpc: (chain) => {
+//         // if (chain.id !== mumbaiChain.id) {
+//         //   return {
+//         //     http: `http://localhost:8545`,
+//         //   };
+//         // }
+//         // return {
+//         //   http: `http://localhost:8545`,
+//         // };
+//         return { http: chain.rpcUrls.default }
+//       },
+//     }),
+//   ]
+// )
+const { chains, provider } = configureChains([chain.hardhat], [
+  publicProvider(),
+])
 
 const { connectors } = getDefaultWallets({
   appName: 'dcom.market',

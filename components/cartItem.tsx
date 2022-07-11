@@ -55,12 +55,10 @@ const CartItem = (props: Props) => {
   console.log("cartdata: ", cartMetaData, props);
 
   return (
-    <Box key={props.data.itemId} mb="6">
+    <Box key={props.data.itemId} mb="6" bg="white" boxShadow='xl' p="20px" borderRadius="20px">
       <Flex align="center" direction={isMobile ? "column" : "row"}>
         <Image
-          border="solid"
-          borderColor="Background.400"
-          borderRadius="12px"
+          borderRadius="16px"
           mr="4"
           w="120px"
           h="120px"

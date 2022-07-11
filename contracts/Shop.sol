@@ -102,10 +102,9 @@ contract Shop {
         uint256 _price,
         string memory _tokenURI
     ) public onlyOwner payable {
-        _itemIds.increment();
 
         ItemToken itemToken = ItemToken(_createClone(nftTemplate));
-        itemToken.initialize(address(msg.sender), address(this), _name, _nftSymbol, _price);
+        itemToken.initialize(address(msg.sender), address(this), _name, _nftSymbol, _price, _itemIds.current());
 
         itemToken.createItem(_tokenURI);
         itemAddresses.push(address(itemToken));
@@ -120,6 +119,7 @@ contract Shop {
         );
 
         emit ItemCreated(_itemIds.current(), address(itemToken), _price);
+        _itemIds.increment();
     }
 
     function fetchCatalogItems() public view returns (Item[] memory) {
@@ -186,6 +186,7 @@ contract Shop {
     function makeTransaction(uint[] memory itemIds, uint[] memory itemQty, address affAddr)
         public payable returns (uint256 transactionId)
     {
+        require(itemIds.length == itemQty.length, "S:04");
         Affiliate memory aff;
         // if an affiliate address is provided make sure it is an approved affiliate
         if (affAddr != address(0)) {
@@ -202,7 +203,7 @@ contract Shop {
         require(msg.value >= total, "MT1");
 
         for (i = 0; i < len; i++) {
-            IItemToken(catalog.catalog[itemIds[i]].itemAddress).batchSale(msg.sender, itemQty);
+            IItemToken(catalog.catalog[itemIds[i]].itemAddress).batchSale(msg.sender, itemQty[i]);
         }
         _transactionsCount.increment();
         uint256 affShare = 0;

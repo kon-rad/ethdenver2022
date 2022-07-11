@@ -11,6 +11,7 @@ contract ItemToken is ERC721Modified {
     address public owner;
     address public shop;
     uint256 public price;
+    uint256 public itemId;
     bool internal initialized = false;
     bool public isPaused = true;
     uint256[] public templateTokenIds;
@@ -42,7 +43,7 @@ contract ItemToken is ERC721Modified {
         return templateTokenIds;
     }
 
-    function initialize(address _owner, address _shop, string memory name_, string memory symbol_, uint256 _price) public {
+    function initialize(address _owner, address _shop, string memory name_, string memory symbol_, uint256 _price, uint256 _itemId) public {
         require(initialized == false, "ERC721:00");
         isPaused = false;
         initialized = true;
@@ -51,6 +52,7 @@ contract ItemToken is ERC721Modified {
         _name = name_;
         _symbol = symbol_;
         price = _price;
+        itemId = _itemId;
     }
 
     modifier onlyShop() {

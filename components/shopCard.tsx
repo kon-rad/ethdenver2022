@@ -14,12 +14,19 @@ import Shop from "../artifacts/contracts/Shop.sol/Shop.json";
 import { ethers } from "ethers";
 import { useWeb3React } from "@web3-react/core";
 import { useSigner, useContract, useAccount, useContractReads } from 'wagmi'
+import axios from "axios";
 
 interface Props {
   address: string;
 }
 
 const ShopCard = (props: Props) => {
+  const [name, setName] = useState<string | undefined>();
+  const [image, setImage] = useState<string | undefined>();
+  const [shopId, setShopId] = useState<any>();
+  const [description, setDescription] = useState<string | undefined>();
+  const [tags, setTags] = useState<string | undefined>();
+  const [owner, setOwner] = useState<string | undefined>();
   const { data: signer } = useSigner();
   const { address, isConnecting, isDisconnected } = useAccount()
   const [isMobile] = useMediaQuery("(max-width: 600px)");
@@ -35,9 +42,6 @@ const ShopCard = (props: Props) => {
     addressOrName: props.address,
     contractInterface: Shop.abi,
   }
-  let name: any = [];
-  let image: any = 0;
-  let owner: any = 0;
 
   const { data, isError, isLoading } = useContractReads({
     contracts: [
@@ -47,24 +51,42 @@ const ShopCard = (props: Props) => {
       },
       {
         ...shopFactoryContractData,
-        functionName: 'image',
+        functionName: 'metadataUrl',
       },
       {
         ...shopFactoryContractData,
         functionName: 'owner',
+      },
+      {
+        ...shopFactoryContractData,
+        functionName: 'shopId',
       }
     ],
   })
-  console.log('shopCard data ->  (name, image, owner)', data);
+  useEffect(() => {
+    if (!data) return;
+    console.log('use effect data ', data);
+    const [_name, _metadata, _owner, _shopId] = data;
+    setName(_name as any);
+    setOwner(_owner as any);
+    fetchMetadata(_metadata as any);
+    setShopId(_shopId);
+  }, [data]);;
+  const fetchMetadata = async (_metadata: string) => {
+    console.log('_metadata ', _metadata);
+    if (!_metadata) return;
+    const { data } = await axios.get(_metadata);
+    console.log('axios - data ', data);
+
+    setImage(data.image);
+    setDescription(data.description);
+    setTags(data.tags);
+  }
   if (data) {
-    name = data[0];
-    image = data[1];
-    owner = data[2];
   }
   const handleCardClick = (e: any) => {
     e.preventDefault();
     router.push(`/${encodeURIComponent(props.address)}`);
-
   }
 
   return (
@@ -82,10 +104,15 @@ const ShopCard = (props: Props) => {
         <Box width="200px" m="2">
           <Image borderRadius="12px" src={image} width="200px" height="200px" />
         </Box>
-        <Box p="4">
-          <Text fontSize="2xl" color="black.700" className="title">{name}</Text>
-        </Box>
-        <Spacer />
+        <Flex direction="column" justify="start">
+          <Box p="4">
+            <Text fontSize="2xl" color="black.700" className="title">{name}</Text>
+          </Box>
+          <Box p="4">
+            <Text fontSize="sm" color="black.700" className="short-description">{description}</Text>
+          </Box>
+          <Spacer />
+        </Flex>
       </Flex>
     </Box>
   );

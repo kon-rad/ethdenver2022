@@ -8,7 +8,7 @@ const Hero = () => {
                     <div className="hero-text-container">
                         <Text fontSize="6xl" mb="6" color="black" className="title text-highlight"> dcom </Text>
                         <Text mb="6" fontSize="2xl" textAlign="center" fontWeight="bold" width="400px" color="black" className="hero-text">
-                            new era of decentralized commerce for digital natives
+                            welcome to a new era of decentralized commerce
                         </Text>
                     </div>
                     {/* <Text mt="6">Built on </Text>
