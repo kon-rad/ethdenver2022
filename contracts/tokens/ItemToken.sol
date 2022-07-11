@@ -10,9 +10,14 @@ contract ItemToken is ERC721Modified {
     Counters.Counter private _tokenId;
     address public owner;
     address public shop;
+    uint256 public price;
     bool internal initialized = false;
     bool public isPaused = true;
     uint256[] public templateTokenIds;
+
+    event BatchSale(address _to, uint256 _amounts);
+    event CreateItem(string _uri);
+    event SetTokenURI(uint256 _tokenId, string _uri);
 
     constructor(
         string memory _name,
@@ -37,7 +42,7 @@ contract ItemToken is ERC721Modified {
         return templateTokenIds;
     }
 
-    function initialize(address _owner, address _shop, string memory name_, string memory symbol_) public {
+    function initialize(address _owner, address _shop, string memory name_, string memory symbol_, uint256 _price) public {
         require(initialized == false, "ERC721:00");
         isPaused = false;
         initialized = true;
@@ -45,6 +50,7 @@ contract ItemToken is ERC721Modified {
         shop = _shop;
         _name = name_;
         _symbol = symbol_;
+        price = _price;
     }
 
     modifier onlyShop() {
@@ -57,7 +63,7 @@ contract ItemToken is ERC721Modified {
         _;
     }
 
-    function batchSale(address _to, uint256 _amount) external onlyShop {
+    function batchSale(address _to, uint256 _amount) external onlyShop whenNotPaused {
         // mint to new owner
         uint256 i;
         for (i = 0; i < _amount; i++) {
@@ -65,19 +71,22 @@ contract ItemToken is ERC721Modified {
             _safeMint(_to, currentTokenId);
             _tokenId.increment();
         }
+        emit BatchSale(_to, _amount);
     }
 
-    function createItem(string memory _uri) public onlyShop {
+    function createItem(string memory _uri) public onlyShop whenNotPaused {
         _tokenId.increment();
         uint256 currentTokenId = _tokenId.current();
         // mint to shop the template Item
         _safeMint(address(owner), currentTokenId);
         _setTokenURI(currentTokenId, _uri);
         _tokenId.increment();
+        emit CreateItem(_uri);
     }
 
-    function setTokenURI(uint256 tokenId, string memory _uri) external onlyOwner {
+    function setTokenURI(uint256 tokenId, string memory _uri) external onlyOwner whenNotPaused {
         _setTokenURI(tokenId, _uri);
+        emit SetTokenURI(tokenId, _uri);
     }
 
     // todo: create resale transfer options: yes / no / max / min price

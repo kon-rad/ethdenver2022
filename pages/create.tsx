@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { Box, Flex, Image, Text, Input, Button, useMediaQuery } from "@chakra-ui/react";
+import { Box, Flex, Image, Text, Input, Button, useMediaQuery, Textarea } from "@chakra-ui/react";
 import ShopFactory from "../artifacts/contracts/ShopFactory.sol/ShopFactory.json";
 import { handleImageUpload } from "../utils/ipfs";
 import { toast } from "react-toastify";
@@ -10,7 +10,7 @@ import { useSigner, useContract, useAccount } from 'wagmi'
 
 const Create = () => {
   const [isMobile] = useMediaQuery('(max-width: 600px)')
-  // const [symbol, setSymbol] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [tags, setTags] = useState<string>("");
   const [fileUrl, setImageIPFSHash] = useState<string>("");
@@ -58,19 +58,14 @@ const Create = () => {
   };
   const validateAndSetTags = (val: string) => {
     let valArr = val.split(', ');
-    if (valArr.length > 5) {
-      valArr = valArr.slice(0, 5);
+    if (valArr.length > 10) {
+      valArr = valArr.slice(0, 10);
     }
     setTags(valArr.join(', '))
   }
   return (
     <Box>
       <Flex align="center" direction="column">
-        <Box p="8">
-          <Text color="brand.400" fontSize="6xl">
-            create a shop
-          </Text>
-        </Box>
         <Box
           maxWidth={isMobile ? '100%' : "700px"}
           boxShadow='xl'
@@ -79,25 +74,30 @@ const Create = () => {
           borderColor="Background.400"
           p="12"
         >
+        <Box p="8">
+          <Text color="brand.darkText" fontSize="6xl" className="title" textAlign="center">
+            create a shop
+          </Text>
+        </Box>
           <Flex justify="center" height="200px" mb="4">
             <Box
               borderRadius="12px"
               boxShadow='xl'
               width="204px"
               height="204px"
-              mb="4"
+              mb="6"
             >
               <Image src={fileUrl ? fileUrl : '/images/placeholder-image.png'} width="200px" height="200px" borderRadius="12px"/>
             </Box>
           </Flex>
-          <Box mb="4" mt="2">
+          <Box mb="4" mt="4">
             <input
               type="file"
               name="Asset"
               className="mr-2"
               onChange={handleImageSelect}
             />
-          <Text fontSize="xs" mb="4">image to represent your shop, make sure you like it, once it is set you will not be able to change it</Text>
+          <Text fontSize="xs" mb="4">image to represent your shop</Text>
           </Box>
           <Input
             mb="1"
@@ -105,20 +105,11 @@ const Create = () => {
               setName(e.target.value)
             }
             name={"name"}
-            placeholder={"shop name"}
+            placeholder={"name"}
           />
           <Text fontSize="xs" mb="2">The name of your shop and NFT contract, it is not editable.</Text>
-          {/* <Input
-            mb="1"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setSymbol((e.target.value || "").toUpperCase().replace(" ", "").slice(0, 10))
-            }
-            width="180px"
-            value={symbol}
-            name={"symbol"}
-            placeholder={"shop symbol"}
-          /> */}
-          {/* <Text fontSize="xs" mb="2">All caps, no spaces, 10 max character length</Text> */}
+
+           {/* <Text fontSize="xs" mb="2">All caps, no spaces, 10 max character length</Text>  */}
           <Input
             mb="1"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -126,14 +117,25 @@ const Create = () => {
             }
             value={tags}
             name={"tags"}
-            placeholder={"shop tags"}
+            placeholder={"tags"}
           />
-          <Text fontSize="xs" mb="2">Tags describe your shop for easy searching and navigation by customers. They are seperated by comma and a space ', '. Max number of tags is 5.</Text>
-        </Box>
-        <Box p="12">
-          <Button color="brand.400" onClick={handleSubmit}>
-            Submit
-          </Button>
+          <Text fontSize="xs" mb="2">Tags describe your shop for easy searching and navigation by customers. They are seperated by (', ') comma and a space. Max number of tags is 10.</Text>
+          <Textarea
+            mb="1"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setDescription((e.target.value))
+            }
+            value={description}
+            name={"description"}
+            placeholder={"description"}
+          /> 
+          <Flex justify={"center"} m="4">
+            <Box p="12">
+              <Button color="brand.darkText" onClick={handleSubmit}>
+                Submit
+              </Button>
+            </Box>
+          </Flex>
         </Box>
       </Flex>
     </Box>

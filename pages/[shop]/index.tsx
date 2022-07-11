@@ -24,7 +24,7 @@ import {
   Spinner,
   Textarea
 } from "@chakra-ui/react";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { ExternalLinkIcon, CheckCircleIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import { ethers } from "ethers";
@@ -74,11 +74,13 @@ const ShopPage = (props: Props) => {
   const [percent, setPercent] = useState("3");
   const [encryptedUrl, setEncryptedUrl] = useState<string>("");
   const [newItemCreated, setNewItemCreated] = useState<any>();
-  const [newItemAddress, setNewItemAddress] = useState<any>("0xB618BcB4e983266C121Df2B9f02863a4650d7A36");
+  const [newItemAddress, setNewItemAddress] = useState<any>("");
   const [newItemId, setNewItemId] = useState<number | undefined>();
-  const [createItemStage, setCreateItemStage] = useState<number>(2);
+  const [createItemStage, setCreateItemStage] = useState<number>(1);
   const [encryptedFileURL, setEncryptedFileURL] = useState<string | undefined>();
   const [encryptedSymmetricKey, setEncryptedSymmetricKey] = useState<any>();
+  const [completedFlow, setCompletedFlow] = useState<boolean>(false);
+  const [stagePending, setStagePending] = useState<number>(0);
 
   const [itemName, setItemName] = useState<string>("");
   const [itemSymbol, setItemSymbol] = useState<string>("");
@@ -91,7 +93,20 @@ const ShopPage = (props: Props) => {
   const provider = useProvider();
   const { data: signer } = useSigner();
   const { address } = useAccount();
+  useContractEvent({
+    addressOrName: props.shop,
+    contractInterface: Shop.abi,
+    eventName: 'ItemCreated',
+    listener: (event) => handleItemCreatedEvent(event),
+  })
 
+  const handleItemCreatedEvent = (event: any) => {
+    console.log('item created event - ', event);
+    if (event.itemId === newItemId) {
+      setNewItemAddress(event[1]);
+      setCreateItemStage(2);
+    }
+  }
   const shopContractData = {
     addressOrName: props.shop,
     contractInterface: Shop.abi,
@@ -174,12 +189,16 @@ const ShopPage = (props: Props) => {
           name: itemName,
           description: itemDesc,
           image: itemImage,
+          shopAddress: props.shop,
+          price: itemPrice,
+          itemId: items.length + 1,
           // file: encryptedFileIPFSHash,
           // encryptedSymmetricKey: encryptedSymmetricKey
           // file: 'some file here',
           // encryptedSymmetricKey: 'encrypted symmetric key'
           // external_url
       });
+      setStagePending(1);
       const added = await client.add(data);
       const url = `https://ipfs.infura.io/ipfs/${added.path}`;
 
@@ -198,6 +217,7 @@ const ShopPage = (props: Props) => {
       setNewItemAddress(freshItems[freshItems.length - 1].itemAddress);
       setCreateItemStage(2);
       console.log('freshItems freshItems ----- ', freshItems);
+      setStagePending(0);
     } catch (e: any) {
       console.error(e);
       toast.error(`Error: ${e.message}`, {
@@ -216,6 +236,7 @@ const ShopPage = (props: Props) => {
       console.error("Error: item creation stage is not correct.");
       return;
     }
+    setStagePending(2);
 
     let signature = await signer.signMessage(SIGNATURE_MESSAGE);
     console.log(signature);
@@ -239,8 +260,12 @@ const ShopPage = (props: Props) => {
     setEncryptedSymmetricKey(encryptedSymmetricKey);
     // stage 3 - update token URI
     setCreateItemStage(3);
+    setStagePending(0);
+
   }
   const handleStage3 = async () => {
+    setStagePending(3);
+
     if (createItemStage !== 3) {
       console.error("Error: item creation stage is not correct.");
       return;
@@ -288,7 +313,9 @@ const ShopPage = (props: Props) => {
       progress: undefined,
     });
     setCreateItemStage(1);
+    setCompletedFlow(true);
     onClose();
+    setStagePending(0);
   }
   const handleEdit = () => {
     console.log("edit ");
@@ -430,7 +457,7 @@ const ShopPage = (props: Props) => {
                   isExternal
                 >
                   <ExternalLinkIcon />
-                  owner: {owner.slice(0, 5)}...
+                  owner: {owner && owner.slice(0, 5)}...
                 </Link>
                 <Link
                   target={"_blank"}
@@ -444,8 +471,8 @@ const ShopPage = (props: Props) => {
                 </Link>
               </Flex>
               <Flex color="white" >
-                {tags.split(', ').map(
-                  (tag: string, i: number) => (<Box key={`key-${tag}-${i}`} backgroundColor="brand.400" color="black" m="2" boxShadow="lg" py="1" px="2" borderRadius="8px">{tag}</Box>))
+                {tags && tags.split(', ').map(
+                  (tag: string, i: number) => (<Box key={`key-${tag}-${i}`} backgroundColor="brand.lowKeyKool" _hover={{ bg: 'brand.lowKeyKoolHover' }} color="black" m="2" boxShadow="lg" py="1" px="2" borderRadius="8px">{tag}</Box>))
                 }
               </Flex>
               <Flex m={"4"}>
@@ -459,8 +486,14 @@ const ShopPage = (props: Props) => {
             {/* <Button mr={"4"} onClick={downloadAndDecrypt}>download and decrypt file</Button> */}
             </Box>
           </Flex>
+        </Box>
+      </Flex>
 
-          <Tabs>
+      <Box className="pink-box">
+        <Flex justify="center">
+          <Box width="1200px">
+
+        <Tabs>
             <TabList>
               <Tab>Menu</Tab>
               <Tab>Transactions</Tab>
@@ -469,7 +502,7 @@ const ShopPage = (props: Props) => {
             <TabPanels>
               <TabPanel>
                 <Flex justify={"center"} align={"center"} direction={"column"}>
-                  {items.map((elem: any, i: number) => !elem[2] && (
+                  {items && items.map((elem: any, i: number) => !elem[2] && (
                     <CatalogItem
                       key={`item-${i}`}
                       data={elem}
@@ -482,7 +515,7 @@ const ShopPage = (props: Props) => {
               </TabPanel>
               <TabPanel>
                 <Flex justify={"center"} align={"center"} direction={"column"}>
-                  {transactions.map((elem: any, i: number) => (
+                  {transactions && transactions.map((elem: any, i: number) => (
                     <TransactionItem
                       key={`aff-${i}`}
                       data={elem}
@@ -499,75 +532,91 @@ const ShopPage = (props: Props) => {
               </TabPanel>
             </TabPanels>
           </Tabs>
-        </Box>
-      </Flex>
-
-      <Modal isOpen={isOpen} onClose={onClose} size="2xl">
+            
+            </Box>
+        </Flex>
+      </Box>
+      <Modal isOpen={isOpen} onClose={onClose} size="6xl">
         <ModalOverlay />
         <ModalContent>
           <Box>
             <ModalHeader>Create a new catalog item</ModalHeader>
             <ModalCloseButton />
             <ModalBody >
-              <Flex justify="center">
-                <Image
-                  borderRadius="12px"
-                  src={itemImage ? itemImage : "/images/placeholder-image.png"}
-                  width="200px"
-                  height="200px"
-                  boxShadow="xl"
-                />
-              </Flex>
-              <Box mt={"4"}>
-                <Text mb={"1"}>Upload NFT Image</Text>
-                <Text mb={"2"} fontSize="xs">this image represents what the product is like</Text>
-                <input
-                  type="file"
-                  name="Asset"
-                  className="mr-2"
-                  onChange={(e: any) => uploadImage(e)}
-                />
-              </Box>
-              <Input
-                placeholder="item name"
-                value={itemName}
-                onChange={(e: any) => setItemName(e.target.value)}
-                mt={4}
-              />
-              
-              <Input
+              <Box className="purple-box">
+                <Flex justify="center" align="center" direction="row">
+                  {createItemStage > 1 && <CheckCircleIcon w="50px" h="50px" color={"brand.confirmed"}/>}
+                  <Text textAlign="center" className="title" fontWeight="bold" fontSize="3xl" m={4}>
+                    Step 1: Create NFT 
+                  </Text>
+                </Flex>
+                <Flex justify="center">
+                  <Image
+                    borderRadius="12px"
+                    src={itemImage ? itemImage : "/images/placeholder-image.png"}
+                    width="200px"
+                    height="200px"
+                    boxShadow="xl"
+                  />
+                </Flex>
+                <Box mt={"4"}>
+                  <Text mb={"1"}>Upload NFT Image</Text>
+                  <Text mb={"2"} fontSize="xs">this image represents what the product is like</Text>
+                  <input
+                    type="file"
+                    name="Asset"
+                    className="mr-2"
+                    onChange={(e: any) => uploadImage(e)}
+                  />
+                </Box>
+                <Input
+                  placeholder="item name"
+                  value={itemName}
+                  onChange={(e: any) => setItemName(e.target.value)}
                   mt={4}
-                  mb="1"
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setItemSymbol((e.target.value || "").toUpperCase().replace(" ", "").slice(0, 10))
-                  }
-                  width="180px"
-                  value={itemSymbol}
-                  name={"symbol"}
-                  placeholder={"NFT symbol"}
                 />
-              <Text fontSize="xs" mb="2">All caps, no spaces, 10 max character length</Text>
-              <Textarea
-                placeholder="description"
-                value={itemDesc}
-                onChange={(e: any) => setItemDesc(e.target.value)}
-                mt={4}
-              />
-              <Input
-                placeholder="price"
-                value={itemPrice}
-                width="180px"
-                onChange={(e: any) => setItemPrice(e.target.value)}
-                mt={4}
-              />
+                
+                <Input
+                    mt={4}
+                    mb="1"
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setItemSymbol((e.target.value || "").toUpperCase().replace(" ", "").slice(0, 10))
+                    }
+                    width="180px"
+                    value={itemSymbol}
+                    name={"symbol"}
+                    placeholder={"NFT symbol"}
+                  />
+                <Text fontSize="xs" mb="2">All caps, no spaces, 10 max character length</Text>
+                <Textarea
+                  placeholder="description"
+                  value={itemDesc}
+                  onChange={(e: any) => setItemDesc(e.target.value)}
+                  mt={4}
+                />
+                <Input
+                  placeholder="price"
+                  value={itemPrice}
+                  width="180px"
+                  onChange={(e: any) => setItemPrice(e.target.value)}
+                  mt={4}
+                />
+                <Flex direction="row" justify={'center'} align="center">
+                    {stagePending === 1 && <Spinner  color="brand.seduce" mr="4" />}
+                  <Box>
+                    <Button disabled={stagePending === 1  || createItemStage !== 1} _hover={{ bg: 'brand.independenceHover' }} bg={'brand.independence'} onClick={handleStage1}>
+                      Create Item
+                    </Button>
+                  </Box>
+                </Flex>
+
+              </Box>
+              <Box className="yellow-green-orange-box">
               <Flex direction="column">
-                <Text fontWeight="bold" fontSize="xl" m={4}>Step 1: Create NFT</Text>
-                <Button variant="primary" onClick={handleStage1}>
-                  Create Item
-                </Button>
-              </Flex>
-              <Flex direction="column">
-                <Text fontWeight="bold" fontSize="xl" m={4}>Step 2: Upload Content</Text>
+                <Flex justify="center" align="center" direction="row">
+                  <Text textAlign="center" className="title" fontWeight="bold" fontSize="3xl" m={4}>Step 2: Upload Content</Text>
+                  {createItemStage > 2 && <CheckCircleIcon w="50px" h="50px" color={"brand.confirmed"}/>}
+                </Flex>
                 <Box mt={"4"}>
                   <Text mb={"1"}>Upload Digital Product</Text>
                   <Text mb={"2"} fontSize="xs">your digital asset file</Text>
@@ -579,21 +628,36 @@ const ShopPage = (props: Props) => {
                     onChange={uploadDigitalProduct}
                   />
                 </Box>
-                <Button variant="primary" onClick={handleStage2}>
-                  Sign Message
-                </Button>
+                <Flex direction="row" justify={'center'} align="center">
+                    {stagePending === 2 && <Spinner color="brand.seduce" mr="4" />}
+                  <Box>
+                    <Button disabled={stagePending === 2 || createItemStage !== 2} _hover={{ bg: 'brand.independenceHover' }} bg={'brand.independence'}  onClick={handleStage2}>
+                      Sign Message
+                    </Button>
+                  </Box>
+                </Flex>
               </Flex>
-              <Flex direction="column">
-                <Text fontWeight="bold" fontSize="xl" m={4}>Step 3: Attach Item Content</Text>
-                <Box mt={"4"}>
-                <Button variant="primary" onClick={handleStage3}>
-                  Complete
-                </Button>
-                </Box>
-              </Flex>
+
+              </Box>
+              <Box className="blue-purple-box">
+                <Flex direction="column">
+                <Flex justify="center" align="center" direction="row">
+                 <Text textAlign="center" className="title" fontWeight="bold" fontSize="3xl" m={4}>Step 3: Attach Content to NFT</Text>
+                </Flex>
+                  <Flex direction="row" justify={'center'} align="center">
+                    <Box>
+                      {stagePending === 3 && <Spinner color="brand.seduce" mr="4" />}
+                      <Button disabled={stagePending === 3 || createItemStage !== 3} _hover={{ bg: 'brand.independenceHover' }} bg={'brand.independence'} onClick={handleStage3}>
+                        Attach
+                      </Button>
+                    </Box>
+                  </Flex>
+                </Flex>
+
+              </Box>
             </ModalBody>
             <ModalFooter>
-              <Button colorScheme="blue" mr={3} onClick={onClose}>
+              <Button bg={"brand.active"} _hover={{ bg: "brand.activeHover" }} mr={3} onClick={onClose}>
                 Close
               </Button>
             </ModalFooter>

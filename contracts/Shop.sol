@@ -59,7 +59,9 @@ contract Shop {
         address itemAddress,
         uint256 price
     );
-    
+    event ApproveAffiliate(address affAddr);
+    event MakeTransaction(uint[] itemIds, uint[] itemQty, address affAddr);
+
     function initialize(
         address _owner,
         string memory _name,
@@ -109,7 +111,7 @@ contract Shop {
         _itemIds.increment();
 
         ItemToken itemToken = ItemToken(_createClone(nftTemplate));
-        itemToken.initialize(address(msg.sender), address(this), _name, _nftSymbol);
+        itemToken.initialize(address(msg.sender), address(this), _name, _nftSymbol, _price);
 
         itemToken.createItem(_tokenURI);
         itemAddresses.push(address(itemToken));
@@ -182,6 +184,7 @@ contract Shop {
             proposedAffArr[affId] = proposedAffArr[proposedAffArr.length - 1];
         }
         delete proposedAffiliates[affAddr];
+        emit ApproveAffiliate(affAddr);
     }
     
     // ================================= // TRANSACTION // ================================= //
@@ -231,6 +234,7 @@ contract Shop {
         }));
         _transIds.increment();
 
+        emit MakeTransaction(itemIds, itemQty, affAddr);
         return transId;
     }
 

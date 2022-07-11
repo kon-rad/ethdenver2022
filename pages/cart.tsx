@@ -8,43 +8,47 @@ import { ethers } from "ethers";
 import { useWeb3React } from "@web3-react/core";
 import { getCartTotal } from "../utils/cart";
 import web3 from "web3";
+import { BigNumber } from 'bignumber.js';
+import { useContract, useContractEvent, useSigner, useContractReads, useAccount, useProvider, useContractRead } from 'wagmi'
 
 import Shop from "../artifacts/contracts/Shop.sol/Shop.json";
 
 const Cart = () => {
+  const provider = useProvider();
+  const { data: signer } = useSigner();
   const [isMobile] = useMediaQuery("(max-width: 600px)");
   const [transactionHash, setTransactionHash] = useState<string>("");
-  const web3React = useWeb3React();
-  const { cart, cartMetaData, cartShopAddress, setCart, setCartMetaData, affiliate } =
-    useAppState();
-  const handleCheckout = async () => {
+  const { cart, cartMetaData, cartShopAddress, setCart, setCartMetaData, affiliate } = useAppState();
+  console.log('cartShopAddress -> ', cartShopAddress);
 
-    const provider = web3React.library;
-    if (!provider) {
-      toast.error(`You must sign in with Metamask!`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-      return;
-    }
+  const handleCheckout = async () => {
     try {
       const ethValue = web3.utils.toWei(
         getCartTotal(cart, cartMetaData).toString(),
         "ether"
       );
-      const signer = provider.getSigner();
-      const contract = new ethers.Contract(cartShopAddress, Shop.abi, signer);
       const cartItems = cart.map((item: any) => item.itemId);
       const itemQuantities = cart.map((item: any) => item.qty);
       let transaction;
       let affParam = affiliate ? affiliate : '0x0000000000000000000000000000000000000000';
 
-      transaction = await contract.makeTransaction(
+      console.log(' transaction -> ', 
+        cartItems,
+        itemQuantities,
+        affParam,
+        {
+          value: ethValue,
+        }
+      )
+      if (!cartShopAddress) {
+        return;
+      }
+      const shopContract = new ethers.Contract(
+        cartShopAddress as any,
+        Shop.abi,
+        signer
+      );
+      transaction = await shopContract.makeTransaction(
         cartItems,
         itemQuantities,
         affParam,
@@ -81,15 +85,15 @@ const Cart = () => {
   };
 
   return (
-    <Box>
+    <Box className="green-box">
       <Flex justify="center">
         <Box width={isMobile ? "80%" : "600px"}>
-          <Text mb="6" textAlign="center" fontSize="6xl">
+          <Text mb="6" textAlign="center" fontSize="6xl" className="title">
             Shopping Cart
           </Text>
           {transactionHash ? (
             <Flex direction="column" justify="center" align="center">
-              <Text fontSize="2xl" color={"brand.400"}>
+              <Text fontSize="2xl" _hover={{ color: 'brand.lowKeyKool' }}  color={"brand.lowKeyKool"}>
                 Transaction Completed!
               </Text>
 
@@ -99,8 +103,8 @@ const Cart = () => {
                 target={"_blank"}
               >
                 <Flex align="center">
-                  <ExternalLinkIcon mr="3" fontSize="xl" color={"brand.400"} />
-                  <Text fontSize="2xl" color={"brand.400"}>
+                  <ExternalLinkIcon mr="3" fontSize="xl" _hover={{ color: 'brand.lowKeyKoolHover' }}  color={"brand.lowKeyKool"} />
+                  <Text fontSize="2xl" _hover={{ color: 'brand.lowKeyKoolHover' }}  color={"brand.lowKeyKool"}>
                     View transaction on Etherscan
                   </Text>
                 </Flex>

@@ -36,6 +36,7 @@ import lit from '../../../utils/lit';
 import { useSignMessage, useContract, useSigner, useContractReads, useAccount, useProvider, useContractRead } from 'wagmi'
 import ItemToken from "../../../artifacts/contracts/tokens/ItemToken.sol/ItemToken.json";
 import { SIGNATURE_MESSAGE } from '../../../utils/constants';
+import { BigNumber } from 'bignumber.js';
 
 interface Props {
     nftAddress: string;
@@ -72,6 +73,8 @@ const NFTPage = (props: Props) => {
     const [tokenURI, setTokenURI] = useState<string | undefined>();
     const [metadata, setMetadata] = useState<any>();
     const [balance, setBalance] = useState<any>();
+    const [owner, setOwner] = useState<any>();
+    const [shopAddress, setShopAddress] = useState<string | undefined>();
     const {
         cart,
         cartMetaData,
@@ -89,10 +92,23 @@ const NFTPage = (props: Props) => {
     const fetchNFTData = async () => {
         const _tokenURI = await itemTokenContract.tokenURI(1);
         setTokenURI(_tokenURI);
+        const _shopAddress = await itemTokenContract.shop();
+        setShopAddress(_shopAddress);
         const _metadata = await  axios.get(_tokenURI);
-        setMetadata(_metadata.data);
+        // setMetadata({ ..._metadata.data, itemId: '1', price: '100000000000000000' });
+        // todo: dev mode
+        setMetadata({
+          ..._metadata.data,
+          itemId: '1',
+          price: '100000000000000000',
+          shopAddress: _shopAddress
+        });
+
         const _balance = await itemTokenContract.balanceOf(address);
         setBalance(_balance);
+        
+        const _owner = await itemTokenContract.owner();
+        setOwner(_owner);
     }
   const handleDownload = async () => {
     console.log('decrypt yo', SIGNATURE_MESSAGE, signer);
@@ -124,10 +140,10 @@ const NFTPage = (props: Props) => {
   }
 
   const handleAddToCart = () => {
-    const id = props.data.itemId.toNumber();
+    const id = metadata.itemId || '1';
 
-    if (props.shopAddress !== cartShopAddress) {
-      setCartShopAddress(props.shopAddress);
+    if (metadata.shopAddress !== cartShopAddress) {
+      setCartShopAddress(metadata.shopAddress);
     }
 
     if (cartMetaData.hasOwnProperty(id)) {
@@ -145,16 +161,16 @@ const NFTPage = (props: Props) => {
     } else {
       setCart([
         ...cart,
-        { qty: Number(qty), itemId: props.data.itemId.toNumber() },
+        { qty: Number(qty), itemId: metadata.itemId },
       ]);
     }
     setCartMetaData({
       ...cartMetaData,
-      [props.data.itemId.toNumber()]: {
+      [metadata.itemId]: {
         name: metadata.name,
         description: metadata.description,
         image: metadata.image,
-        price: new BigNumber(web3.utils.fromWei(props.data.price.toString(), 'ether')),
+        price: new BigNumber(web3.utils.fromWei(metadata.price || '10000000000000000', 'ether')),
       },
     });
   };
@@ -220,11 +236,10 @@ const NFTPage = (props: Props) => {
 };
 
 NFTPage.getInitialProps = async (ctx) => {
-    console.log("ctx.query - '", ctx.query);
-    
-  const nftAddress = ctx.query.nftAddress;
-  return {
-    nftAddress: nftAddress
-  }
+
+    const nftAddress = ctx.query.nftAddress;
+    return {
+        nftAddress: nftAddress
+    }
 }
 export default NFTPage;

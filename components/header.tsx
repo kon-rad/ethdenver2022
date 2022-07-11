@@ -48,13 +48,13 @@ const Header = () => {
       <Box mr={4}>
         <Flex justify="center" align="center">
           <Input color="black" borderColor="black" width="300px" mr="4" placeholder="search for merchants" />
-          <Button backgroundColor="brand.400" color="black"><Search2Icon /></Button>
+          <Button backgroundColor="brand.lowKeyKool" _hover={{ bg: 'brand.lowKeyKoolHover' }} color="black"><Search2Icon /></Button>
         </Flex>
       </Box>
       <Box mr={4}>
         <LinkBox>
           <NextLink href="/cart" passHref={true}>
-            <Button bg="gray.700" backgroundColor={"brand.400"}>
+            <Button bg="gray.700" backgroundColor={"brand.lowKeyKool"}_hover={{ bg: 'brand.lowKeyKoolHover' }} >
               <Flex align="center">
                 <Text fontSize="md" fontWeight="bold" mr="2" color="black">
                   {getCartQty(cart)}
@@ -80,7 +80,7 @@ const Header = () => {
       <Box mr={4}>
         <LinkBox>
           <NextLink href="/create" passHref={true}>
-            <Button bg="white" color="brand.400">
+            <Button bg="white" color="brand.lowKeyKool" _hover={{ color: 'brand.lowKeyKoolHover' }} >
               <AddIcon />
             </Button>
           </NextLink>

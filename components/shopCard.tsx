@@ -9,6 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from 'next/router'
 import Shop from "../artifacts/contracts/Shop.sol/Shop.json";
 import { ethers } from "ethers";
 import { useWeb3React } from "@web3-react/core";
@@ -22,6 +23,7 @@ const ShopCard = (props: Props) => {
   const { data: signer } = useSigner();
   const { address, isConnecting, isDisconnected } = useAccount()
   const [isMobile] = useMediaQuery("(max-width: 600px)");
+  const router = useRouter();
 
   const shopContract = useContract({
     addressOrName: props.address,
@@ -59,6 +61,11 @@ const ShopCard = (props: Props) => {
     image = data[1];
     owner = data[2];
   }
+  const handleCardClick = (e: any) => {
+    e.preventDefault();
+    router.push(`/${encodeURIComponent(props.address)}`);
+
+  }
 
   return (
     <Box
@@ -68,20 +75,17 @@ const ShopCard = (props: Props) => {
       p="4"
       boxShadow='xl'
       backgroundColor="white"
+      onClick={handleCardClick}
+      className="shopCard"
     >
       <Flex padding="20px">
         <Box width="200px" m="2">
           <Image borderRadius="12px" src={image} width="200px" height="200px" />
         </Box>
-        <Box>
+        <Box p="4">
           <Text fontSize="2xl" color="black.700" className="title">{name}</Text>
         </Box>
         <Spacer />
-        <Link href={`/${encodeURIComponent(props.address)}`}>
-          <Button backgroundColor="brand.400" color="gray.900">
-            Go
-          </Button>
-        </Link>
       </Flex>
     </Box>
   );
