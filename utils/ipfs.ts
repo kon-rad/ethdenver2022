@@ -1,6 +1,6 @@
 import { url } from "inspector";
 import { create as ipfsHttpClient } from "ipfs-http-client";
-import { NFTStorage } from "nft.storage";
+// import { NFTStorage } from "nft.storage";
 
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0" as any);
 
@@ -77,16 +77,16 @@ export async function uploadFile(e: any): Promise<string> {
   }
 }
 
-export async function publishFileToNFTStorage(file: any) {
-  const nftStorage = new NFTStorage({
-    token:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDkxREVEZjVCMmI3REU3NDA1RjM4YjkwMjNhYzAxNTdFMTU3MGE1NjkiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY1MDcyMTAwODQyMiwibmFtZSI6ImFtc3RlcmRhbSJ9.Sn1JCXO3xWD5tLdsCsWVRzbNyJFE1fOSQjTYzaKfEPU",
-  });
+// export async function publishFileToNFTStorage(file: any) {
+//   const nftStorage = new NFTStorage({
+//     token:
+//       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDkxREVEZjVCMmI3REU3NDA1RjM4YjkwMjNhYzAxNTdFMTU3MGE1NjkiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY1MDcyMTAwODQyMiwibmFtZSI6ImFtc3RlcmRhbSJ9.Sn1JCXO3xWD5tLdsCsWVRzbNyJFE1fOSQjTYzaKfEPU",
+//   });
   
-  // let sampleDict = JSON.stringify(file);
-  const blob = new Blob([file]);
-  console.log("storing blob in nft storage: ", blob);
-  const cid = await nftStorage.storeBlob(blob);
-  console.log("cid -> ", cid);
-  return `https://ipfs.io/ipfs/${cid}`;
-}
+//   // let sampleDict = JSON.stringify(file);
+//   const blob = new Blob([file]);
+//   console.log("storing blob in nft storage: ", blob);
+//   const cid = await nftStorage.storeBlob(blob);
+//   console.log("cid -> ", cid);
+//   return `https://ipfs.io/ipfs/${cid}`;
+// }

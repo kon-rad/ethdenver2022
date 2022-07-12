@@ -1,7 +1,7 @@
 import LitJsSdk from 'lit-js-sdk'
 import axios from 'axios';
 import { create as ipfsHttpClient } from 'ipfs-http-client'
-import { publishFileToNFTStorage } from './ipfs';
+import { handleIPFSUploadJSON } from './ipfs';
 import streamToBlob from 'stream-to-blob';
  
 
@@ -60,7 +60,7 @@ class Lit {
 
         console.log('--- key encrypted saveEncryptionKey: ', encryptedSymmetricKey);
 
-        const url = await publishFileToNFTStorage(encryptedFile);
+        const url = await handleIPFSUploadJSON(encryptedFile);
         // const encryptedFileURL = `${added.path}`;
         // const url = `https://ipfs.infura.io/ipfs/${added.path}`;
         // const encryptedFileURL = encryptedString;
