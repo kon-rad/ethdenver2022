@@ -1,5 +1,13 @@
 # dcom.market
 
+live site:
+
+https://dcom.market
+
+
+docs:
+
+https://docs.dcom.market
 
 
 ## how to run locally

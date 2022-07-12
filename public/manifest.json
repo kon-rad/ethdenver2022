@@ -1,6 +1,6 @@
 {
     "name": "dcom.market",
-    "short_name": "decentralized ownership of digital assets",
+    "short_name": "decentralized marketplace of NFT based digital assets",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#202a25ff",
