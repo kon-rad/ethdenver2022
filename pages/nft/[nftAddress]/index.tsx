@@ -186,7 +186,6 @@ const NFTPage = (props: Props) => {
               <Text fontSize="4xl" className="title">{metadata?.name}</Text>
               <Text color="gray.600">{metadata?.description}</Text>
               <Text color="yello.700">stars: {4.75}</Text>
-              <Text color="gray.600">balance: {balance?.toString()}</Text>
               <Flex mb={"2"} direction="column">
                 <Link
                   target={"_blank"}
@@ -215,9 +214,13 @@ const NFTPage = (props: Props) => {
         </Box>
       </Flex>
         <Flex justify="center" align="center">
-            <Box m="4">
-                <Button onClick={handleDownload} bg={'brand.independence'} _hover={{ bg: 'brand.independenceHover'}}>Download File</Button>
-            </Box>
+          <Box textAlign="center">
+            <Text fontSize="xl" >Access Panel</Text>
+              <Text color="gray.600">your balance: {balance?.toString()}</Text>
+              <Box m="4">
+                  <Button disabled={Number(balance?.toString()) === 0} onClick={handleDownload} bg={'brand.independence'} _hover={{ bg: 'brand.independenceHover'}}>Download File</Button>
+              </Box>
+          </Box>
         </Flex>
     </Box>
   );

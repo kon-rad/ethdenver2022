@@ -101,7 +101,7 @@ const CatalogItem = (props: Props) => {
           <Text fontSize="2xl" mb={"2"} fontWeight={"bold"} color="black.700">
             {metadata && metadata.name}
           </Text>
-          <Text fontSize="md" mb={"2"} color={"gray.700"} fontWeight={"light"}>
+          <Text fontSize="md" mb={"2"} color={"gray.700"} fontWeight={"light"} className="catalog_item__desc">
             {metadata && metadata.description}
           </Text>
           <Text fontSize="md" mb={"2"} color="black.700">

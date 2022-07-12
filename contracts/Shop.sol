@@ -34,6 +34,7 @@ contract Shop {
     mapping(address => Affiliate) public proposedAffiliates;
     mapping(address => Affiliate) public affiliates;
 
+    // todo: make reviews per item - not per transaction
     struct Trans {
         uint256 transId;
         uint[] itemIds;

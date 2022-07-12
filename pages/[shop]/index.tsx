@@ -68,15 +68,16 @@ const ShopPage = (props: Props) => {
   const [itemAddresses, setItemAddresses] = useState<any>([]);
 
   const [isOwner, setIsOwner] = useState<boolean>(false);
-  const [digitalProductFile, setDigitalProductFile] = useState<string>("");
   const [digitalProductFileRef, setDigitalProductFileRef] = useState<string>("");
   const [proposedAffiliates, setProposedAffiliates] = useState([]);
   const [activeAffiliates, setActiveAffiliates] = useState([]);
   const [percent, setPercent] = useState("3");
-  const [encryptedUrl, setEncryptedUrl] = useState<string>("");
-  const [newItemCreated, setNewItemCreated] = useState<any>();
+
+  // devmode et token uri, currTokenId, ipfsHa
   const [newItemAddress, setNewItemAddress] = useState<any>("");
   const [newItemId, setNewItemId] = useState<number | undefined>();
+
+  // devmode 3
   const [createItemStage, setCreateItemStage] = useState<number>(1);
   const [encryptedFileURL, setEncryptedFileURL] = useState<string | undefined>();
   const [encryptedSymmetricKey, setEncryptedSymmetricKey] = useState<any>();
@@ -88,7 +89,6 @@ const ShopPage = (props: Props) => {
   const [itemDesc, setItemDesc] = useState<string>("");
   const [itemImage, setItemImage] = useState<string>("");
   const [itemPrice, setItemPrice] = useState<string>("");
-  const router = useRouter();
 
   const [isMobile] = useMediaQuery("(max-width: 600px)");
   const provider = useProvider();
@@ -103,17 +103,33 @@ const ShopPage = (props: Props) => {
 
   const handleItemCreatedEvent = (event: any) => {
     console.log('item created event - ', event);
-    if (event.itemId === newItemId) {
-      setNewItemAddress(event[1]);
-      setCreateItemStage(2);
-    }
+    // if (event.itemId === newItemId) {
+      handleNewItemCreated(event);
+    // }
+  }
+  const handleNewItemCreated = async (event: any) => {
+    console.log('handleItemCreatedEvent ----- ', event);
+    setNewItemAddress(event[1]);
+
+    const shopContract = new ethers.Contract(
+      props.shop as any,
+      Shop.abi,
+      signer
+    );
+    const freshItems = await shopContract.fetchCatalogItems();
+    setItems(freshItems);
+    console.log('handleNewItemCreated freshItems -> ', freshItems);
+    
+
+    setCreateItemStage(2);
+    setStagePending(0);
   }
   const shopContractData = {
     addressOrName: props.shop,
     contractInterface: Shop.abi,
   }
 
-  const { data, isError, isLoading } = useContractReads({
+  const { data } = useContractReads({
     contracts: [
       {
         ...shopContractData,
@@ -158,7 +174,6 @@ const ShopPage = (props: Props) => {
     setTags(data.data.tags);
   }
   console.log(' catalog items ---- ', items);
-  
 
   useEffect(() => {
     if (!props.shop) return;
@@ -216,12 +231,12 @@ const ShopPage = (props: Props) => {
       const receipt = await createResponse.wait();
       console.log('receipt --- ', receipt);
       const freshItems = await shopContract.fetchCatalogItems();
-      setItems(freshItems);
+      // setItems(freshItems);
       console.log('freshItems: ', freshItems);
-      setNewItemAddress(freshItems[freshItems.length - 1].itemAddress);
-      setCreateItemStage(2);
+      // setNewItemAddress(freshItems[freshItems.length - 1].itemAddress);
+      // setCreateItemStage(2);
       console.log('freshItems freshItems ----- ', freshItems);
-      setStagePending(0);
+      // setStagePending(0);
     } catch (e: any) {
       console.error(e);
       toast.error(`Error: ${e.message}`, {
@@ -332,6 +347,8 @@ const ShopPage = (props: Props) => {
     console.log("e.target.files[0] -> ", e.target.files[0]);
     setDigitalProductFileRef(e.target.files[0]);
   }
+  
+  console.log('transactions -> ', transactions);
   
   if (!props.shop) {
     return <h1>Yikes. Try navigating to this page from the home page</h1>;
@@ -452,7 +469,7 @@ const ShopPage = (props: Props) => {
               <Text fontSize="4xl" className="title">{name}</Text>
               <Text color="gray.600">{desc}</Text>
               <Text color="yello.700">stars: {4.75}</Text>
-              <Flex mb={"2"} direction="row" justify={"space-between"}>
+              <Flex mb={"2"} direction="row" justify={"start"}>
                 <Link
                   target={"_blank"}
                   mb={"2"}
@@ -480,14 +497,19 @@ const ShopPage = (props: Props) => {
                   (tag: string, i: number) => (<Box key={`key-${tag}-${i}`} backgroundColor="brand.lowKeyKool" _hover={{ bg: 'brand.lowKeyKoolHover' }} color="black" m="2" boxShadow="lg" py="1" px="2" borderRadius="8px" className="tag-button">{tag}</Box>))
                 }
               </Flex>
-              <Flex m={"4"}>
                 {isOwner && (
-                  <Button bg="brand.independence" _hover={{ bg: "brand.independenceHover" }} mr={"4"} onClick={onOpen}>
-                    Add Catalog Item
-                  </Button>
+                  <Box p="20px" borderRadius="20px" boxShadow="xl" bg="white">
+                    <Flex m={"4"} direction="column">
+                        <Text mb="3" fontSize="xl" className="title">store owner panel</Text>
+                        <Box>
+                          <Button bg="brand.independence" _hover={{ bg: "brand.independenceHover" }} mr={"4"} onClick={onOpen}>
+                            Add Catalog Item
+                          </Button>
+                          <Button bg="brand.independence" _hover={{ bg: "brand.independenceHover" }} onClick={handleEdit}>Edit Shop</Button>
+                        </Box>
+                    </Flex>
+                  </Box>
                 )}
-                {isOwner && <Button bg="brand.independence" _hover={{ bg: "brand.independenceHover" }} onClick={handleEdit}>Edit Shop</Button>}
-              </Flex>
               <Box p="4">{metadata?.description}</Box>
               <Box p="4">{metadata?.longDescription}</Box>
             {/* <Button mr={"4"} onClick={downloadAndDecrypt}>download and decrypt file</Button> */}

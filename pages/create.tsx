@@ -84,7 +84,7 @@ const Create = () => {
     <Box>
       <Flex align="center" direction="column">
         <Box
-          maxWidth={isMobile ? '100%' : "700px"}
+          maxWidth={isMobile ? '100%' : "1200px"}
           boxShadow='xl'
           backgroundColor="white"
           borderRadius="12px"

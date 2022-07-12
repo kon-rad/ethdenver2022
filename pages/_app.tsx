@@ -87,31 +87,27 @@ const mumbaiChain = {
   testnet: true,
 }
 
-  // connectors: [new InjectedConnector({ chains: [chain.hardhat] })
-// const { provider, chains } = configureChains(
-//   // [mumbaiChain],
-//   [chain.hardhat],
-//   // [chain.polygon],
-//   [
-//     infuraProvider({ infuraId }),
-//     jsonRpcProvider({
-//       rpc: (chain) => {
-//         // if (chain.id !== mumbaiChain.id) {
-//         //   return {
-//         //     http: `http://localhost:8545`,
-//         //   };
-//         // }
-//         // return {
-//         //   http: `http://localhost:8545`,
-//         // };
-//         return { http: chain.rpcUrls.default }
-//       },
-//     }),
-//   ]
-// )
-const { chains, provider } = configureChains([chain.hardhat], [
-  publicProvider(),
-])
+const { provider, chains } = configureChains(
+  // [mumbaiChain],
+  // [chain.hardhat],
+  [chain.polygon],
+  [
+  infuraProvider({ infuraId }),
+  jsonRpcProvider({
+    rpc: (chain) => {
+      if (chain.id !== mumbaiChain.id) {
+        return {
+          http: `http://localhost:8545`,
+        };
+      }
+      return { http: chain.rpcUrls.default }
+    },
+  }),
+  ]
+)
+// const { chains, provider } = configureChains([chain.hardhat], [
+//   publicProvider(),
+// ])
 
 const { connectors } = getDefaultWallets({
   appName: 'dcom.market',

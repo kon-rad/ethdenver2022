@@ -87,7 +87,7 @@ const Cart = () => {
   return (
     <Box className="bluehaze-box">
       <Flex justify="center">
-        <Box width={isMobile ? "80%" : "600px"}>
+        <Box width={isMobile ? "80%" : "1200px"}>
           <Text mb="6" textAlign="center" fontSize="6xl" className="title">
             Shopping Cart
           </Text>
@@ -112,15 +112,15 @@ const Cart = () => {
             </Flex>
           ) : (
             <Box>
-              <Flex direction="column">
+              <Flex direction="column" justify={'center'} align="center">
                 {cart.map((item: any, i: number) => (
                   <CartItem data={item} key={`cartItem_${i}`} />
                 ))}
               </Flex>
-              <Text m={"2"} fontSize="2xl">
-                Total MATIC: {getCartTotal(cart, cartMetaData).toString()}
-              </Text>
-              <Flex mt="8" justify="center">
+              <Flex mt="8" justify="center" align="center" direction="column">
+                <Text m={"2"} fontSize="2xl" mb="4">
+                  Total MATIC: {getCartTotal(cart, cartMetaData).toString()}
+                </Text>
                 <Button backgroundColor={"brand.seduce"} _hover={{ bg: 'brand.seduceHover' }} onClick={handleCheckout}>
                   Check Out
                 </Button>

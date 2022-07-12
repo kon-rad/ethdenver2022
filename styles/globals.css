@@ -183,3 +183,12 @@ background: radial-gradient(circle, rgba(182,255,234,1) 0%, rgba(254,236,253,1) 
 .tag-button {
   cursor: pointer;
 }
+
+.catalog_item__desc {
+  overflow: hidden;
+  height: 100px;
+}
+.cart_item__description {
+  height: 20px;
+  overflow: hidden;
+}
