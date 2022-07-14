@@ -26,7 +26,7 @@ const ListHeader = ({ children }: { children: ReactNode }) => {
 export default function Footer() {
     return (
         <>
-            <Box bg={'brand.gradienta'}>
+            <Box className={'footer'}>
                 <Container as={Stack} maxW={'6xl'} py={10}>
                     <SimpleGrid
                         templateColumns={{
@@ -39,44 +39,44 @@ export default function Footer() {
                             <Box>
                                 <Image
                                     borderRadius="xl"
-                                    src="/images/logos/dcom_circle.png"
+                                    src="/images/logos/logo1-circle.png"
                                     w="100px"
                                     h="100px"
                                 />
                             </Box>
                             <Text fontSize={'sm'}>
-                                © 2022 deCom. All rights
+                                © 2022 dcom.market All rights
                                 reserved
                             </Text>
                         </Stack>
                         <Stack align={'flex-start'}>
                             <ListHeader>Links</ListHeader>
-                            <Link href={'#'}>FAQ</Link>
-                            <Link href={'#'}>Roadmap</Link>
-                            <Link href={'#'}>Search</Link>
+                            {/* <Link href={'#'}>FAQ</Link> */}
+                            <Link href={'https://dcom.market'}>Roadmap</Link>
+                            {/* <Link href={'#'}>Search</Link> */}
                         </Stack>
                         <Stack align={'flex-start'}>
                             <ListHeader>Company</ListHeader>
-                            <Link href={'#'}>About</Link>
-                            <Link href={'#'}>Blog</Link>
-                            <Link href={'#'}>Values</Link>
-                            <Link href={'#'}>Contact</Link>
+                            {/* <Link href={'#'}>About</Link> */}
+                            <Link href={'https://dcom.market'}>Blog</Link>
+                            {/* <Link href={'#'}>Values</Link>
+                            <Link href={'#'}>Contact</Link> */}
                         </Stack>
                         <Stack align={'flex-start'}>
                             <ListHeader>Support</ListHeader>
-                            <Link href={'#'}>Help Center</Link>
+                            {/* <Link href={'#'}>Help Center</Link>
                             <Link href={'#'}>Terms of Service</Link>
                             <Link href={'#'}>Legal</Link>
-                            <Link href={'#'}>Privacy Policy</Link>
+                            <Link href={'#'}>Privacy Policy</Link> */}
                             <Link href={'/credits'}>Credits</Link>
                         </Stack>
                         <Stack align={'flex-start'}>
                             <ListHeader>Follow Us</ListHeader>
-                            <Link href={'#'}>Discord</Link>
-                            <Link href={'#'}>Twitter</Link>
-                            <Link href={'#'}>YouTube</Link>
+                            {/* <Link href={'#'}>Discord</Link> */}
+                            <Link href={'https://twitter.com/dcom_market'}>Twitter</Link>
+                            {/* <Link href={'#'}>YouTube</Link>
                             <Link href={'#'}>Instagram</Link>
-                            <Link href={'#'}>GitHub</Link>
+                            <Link href={'#'}>GitHub</Link> */}
                         </Stack>
                     </SimpleGrid>
                 </Container>

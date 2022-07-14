@@ -5,6 +5,7 @@ struct Item {
     uint itemId;
     uint price;
     bool isDeleted;
+    address itemAddress;
 }
 
 struct ItemsCatalogArray {

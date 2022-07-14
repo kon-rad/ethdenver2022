@@ -4,9 +4,9 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Shop.sol";
 import "./tokens/ItemToken.sol";
+import "./library/StringUtils.sol";
 
 contract ShopFactory is Ownable {
-
     address[] public allShops;
     uint256 private shopPrice = 0 ether;
     uint256 public shopCount = 0;
@@ -22,21 +22,20 @@ contract ShopFactory is Ownable {
 
     function createShop(
             string memory _name,
-            string memory _image
+            string memory _metadataUrl
         ) external payable returns (address) {
         require(msg.value >= shopPrice, "CS0");
+        require(StringUtils.strlen(_name) < 280, "SF:01 Name must be less than 280 characters");
 
-        ItemToken itemToken = ItemToken(_createClone(nftTemplate));
         Shop shop = Shop(_createClone(shopTemplate));
         shop.initialize(
             msg.sender,
             _name,
-            _image,
+            _metadataUrl,
             shopCount,
             address(this),
-            address(itemToken)
+            nftTemplate
         );
-        itemToken.initialize(address(msg.sender), address(shop));
 
         emit ShopCreated(address(shop), _name);
 

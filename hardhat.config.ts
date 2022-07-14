@@ -8,10 +8,8 @@ import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "hardhat-contract-sizer";
 
-
 dotenv.config();
 
-// This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task("accounts", "Prints the list of accounts", async (taskArgs, hre: any) => {
   const accounts = await hre.ethers.getSigners();
@@ -20,7 +18,6 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre: any) => {
     console.log(account.address);
   }
 });
-
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
@@ -42,7 +39,7 @@ const config: any = {
     // },
     mumbai: {
       url: "https://rpc-mumbai.maticvigil.com",
-      accounts: [process.env.PRIVATE_KEY || '']
+      accounts: [process.env.PRIVATE_KEY]
     },
     matic: {
       url: process.env.ALCHEMY_URL,

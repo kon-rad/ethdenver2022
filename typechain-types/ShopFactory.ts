@@ -156,7 +156,7 @@ export interface ShopFactory extends BaseContract {
 
     createShop(
       _name: string,
-      _image: string,
+      _metadataUrl: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -200,7 +200,7 @@ export interface ShopFactory extends BaseContract {
 
   createShop(
     _name: string,
-    _image: string,
+    _metadataUrl: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -244,7 +244,7 @@ export interface ShopFactory extends BaseContract {
 
     createShop(
       _name: string,
-      _image: string,
+      _metadataUrl: string,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -300,7 +300,7 @@ export interface ShopFactory extends BaseContract {
 
     createShop(
       _name: string,
-      _image: string,
+      _metadataUrl: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -348,7 +348,7 @@ export interface ShopFactory extends BaseContract {
 
     createShop(
       _name: string,
-      _image: string,
+      _metadataUrl: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

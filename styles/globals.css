@@ -1,8 +1,22 @@
+:root {
+  --light-pink: #f6eaf5;
+  --dark-text: #020e64;
+  --seduce: #a3ff8b;
+  --seduceHover: #76ff53;
+  --independence: #7bceff;
+  --confirmed: #2fff00;
+  --independenceHover: #5af9ff;
+  --active: #da5656;
+  --activeHover: #db1919;
+  --lowKeyKool: #fac8ff;
+  --lowKeyKoolHover: #ee8df8;
+}
+
 html,
 body {
   padding: 0;
   margin: 0;
-  font-family: 'Cabin', sans-serif!important;
+  font-family: 'Lato', sans-serif!important;
 }
 
 a {
@@ -15,17 +29,166 @@ a {
 }
 
 .hero {
-  /* background-image: url('/images/vendor-2.jpeg'); */
   height: 440px;
-  width: 100%;
-  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/images/vendor-2.jpeg');
-  /* height: 100%; */
+  background: linear-gradient(rgb(81 179 183 / 48%), rgb(91 251 53 / 26%)), url(/images/background/nyc-south.JPG);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+
+  padding: 20px;
+  border-radius: 20px;
+  margin: 20px;
 }
 
 .header-container {
-  background: rgb(131,58,180);
-background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(247,37,133,1) 50%, rgba(252,176,69,1) 100%);
+  padding: 10px;
+  border-radius: 20px;
+  margin: 20px;
+  background: rgb(255,230,50);
+  background: linear-gradient(48deg, rgba(255,230,50,1) 0%, rgba(252,251,173,1) 62%, rgba(239,255,0,1) 100%);
+}
+.footer {
+  background: rgb(255,230,50);
+  background: linear-gradient(48deg, rgba(255,230,50,1) 0%, rgba(252,251,173,1) 62%, rgba(239,255,0,1) 100%);
+  padding: 10px;
+  border-radius: 20px;
+  margin: 20px;
+}
+
+.title {
+  font-family: 'Righteous', cursive;
+}
+
+p {
+  font-family: 'Lato', sans-serif;
+}
+.catalog_item {
+  transition: 0.3s;
+  background-color: white;
+}
+.catalog_item:hover {
+  height: 266px;
+  width: 806px;
+  cursor: pointer;
+}
+.shopCard {
+  height: 288px;
+  width: 800px;
+  transition: 0.3s;
+  background-color: white!important;
+}
+.shopCard:hover {
+  height: 294px;
+  width: 806px;
+  cursor: pointer;
+}
+.hero-text-container {
+
+  text-align: center;
+  background-color: #f9ff979e;
+  padding: 10px;
+  border-radius: 30px;
+}
+/* .text-highlight {
+  background-image: linear-gradient(transparent 60%,var(--color-selection-bg) 60%);
+  background-size: 80% 100%;
+  background-repeat: no-repeat;
+  background-position: top center;
+} */
+
+/* .hero-text-container {
+  display: inline-block;
+}
+.hero-text {
+  font-size: 67px;
+  width: 80%;
+  overflow: hidden;
+  border-right: .15em solid orange;
+  white-space: nowrap;
+
+  font-size: 1.6rem;
+  width: 0;
+  animation: 
+    typing 1s steps(20, end) forwards,
+    blink .8s infinite;
+}
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+} */
+
+.bluehaze-box {
+  margin: 20px;
+  border-radius: 20px;
+  padding: 40px;
+  background: rgb(206,227,255);
+  background: radial-gradient(circle, rgba(206,227,255,1) 0%, rgba(220,248,255,1) 44%, rgba(182,255,249,1) 100%);
+}
+.bluehaze-box input {
+  background-color: white;
+}
+
+.pink-box {
+  margin: 20px;
+  border-radius: 20px;
+  padding: 100px 40px;
+
+  background: rgb(255,244,251);
+  background: linear-gradient(304deg, rgba(255,244,251,1) 0%, rgba(253,244,254,1) 67%, rgba(255,247,255,1) 100%);
+}
+
+.purple-box {
+  margin: 20px;
+  border-radius: 20px;
+  padding: 40px;
+
+  background: rgb(240,166,255);
+  background: radial-gradient(circle, rgba(240,166,255,1) 0%, rgba(252,236,254,1) 44%, rgba(236,210,255,1) 100%);
+}
+.purple-box input {
+  background: white;
+}
+.purple-box textarea {
+  background: white;
+}
+.yellow-green-orange-box {
+  margin: 20px;
+  border-radius: 20px;
+  padding: 40px;
+
+  background: rgb(239,255,166);
+  background: radial-gradient(circle, rgba(239,255,166,1) 0%, rgba(238,254,236,1) 44%, rgba(255,235,221,1) 100%);
+}
+.yellow-green-orange-box input {
+  background: white;
+}
+.yellow-green-orange-box textarea {
+  background: white;
+}
+.blue-purple-box {
+  margin: 20px;
+  border-radius: 20px;
+  padding: 40px;
+
+  background: rgb(182,255,234);
+background: radial-gradient(circle, rgba(182,255,234,1) 0%, rgba(254,236,253,1) 44%, rgba(255,238,247,1) 100%);
+}
+.blue-purple-box input {
+  background: white;
+}
+.blue-purple-box textarea {
+  background: white;
+}
+
+.tag-button {
+  cursor: pointer;
+}
+
+.catalog_item__desc {
+  overflow: hidden;
+  height: 100px;
+}
+.cart_item__description {
+  height: 20px;
+  overflow: hidden;
 }

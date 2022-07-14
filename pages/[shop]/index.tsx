@@ -21,166 +21,222 @@ import {
   Tab,
   TabPanel,
   useMediaQuery,
-  RadioGroup,
-  Stack,
-  Radio
+  Spinner,
+  Textarea
 } from "@chakra-ui/react";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { ExternalLinkIcon, CheckCircleIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
-import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
 import CatalogItem from "../../components/catalogItem";
 import Shop from "../../artifacts/contracts/Shop.sol/Shop.json";
-import { handleImageUpload, encryptFile } from "../../utils/ipfs";
+import ItemToken from "../../artifacts/contracts/tokens/ItemToken.sol/ItemToken.json";
+import { handleIPFSUpload, encryptFile } from "../../utils/ipfs";
 import TransactionItem from "../../components/transactionItem";
 import web3 from "web3";
 import { formatAddress } from "../../utils/web3";
 import { getAffiliates, makeAffiliateProposal, updateAffiliate } from "../../utils/shop";
-import Web3Modal from "web3modal";
 import { create as ipfsHttpClient } from 'ipfs-http-client'
 import axios from "axios";
-import { encrypt, decrypt } from "../../services/encryption";
-import crypto from 'crypto';
-import {
-    collection,
-    addDoc,
-    getDocs,
-    query,
-    where,
-    getFirestore,
-    deleteDoc,
-    doc,
-    updateDoc,
-} from "firebase/firestore";
+import lit from '../../utils/lit';
+import { useSignMessage, useContractEvent, useSigner, useContractReads, useAccount, useProvider, useContractRead } from 'wagmi'
+import { SIGNATURE_MESSAGE } from '../../utils/constants';
 
-interface Props {}
+interface Props {
+  shop: string;
+}
 
 interface CartType {
   qty: number;
   itemId: string;
 }
 
+
 // @ts-ignore
 const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0');
 
-const db = getFirestore();
-
 const ShopPage = (props: Props) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [owner, setOwner] = useState<string>("");
-  const [name, setName] = useState<string>("");
-  const [nftAddress, setNftAddress] = useState<string>("");
   const [desc, setDesc] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [metadata, setMetadata] = useState<any>();
   const [image, setImage] = useState<string>("");
+  const [owner, setOwner] = useState<string>("");
+  const [tags, setTags] = useState<string>("");
+  const [items, setItems] = useState<any>([]);
+  const [transactions, setTransactions] = useState<any>([]);
+  const [itemAddresses, setItemAddresses] = useState<any>([]);
+
   const [isOwner, setIsOwner] = useState<boolean>(false);
-  const [isDigital, setIsDigital] = useState<string>("DIGITAL");
-  const [digitalProductFile, setDigitalProductFile] = useState<string>("");
+  const [digitalProductFileRef, setDigitalProductFileRef] = useState<string>("");
   const [proposedAffiliates, setProposedAffiliates] = useState([]);
   const [activeAffiliates, setActiveAffiliates] = useState([]);
   const [percent, setPercent] = useState("3");
-  const [encryptedUrl, setEncryptedUrl] = useState<string>("");
+
+  // devmode et token uri, currTokenId, ipfsHa
+  const [newItemAddress, setNewItemAddress] = useState<any>("");
+  const [newItemId, setNewItemId] = useState<number | undefined>();
+
+  // devmode 3
+  const [createItemStage, setCreateItemStage] = useState<number>(1);
+  const [encryptedFileURL, setEncryptedFileURL] = useState<string | undefined>();
+  const [encryptedSymmetricKey, setEncryptedSymmetricKey] = useState<any>();
+  const [completedFlow, setCompletedFlow] = useState<boolean>(false);
+  const [stagePending, setStagePending] = useState<number>(0);
 
   const [itemName, setItemName] = useState<string>("");
+  const [itemSymbol, setItemSymbol] = useState<string>("");
   const [itemDesc, setItemDesc] = useState<string>("");
   const [itemImage, setItemImage] = useState<string>("");
   const [itemPrice, setItemPrice] = useState<string>("");
 
-  const [items, setItems] = useState<any>([]);
-  const [transactions, setTransactions] = useState<any>([]);
   const [isMobile] = useMediaQuery("(max-width: 600px)");
+  const provider = useProvider();
+  const { data: signer } = useSigner();
+  const { address } = useAccount();
+  useContractEvent({
+    addressOrName: props.shop,
+    contractInterface: Shop.abi,
+    eventName: 'ItemCreated',
+    listener: (event) => handleItemCreatedEvent(event),
+  })
 
-  const web3React = useWeb3React();
+  const handleItemCreatedEvent = (event: any) => {
+    console.log('item created event - ', event);
+    // if (event.itemId === newItemId) {
+      handleNewItemCreated(event);
+    // }
+  }
+  const handleNewItemCreated = async (event: any) => {
+    console.log('handleItemCreatedEvent ----- ', event);
+    setNewItemAddress(event[1]);
 
-  const provider = ethers.getDefaultProvider(process.env.NEXT_PUBLIC_NETWORK);
+    const shopContract = new ethers.Contract(
+      props.shop as any,
+      Shop.abi,
+      signer
+    );
+    const freshItems = await shopContract.fetchCatalogItems();
+    setItems(freshItems);
+    console.log('handleNewItemCreated freshItems -> ', freshItems);
+    
 
-  const router = useRouter();
+    setCreateItemStage(2);
+    setStagePending(0);
+  }
+  const shopContractData = {
+    addressOrName: props.shop,
+    contractInterface: Shop.abi,
+  }
+
+  const { data } = useContractReads({
+    contracts: [
+      {
+        ...shopContractData,
+        functionName: 'name',
+      },
+      {
+        ...shopContractData,
+        functionName: 'metadataUrl',
+      },
+      {
+        ...shopContractData,
+        functionName: 'owner',
+      },
+      {
+        ...shopContractData,
+        functionName: 'fetchCatalogItems',
+      },
+      {
+        ...shopContractData,
+        functionName: 'fetchTransactions',
+      },
+      {
+        ...shopContractData,
+        functionName: 'getItemAddresses',
+      }
+    ] as any
+  })
   useEffect(() => {
-    getShopData();
+    if (!data) return;
+    let [_name, _metadataURL, _owner, _items, _transactions, _itemAddresses] = [...data] as any;
+    setName(_name);
+    setOwner(_owner);
+    setItems(_items);
+    setTransactions(_transactions);
+    setItemAddresses(_itemAddresses);
+    fetchMetadata(_metadataURL);
+  }, [data]);
+  const fetchMetadata = async (_metadataURL) => {
+    const data = await axios.get(_metadataURL);
+    setMetadata(data.data as any);
+    setImage(data.data.image);
+    setTags(data.data.tags);
+  }
+  console.log(' catalog items ---- ', items);
+
+  useEffect(() => {
+    if (!props.shop) return;
     getAffiliates(
-      web3React,
+      provider,
       setProposedAffiliates,
       setActiveAffiliates,
       Shop.abi,
-      router.query.shop
+      props.shop
     );
-  }, []);
+  }, [props.shop]);
+  
   useEffect(() => {
-    setIsOwner(web3React.account === owner);
-    console.log("addr changed isOwner: ", isOwner);
-  }, [web3React.account, web3React, owner]);
-  console.log("addr: ", web3React.account);
+    setIsOwner(address === owner);
+  }, [address, owner]);
 
-  const getShopData = async () => {
-    if (!router.query.shop) return;
-
-    console.log("getting shop data ", provider);
-    const shopContract = new ethers.Contract(
-      router.query.shop,
-      Shop.abi,
-      provider
-    );
-    setName(await shopContract.name());
-    // setDesc(await shopContract.description());
-    setImage(await shopContract.image());
-    setOwner(await shopContract.owner());
-    setNftAddress(await shopContract.nftAddress());
-
-    setItems(await shopContract.fetchCatalogItems());
-    setTransactions(await shopContract.fetchTransactions());
-    console.log("shop data is set");
-  };
-
-  console.log("addr 2: & owner ", web3React.account, owner, isOwner);
-  const handleCreate = async () => {
-    const web3Modal = new Web3Modal();
-    const connection = await web3Modal.connect();
-    const providerWSigner = new ethers.providers.Web3Provider(connection);
+  const handleStage1 = async () => {
     try {
-      const signer = providerWSigner.getSigner();
+      const shopContract = new ethers.Contract(
+        props.shop as any,
+        Shop.abi,
+        signer
+      );
+
+      if (!itemPrice) {
+        throw Error("Item price is required");
+      }
+      setNewItemId(items.length + 1);
 
       /* first, upload to IPFS */
       const data = JSON.stringify({
           name: itemName,
           description: itemDesc,
           image: itemImage,
+          shopAddress: props.shop,
+          price: itemPrice,
+          itemId: items.length + 1,
+          // file: encryptedFileIPFSHash,
+          // encryptedSymmetricKey: encryptedSymmetricKey
+          // file: 'some file here',
+          // encryptedSymmetricKey: 'encrypted symmetric key'
+          // external_url
       });
+      setStagePending(1);
       const added = await client.add(data);
-      const metadtaUrl = `https://ipfs.infura.io/ipfs/${added.path}`;
+      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
 
-      const shopContract = new ethers.Contract(
-        router.query.shop,
-        Shop.abi,
-        signer
-      );
-      console.log(
-        'creating item: metadtaUrl, file url', 
-        metadtaUrl,
-        digitalProductFile
-      );
-
-      console.log('createItem: ', digitalProductFile, isDigital, itemPrice);
-      if (!itemPrice) {
-        throw Error("Item price is required");
-      }
-      
-      await shopContract.createItem(
+      const createResponse = await shopContract.createItem(
+        itemName,
+        itemSymbol,
         web3.utils.toWei(itemPrice, "ether"),
-        digitalProductFile,
-        metadtaUrl
+        url
       );
-      await getShopData();
-
-      toast(`You successfully created ${itemName}!`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-      onClose();
+      console.log('createResponse - ', createResponse);
+      const receipt = await createResponse.wait();
+      console.log('receipt --- ', receipt);
+      const freshItems = await shopContract.fetchCatalogItems();
+      // setItems(freshItems);
+      console.log('freshItems: ', freshItems);
+      // setNewItemAddress(freshItems[freshItems.length - 1].itemAddress);
+      // setCreateItemStage(2);
+      console.log('freshItems freshItems ----- ', freshItems);
+      // setStagePending(0);
     } catch (e: any) {
       console.error(e);
       toast.error(`Error: ${e.message}`, {
@@ -194,72 +250,108 @@ const ShopPage = (props: Props) => {
       });
     }
   };
+  const handleStage2 = async () => {
+    if (createItemStage !== 2) {
+      console.error("Error: item creation stage is not correct.");
+      return;
+    }
+    setStagePending(2);
+
+    let signature = await signer.signMessage(SIGNATURE_MESSAGE);
+    console.log(signature);
+      // stage 2 - sign message and upload file
+
+    let authSig = {
+      sig: signature,
+      derivedVia: "web3.eth.personal.sign",
+      signedMessage: SIGNATURE_MESSAGE,
+      // user address
+      address,
+    };
+    console.log('authSig -> ', authSig);
+
+    const {
+      encryptedFileURL,
+      encryptedSymmetricKey
+    } = await lit.encrypt(digitalProductFileRef, newItemAddress, authSig);
+    console.log('file encrypted, encryptedFileURL, encryptedSymmetricKey - ', encryptedFileURL, encryptedSymmetricKey)
+    setEncryptedFileURL(encryptedFileURL);
+    setEncryptedSymmetricKey(encryptedSymmetricKey);
+    // stage 3 - update token URI
+    setCreateItemStage(3);
+    setStagePending(0);
+
+  }
+  const handleStage3 = async () => {
+    setStagePending(3);
+
+    if (createItemStage !== 3) {
+      console.error("Error: item creation stage is not correct.");
+      return;
+    }
+    const itemContract = new ethers.Contract(
+      newItemAddress,
+      ItemToken.abi,
+      signer
+    );
+
+    const newItemUri = await itemContract.tokenURI(1);
+    const metadata = await axios.get(newItemUri);
+    console.log('newItemUri -> ', newItemUri);
+    console.log('metadata -> ', metadata);
+    console.log('encryptedFileURL -> ', encryptedFileURL);
+    console.log('encryptedSymmetricKey -> ', encryptedSymmetricKey);
+
+    const data = JSON.stringify({
+      ...metadata.data,
+      file: encryptedFileURL,
+      encryptedSymmetricKey: encryptedSymmetricKey,
+      // file: 'some file here',
+      // encryptedSymmetricKey: 'encrypted symmetric key'
+      // todo: optional field -> 
+      // external_url
+  });
+  const added = await client.add(data);
+  const ipfsHash = `${added.path}`;
+  const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+
+    
+    await itemContract.setTokenURI(
+      1,
+      url
+    );
+    console.log('set token uri, currTokenId, ipfsHash: ', ipfsHash)
+
+    toast(`You successfully created ${itemName}!`, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+    setCreateItemStage(1);
+    setCompletedFlow(true);
+    onClose();
+    setStagePending(0);
+  }
   const handleEdit = () => {
     console.log("edit ");
   };
   const uploadImage = async (e: any) => {
-    setItemImage(await handleImageUpload(e));
+    setItemImage(await handleIPFSUpload(e));
   };
 
-  const saveKeyForFile = async (fileUrl: string, secretKey: string) => {
-    // const keyRef = doc(db, 'fileKeys', web3React.account);
-    debugger;
-    console.log('save key for file: ', fileUrl);
-    
-    await addDoc(collection(db, 'fileKeys'), {
-      tokenId: items.length,
-      nftAddress: nftAddress,
-      fileURI: fileUrl,
-      ownerAddress: web3React.account,
-      secretKey: secretKey,
-    });
-  }
-
-  const completeFileEncryption = async (fileUrl: string, secretKey: string) => {
-    setEncryptedUrl(fileUrl);
-    await saveKeyForFile(fileUrl, secretKey);
-  }
-
   const uploadDigitalProduct = async (e: any) => {
-    console.log('digital product');
-    let secretKey = crypto.randomBytes(48).toString('base64');
-    secretKey = crypto.createHash('sha256').update(String(secretKey)).digest('base64').substr(0, 32);
-
-    console.log('secretKey: ', secretKey);
-    // todo: encrypt file and set in SC
-    const res = await encryptFile(e, completeFileEncryption, secretKey);
-
-    console.log('encrypt res: ', res);
-    // setDigitalProductFile(await handleImageUpload(e));
-  }
-  console.log("transactions: ", transactions);
-  console.log("encryptedUrl: ", encryptedUrl);
-
-  const downloadAndDecrypt = async () => {
-    axios.get(encryptedUrl, {
-      responseType: 'arraybuffer'
-    })
-    .then(response => {
-      // Buffer.from(response.data, 'binary').toString('base64')
-      // fs.writeFile('/temp/decrypted.md', response.data, (err) => {
-      //   if (err) throw err;
-      //   console.log('The file has been saved!');
-      // });
-      console.log("response data: ", response.data);
-
-      const decrypted = decrypt(Buffer.from(response.data, 'binary'));
-
-      const url = window.URL.createObjectURL(new Blob([decrypted]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'encrypted.txt');
-      document.body.appendChild(link);
-      link.click();
-    })
+    console.log("e.target.files[0] -> ", e.target.files[0]);
+    setDigitalProductFileRef(e.target.files[0]);
   }
   
-  if (!router.query.shop) {
-    return <h1>Try navigating to this page from the home page</h1>;
+  console.log('transactions -> ', transactions);
+  
+  if (!props.shop) {
+    return <h1>Yikes. Try navigating to this page from the home page</h1>;
   }
   const renderAffiliate = (aff: any, isApproved: boolean) => {
     return (
@@ -268,7 +360,7 @@ const ShopPage = (props: Props) => {
         <Text mr="4">percentage:{" "} {aff.percentage?.toString()}{"%"}</Text> 
         <Button
           onClick={() =>
-            updateAffiliate(aff.affAddr, provider, router.query.shop, Shop.abi, isApproved)
+            updateAffiliate(aff.affAddr, provider, props.shop, Shop.abi, isApproved)
           }
         >
           {isApproved ? "Cancel" : "Approve"}
@@ -281,11 +373,19 @@ const ShopPage = (props: Props) => {
       return (
         <Flex flexDirection="column" justify="center">
           <Text fontSize="2xl" fontWeight="bold" mb="2">Proposals:</Text>
-            {proposedAffiliates.filter((aff: any) => aff.percentage?.toString() != '0').map((aff: any) => renderAffiliate(aff, false))}
+          {
+            proposedAffiliates.filter(
+              (aff: any) => aff.percentage?.toString() != '0').map((aff: any) => renderAffiliate(aff, false)
+            )
+          }
           <Text fontSize="2xl" fontWeight="bold" mb="2">Active:</Text>
-            {activeAffiliates.filter((aff: any) => aff.percentage?.toString() != '0').map((aff: any) => renderAffiliate(aff, true))}
+          {
+            activeAffiliates.filter(
+              (aff: any) => aff.percentage?.toString() != '0').map((aff: any) => renderAffiliate(aff, true)
+            )
+          }
         </Flex>
-        );
+      );
     }
     return (
       <Box>
@@ -293,11 +393,13 @@ const ShopPage = (props: Props) => {
           <Text>Proposals:</Text>
             {
               proposedAffiliates
-                .filter((aff: any) => aff.affAddr == web3React.account)
+                .filter((aff: any) => aff.affAddr == address)
                 .map((aff: any, i: number) => {
                   return (
                     <Box key={`proposed-aff-${i}`}>
-                      <Text fontWeight="bold" fontSize="xl">Your Affiliate proposal for {aff.percentage?.toString()}% is pending</Text>
+                      <Text fontWeight="bold" fontSize="xl">
+                        Your Affiliate proposal for {aff.percentage?.toString()}% is pending
+                      </Text>
                     </Box>
                   )
                 })
@@ -305,11 +407,15 @@ const ShopPage = (props: Props) => {
           <Text>Active:</Text>
             {
               activeAffiliates
-                .filter((aff: any) => aff.affAddr == web3React.account)
+                .filter((aff: any) => aff.affAddr == address)
                 .map((aff: any, i:number) => {
                   return (
                     <Box key={`aff-${i}`}>
-                      <Text fontWeight="bold" fontSize="xl"> <a href={`${window.location.href}/${web3React.account}`}>Here is your affiliate link for {aff.percentage?.toString()}%:</a></Text>
+                      <Text fontWeight="bold" fontSize="xl">
+                        <a href={`${window.location.href}/${address}`}>
+                          Here is your affiliate link for {aff.percentage?.toString()}%:
+                        </a>
+                      </Text>
                     </Box>
                   )
                 })
@@ -329,7 +435,7 @@ const ShopPage = (props: Props) => {
             onClick={() =>
               makeAffiliateProposal(
                 provider,
-                router.query.shop,
+                props.shop,
                 Shop.abi,
                 percent
               )
@@ -344,61 +450,79 @@ const ShopPage = (props: Props) => {
   return (
     <Box>
       <Flex justify={"center"} align={"center"} direction={"column"}>
-        <Box m="6" width={isMobile ? "100%" : "600px"} textAlign="center">
+        <Box m="6" width={isMobile ? "100%" : "1200px"}>
           <Flex
-            justify="center"
+            justify="start"
             align="center"
             direction={isMobile ? "column" : "row"}
           >
-            {/* <Box width={isMobile ? "90%" : "200px"} m="2"> */}
             <Image
               borderRadius="12px"
               src={image}
-              width={isMobile ? "90%" : "200px"}
-              height={isMobile ? "90%" : "200px"}
-              mr="6"
+              width={isMobile ? "90%" : "300px"}
+              height={isMobile ? "90%" : "300px"}
+              mr="120px"
+              boxShadow="xl"
             />
-            {/* </Box> */}
-            <Box>
+            <Box textAlign="left">
               {" "}
-              <Text fontSize="6xl">{name}</Text>
+              <Text fontSize="4xl" className="title">{name}</Text>
               <Text color="gray.600">{desc}</Text>
               <Text color="yello.700">stars: {4.75}</Text>
-              <Flex mb={"2"} direction="column">
+              <Flex mb={"2"} direction="row" justify={"start"}>
                 <Link
                   target={"_blank"}
                   mb={"2"}
                   href={`${process.env.NEXT_PUBLIC_ETHERSCAN}${owner}`}
                   color="gray.600"
                   isExternal
+                  mr="6"
                 >
                   <ExternalLinkIcon />
-                  owner: {owner.slice(0, 5)}...
+                  owner: {owner.slice(0, 4)}...{owner.slice(-4)}
                 </Link>
                 <Link
                   target={"_blank"}
                   mb={"2"}
-                  href={`${process.env.NEXT_PUBLIC_ETHERSCAN}${router.query.shop}`}
+                  href={`${process.env.NEXT_PUBLIC_ETHERSCAN}${props.shop}`}
                   color="gray.600"
                   isExternal
                 >
                   <ExternalLinkIcon />
-                  shop address: {router.query.shop.slice(0, 5)}...
+                  store: {props.shop.slice(0, 4)}...{props.shop.slice(-4)}
                 </Link>
               </Flex>
-              <Flex m={"4"}>
-                {isOwner && (
-                  <Button mr={"4"} onClick={onOpen}>
-                    Add Catalog Item
-                  </Button>
-                )}
-                {isOwner && <Button onClick={handleEdit}>Edit Shop</Button>}
+              <Flex color="white" >
+                {tags && tags.split(', ').map(
+                  (tag: string, i: number) => (<Box key={`key-${tag}-${i}`} backgroundColor="brand.lowKeyKool" _hover={{ bg: 'brand.lowKeyKoolHover' }} color="black" m="2" boxShadow="lg" py="1" px="2" borderRadius="8px" className="tag-button">{tag}</Box>))
+                }
               </Flex>
-            <Button mr={"4"} onClick={downloadAndDecrypt}>download and decrypt file</Button>
+                {isOwner && (
+                  <Box p="20px" borderRadius="20px" boxShadow="xl" bg="white">
+                    <Flex m={"4"} direction="column">
+                        <Text mb="3" fontSize="xl" className="title">store owner panel</Text>
+                        <Box>
+                          <Button bg="brand.independence" _hover={{ bg: "brand.independenceHover" }} mr={"4"} onClick={onOpen}>
+                            Add Catalog Item
+                          </Button>
+                          <Button bg="brand.independence" _hover={{ bg: "brand.independenceHover" }} onClick={handleEdit}>Edit Shop</Button>
+                        </Box>
+                    </Flex>
+                  </Box>
+                )}
+              <Box p="4">{metadata?.description}</Box>
+              <Box p="4">{metadata?.longDescription}</Box>
+            {/* <Button mr={"4"} onClick={downloadAndDecrypt}>download and decrypt file</Button> */}
             </Box>
           </Flex>
+        </Box>
+      </Flex>
 
-          <Tabs>
+      <Box className="pink-box">
+        <Flex justify="center">
+          <Box width="1200px">
+
+        <Tabs>
             <TabList>
               <Tab>Menu</Tab>
               <Tab>Transactions</Tab>
@@ -407,19 +531,25 @@ const ShopPage = (props: Props) => {
             <TabPanels>
               <TabPanel>
                 <Flex justify={"center"} align={"center"} direction={"column"}>
-                  {items.map((elem: any, i: number) => !elem[2] && (
-                    <CatalogItem key={`item-${i}`} data={elem} nftAddress={nftAddress} shopAddress={router.query.shop} isOwner={isOwner} />
+                  {items && items.map((elem: any, i: number) => !elem[2] && (
+                    <CatalogItem
+                      key={`item-${i}`}
+                      data={elem}
+                      nftAddress={elem.itemAddress}
+                      shopAddress={props.shop}
+                      isOwner={isOwner}
+                    />
                   ))}
                 </Flex>
               </TabPanel>
               <TabPanel>
                 <Flex justify={"center"} align={"center"} direction={"column"}>
-                  {transactions.map((elem: any, i: number) => (
+                  {transactions && transactions.map((elem: any, i: number) => (
                     <TransactionItem
                       key={`aff-${i}`}
                       data={elem}
-                      shopAddress={router.query.shop}
-                      currentAddress={web3React.account}
+                      shopAddress={props.shop}
+                      currentAddress={address}
                     />
                   ))}
                 </Flex>
@@ -431,84 +561,147 @@ const ShopPage = (props: Props) => {
               </TabPanel>
             </TabPanels>
           </Tabs>
-        </Box>
-      </Flex>
-
-      <Modal isOpen={isOpen} onClose={onClose}>
+            
+            </Box>
+        </Flex>
+      </Box>
+      <Modal isOpen={isOpen} onClose={onClose} size="6xl">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Create a new catalog item</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Flex justify="center">
-              <Image
-                borderRadius="12px"
-                src={itemImage ? itemImage : "/images/placeholder-image.png"}
-                width="200px"
-                height="200px"
-              />
-            </Flex>
-            <Input
-              placeholder="item name"
-              value={itemName}
-              onChange={(e: any) => setItemName(e.target.value)}
-              mt={4}
-            />
-            <Input
-              placeholder="description"
-              value={itemDesc}
-              onChange={(e: any) => setItemDesc(e.target.value)}
-              mt={4}
-            />
-            <Input
-              placeholder="price"
-              value={itemPrice}
-              onChange={(e: any) => setItemPrice(e.target.value)}
-              mt={4}
-            />
-            <RadioGroup mt={4} onChange={setIsDigital} value={isDigital}>
-              <Stack direction='row'>
-                <Radio value='PHYSICAL'>Physical Product</Radio>
-                <Radio value='DIGITAL'>Digital Product</Radio>
-                <Radio disabled={true} value='NFT'>NFT (soon to come)</Radio>
-              </Stack>
-            </RadioGroup>
-            {
-              isDigital === 'DIGITAL' ? (
+          <Box>
+            <ModalHeader>Create a new catalog item</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody >
+              <Box className="purple-box">
+                <Flex justify="center" align="center" direction="row">
+                  {createItemStage > 1 && <CheckCircleIcon w="50px" h="50px" color={"brand.confirmed"}/>}
+                  <Text textAlign="center" className="title" fontWeight="bold" fontSize="3xl" m={4}>
+                    Step 1: Create NFT 
+                  </Text>
+                </Flex>
+                <Flex justify="center">
+                  <Image
+                    borderRadius="12px"
+                    src={itemImage ? itemImage : "/images/placeholder-image.png"}
+                    width="200px"
+                    height="200px"
+                    boxShadow="xl"
+                  />
+                </Flex>
                 <Box mt={"4"}>
-                  <Text mb={"2"}>Upload Digital Product</Text>
+                  <Text mb={"1"}>Upload NFT Image</Text>
+                  <Text mb={"2"} fontSize="xs">this image represents what the product is like</Text>
                   <input
                     type="file"
                     name="Asset"
                     className="mr-2"
-                    onChange={(e: any) => uploadDigitalProduct(e)}
+                    onChange={(e: any) => uploadImage(e)}
                   />
-              </Box>
-              ) : ""
-            }
-            <Box mt={"4"}>
-              <Text mb={"2"}>Upload Product Image</Text>
-              <input
-                type="file"
-                name="Asset"
-                className="mr-2"
-                onChange={(e: any) => uploadImage(e)}
-              />
-            </Box>
-          </ModalBody>
+                </Box>
+                <Input
+                  placeholder="item name"
+                  value={itemName}
+                  onChange={(e: any) => setItemName(e.target.value)}
+                  mt={4}
+                />
+                
+                <Input
+                    mt={4}
+                    mb="1"
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setItemSymbol((e.target.value || "").toUpperCase().replace(" ", "").slice(0, 10))
+                    }
+                    width="180px"
+                    value={itemSymbol}
+                    name={"symbol"}
+                    placeholder={"NFT symbol"}
+                  />
+                <Text fontSize="xs" mb="2">All caps, no spaces, 10 max character length</Text>
+                <Textarea
+                  placeholder="description"
+                  value={itemDesc}
+                  onChange={(e: any) => setItemDesc(e.target.value)}
+                  mt={4}
+                />
+                <Input
+                  placeholder="price"
+                  value={itemPrice}
+                  width="180px"
+                  onChange={(e: any) => setItemPrice(e.target.value)}
+                  mt={4}
+                />
+                <Flex direction="row" justify={'center'} align="center">
+                    {stagePending === 1 && <Spinner  color="brand.seduce" mr="4" />}
+                  <Box>
+                    <Button disabled={stagePending === 1  || createItemStage !== 1} _hover={{ bg: 'brand.independenceHover' }} bg={'brand.independence'} onClick={handleStage1}>
+                      Create Item
+                    </Button>
+                  </Box>
+                </Flex>
 
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
-              Close
-            </Button>
-            <Button variant="primary" onClick={handleCreate}>
-              Create Item
-            </Button>
-          </ModalFooter>
+              </Box>
+              <Box className="yellow-green-orange-box">
+              <Flex direction="column">
+                <Flex justify="center" align="center" direction="row">
+                  <Text textAlign="center" className="title" fontWeight="bold" fontSize="3xl" m={4}>Step 2: Upload Content</Text>
+                  {createItemStage > 2 && <CheckCircleIcon w="50px" h="50px" color={"brand.confirmed"}/>}
+                </Flex>
+                <Box mt={"4"}>
+                  <Text mb={"1"}>Upload Digital Product</Text>
+                  <Text mb={"2"} fontSize="xs">your digital asset file</Text>
+                  <input
+                    type="file"
+                    name="Asset"
+                    className="mr-2"
+                    disabled={!(createItemStage == 2)}
+                    onChange={uploadDigitalProduct}
+                  />
+                </Box>
+                <Flex direction="row" justify={'center'} align="center">
+                    {stagePending === 2 && <Spinner color="brand.seduce" mr="4" />}
+                  <Box>
+                    <Button disabled={stagePending === 2 || createItemStage !== 2} _hover={{ bg: 'brand.independenceHover' }} bg={'brand.independence'}  onClick={handleStage2}>
+                      Sign Message
+                    </Button>
+                  </Box>
+                </Flex>
+              </Flex>
+
+              </Box>
+              <Box className="blue-purple-box">
+                <Flex direction="column">
+                <Flex justify="center" align="center" direction="row">
+                 <Text textAlign="center" className="title" fontWeight="bold" fontSize="3xl" m={4}>Step 3: Attach Content to NFT</Text>
+                </Flex>
+                  <Flex direction="row" justify={'center'} align="center">
+                    <Box>
+                      {stagePending === 3 && <Spinner color="brand.seduce" mr="4" />}
+                      <Button disabled={stagePending === 3 || createItemStage !== 3} _hover={{ bg: 'brand.independenceHover' }} bg={'brand.independence'} onClick={handleStage3}>
+                        Attach
+                      </Button>
+                    </Box>
+                  </Flex>
+                </Flex>
+
+              </Box>
+            </ModalBody>
+            <ModalFooter>
+              <Button bg={"brand.active"} _hover={{ bg: "brand.activeHover" }} mr={3} onClick={onClose}>
+                Close
+              </Button>
+            </ModalFooter>
+          </Box>
         </ModalContent>
       </Modal>
     </Box>
   );
 };
 
+ShopPage.getInitialProps = async (ctx) => {
+  // this gives the shop address on first render - using router.query.shop causes Error on frist render
+  const shopAddress = ctx.query.shop;
+  return {
+    shop: shopAddress
+  }
+}
 export default ShopPage;

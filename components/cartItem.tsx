@@ -55,12 +55,10 @@ const CartItem = (props: Props) => {
   console.log("cartdata: ", cartMetaData, props);
 
   return (
-    <Box key={props.data.itemId} mb="6">
+    <Box key={props.data.itemId} mb="6" bg="white" boxShadow='xl' p="20px" borderRadius="20px">
       <Flex align="center" direction={isMobile ? "column" : "row"}>
         <Image
-          border="solid"
-          borderColor="Background.400"
-          borderRadius="12px"
+          borderRadius="16px"
           mr="4"
           w="120px"
           h="120px"
@@ -70,7 +68,7 @@ const CartItem = (props: Props) => {
           <Text fontSize="xl" mb="2">
             {cartMetaData[props.data.itemId].name}
           </Text>
-          <Text fontSize="sm">
+          <Text fontSize="sm" className="cart_item__description">
             {cartMetaData[props.data.itemId].description}
           </Text>
         </Flex>
@@ -79,7 +77,7 @@ const CartItem = (props: Props) => {
           Qty:
         </Text>
         <Input m={"1"} width="80px" value={localQty} onChange={(e: any) => setLocalQty(e.target.value)} />
-        <Button m={"1"} onClick={handleUpdate}>
+        <Button m={"1"} onClick={handleUpdate} width="180px">
           update
         </Button>
         <Button m={"1"} onClick={handleDelete} backgroundColor="red.400">

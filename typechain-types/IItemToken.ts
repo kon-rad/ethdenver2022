@@ -22,8 +22,9 @@ export interface IItemTokenInterface extends utils.Interface {
   functions: {
     "balanceOf(address,uint256)": FunctionFragment;
     "balanceOfBatch(address[],uint256[])": FunctionFragment;
-    "batchSale(address,uint256[],uint256[])": FunctionFragment;
-    "createItem(uint256,string)": FunctionFragment;
+    "batchSale(address,uint256)": FunctionFragment;
+    "createItem(string)": FunctionFragment;
+    "getTotal()": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)": FunctionFragment;
     "safeTransferFrom(address,address,uint256,uint256,bytes)": FunctionFragment;
@@ -42,12 +43,10 @@ export interface IItemTokenInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "batchSale",
-    values: [string, BigNumberish[], BigNumberish[]]
+    values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "createItem",
-    values: [BigNumberish, string]
-  ): string;
+  encodeFunctionData(functionFragment: "createItem", values: [string]): string;
+  encodeFunctionData(functionFragment: "getTotal", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [string, string]
@@ -77,6 +76,7 @@ export interface IItemTokenInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "batchSale", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "createItem", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getTotal", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isApprovedForAll",
     data: BytesLike
@@ -194,16 +194,16 @@ export interface IItemToken extends BaseContract {
 
     batchSale(
       _to: string,
-      _tokenIds: BigNumberish[],
-      _amounts: BigNumberish[],
+      _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     createItem(
-      _tokenId: BigNumberish,
       _uri: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    getTotal(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     isApprovedForAll(
       account: string,
@@ -257,16 +257,16 @@ export interface IItemToken extends BaseContract {
 
   batchSale(
     _to: string,
-    _tokenIds: BigNumberish[],
-    _amounts: BigNumberish[],
+    _amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   createItem(
-    _tokenId: BigNumberish,
     _uri: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  getTotal(overrides?: CallOverrides): Promise<BigNumber>;
 
   isApprovedForAll(
     account: string,
@@ -320,16 +320,13 @@ export interface IItemToken extends BaseContract {
 
     batchSale(
       _to: string,
-      _tokenIds: BigNumberish[],
-      _amounts: BigNumberish[],
+      _amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    createItem(
-      _tokenId: BigNumberish,
-      _uri: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    createItem(_uri: string, overrides?: CallOverrides): Promise<void>;
+
+    getTotal(overrides?: CallOverrides): Promise<BigNumber>;
 
     isApprovedForAll(
       account: string,
@@ -433,16 +430,16 @@ export interface IItemToken extends BaseContract {
 
     batchSale(
       _to: string,
-      _tokenIds: BigNumberish[],
-      _amounts: BigNumberish[],
+      _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     createItem(
-      _tokenId: BigNumberish,
       _uri: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    getTotal(overrides?: CallOverrides): Promise<BigNumber>;
 
     isApprovedForAll(
       account: string,
@@ -497,16 +494,16 @@ export interface IItemToken extends BaseContract {
 
     batchSale(
       _to: string,
-      _tokenIds: BigNumberish[],
-      _amounts: BigNumberish[],
+      _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     createItem(
-      _tokenId: BigNumberish,
       _uri: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    getTotal(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isApprovedForAll(
       account: string,

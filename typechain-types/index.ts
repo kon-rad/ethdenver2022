@@ -2,27 +2,29 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { Ownable } from "./Ownable";
-export type { ERC1155 } from "./ERC1155";
-export type { ERC1155URIStorage } from "./ERC1155URIStorage";
 export type { IERC1155MetadataURI } from "./IERC1155MetadataURI";
 export type { IERC1155 } from "./IERC1155";
-export type { IERC1155Receiver } from "./IERC1155Receiver";
+export type { IERC721Metadata } from "./IERC721Metadata";
+export type { IERC721 } from "./IERC721";
+export type { IERC721Receiver } from "./IERC721Receiver";
 export type { ERC165 } from "./ERC165";
 export type { IERC165 } from "./IERC165";
 export type { IItemToken } from "./IItemToken";
+export type { ERC721Modified } from "./ERC721Modified";
 export type { Shop } from "./Shop";
 export type { ShopFactory } from "./ShopFactory";
 export type { ItemToken } from "./ItemToken";
 
 export { Ownable__factory } from "./factories/Ownable__factory";
-export { ERC1155__factory } from "./factories/ERC1155__factory";
-export { ERC1155URIStorage__factory } from "./factories/ERC1155URIStorage__factory";
 export { IERC1155MetadataURI__factory } from "./factories/IERC1155MetadataURI__factory";
 export { IERC1155__factory } from "./factories/IERC1155__factory";
-export { IERC1155Receiver__factory } from "./factories/IERC1155Receiver__factory";
+export { IERC721Metadata__factory } from "./factories/IERC721Metadata__factory";
+export { IERC721__factory } from "./factories/IERC721__factory";
+export { IERC721Receiver__factory } from "./factories/IERC721Receiver__factory";
 export { ERC165__factory } from "./factories/ERC165__factory";
 export { IERC165__factory } from "./factories/IERC165__factory";
 export { IItemToken__factory } from "./factories/IItemToken__factory";
+export { ERC721Modified__factory } from "./factories/ERC721Modified__factory";
 export { Shop__factory } from "./factories/Shop__factory";
 export { ShopFactory__factory } from "./factories/ShopFactory__factory";
 export { ItemToken__factory } from "./factories/ItemToken__factory";
