@@ -306,6 +306,7 @@ const ShopPage = (props: Props) => {
       ...metadata.data,
       file: encryptedFileURL,
       encryptedSymmetricKey: encryptedSymmetricKey,
+      fileName: 'some file here',
       // file: 'some file here',
       // encryptedSymmetricKey: 'encrypted symmetric key'
       // todo: optional field -> 

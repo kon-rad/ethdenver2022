@@ -120,7 +120,10 @@ const NFTPage = (props: Props) => {
       var url = URL.createObjectURL(blob);
       window.open(url);
     }
-    createAndDownloadBlobFile(decryptedFile, 'cyber-punk', 'zip');
+    const fileName = metadata.fileName || 'cyber-punk';
+    const extension = metadata.extension || 'zip';
+
+    createAndDownloadBlobFile(decryptedFile, fileName, extension);
     console.log('decryptedFile -', decryptedFile);
   }
   console.log('item id ', itemId);
