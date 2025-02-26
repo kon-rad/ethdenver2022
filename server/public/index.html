@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter DevRel Agent API</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #1DA1F2;
+            border-bottom: 2px solid #1DA1F2;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #14171A;
+            margin-top: 30px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .endpoint {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 3px solid #1DA1F2;
+            background-color: #f8f9fa;
+        }
+        .method {
+            font-weight: bold;
+            color: #1DA1F2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Twitter DevRel Agent API</h1>
+    <p>Welcome to the Twitter DevRel Agent API documentation. This API provides endpoints for managing users, tweets, and analytics for a Twitter-like application.</p>
+    
+    <h2>API Endpoints</h2>
+    
+    <h3>User Endpoints</h3>
+    
+    <div class="endpoint">
+        <p><span class="method">POST</span> /api/users/register</p>
+        <p>Register a new user</p>
+        <pre>
+{
+  "username": "johndoe",
+  "email": "john@example.com",
+  "password": "password123"
+}</pre>
+    </div>
+    
+    <div class="endpoint">
+        <p><span class="method">POST</span> /api/users/login</p>
+        <p>Login a user</p>
+        <pre>
+{
+  "username": "johndoe",
+  "password": "password123"
+}</pre>
+    </div>
+    
+    <div class="endpoint">
+        <p><span class="method">GET</span> /api/users/profile</p>
+        <p>Get the current user's profile (requires authentication)</p>
+    </div>
+    
+    <h3>Tweet Endpoints</h3>
+    
+    <div class="endpoint">
+        <p><span class="method">POST</span> /api/tweets</p>
+        <p>Create a new tweet (requires authentication)</p>
+        <pre>
+{
+  "content": "This is my first tweet!"
+}</pre>
+    </div>
+    
+    <div class="endpoint">
+        <p><span class="method">GET</span> /api/tweets</p>
+        <p>Get all tweets</p>
+    </div>
+    
+    <div class="endpoint">
+        <p><span class="method">GET</span> /api/tweets/user/:userId</p>
+        <p>Get tweets by a specific user</p>
+    </div>
+    
+    <h3>Analytics Endpoints</h3>
+    
+    <div class="endpoint">
+        <p><span class="method">GET</span> /api/analytics/followers/growth/:userId</p>
+        <p>Get follower growth over time for a user</p>
+    </div>
+    
+    <div class="endpoint">
+        <p><span class="method">GET</span> /api/analytics/engagement/:userId</p>
+        <p>Get tweet engagement stats for a user</p>
+    </div>
+    
+    <div class="endpoint">
+        <p><span class="method">GET</span> /api/analytics/account/:userId</p>
+        <p>Get overall account stats for a user</p>
+    </div>
+    
+    <h2>Authentication</h2>
+    <p>Most endpoints require authentication using a JWT token. Include the token in the Authorization header:</p>
+    <pre>Authorization: Bearer your_jwt_token</pre>
+    
+    <h2>Getting Started</h2>
+    <p>To use this API:</p>
+    <ol>
+        <li>Register a new user using the <code>/api/users/register</code> endpoint</li>
+        <li>Login with your credentials to get a JWT token</li>
+        <li>Include the token in your requests to authenticated endpoints</li>
+    </ol>
+    
+    <footer>
+        <p>&copy; 2023 Twitter DevRel Agent API</p>
+    </footer>
+</body>
+</html> 
