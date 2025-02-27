@@ -1,8 +1,15 @@
-const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-const cors = require('cors');
-const morgan = require('morgan');
+import express from 'express';
+import path from 'path';
+import cors from 'cors';
+import morgan from 'morgan';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import agentBrainService from './services/agentBrainService.js';
+import db from './database.js';
+
+// Get current file path (ES Modules equivalent of __dirname)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Initialize express app
 const app = express();
@@ -17,51 +24,89 @@ app.use(morgan('dev')); // Logging
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Initialize database
-const db = new sqlite3.Database('./database.sqlite', (err) => {
-  if (err) {
-    console.error('Error opening database', err.message);
-  } else {
-    console.log('Connected to the SQLite database.');
-    initializeDatabase();
-  }
-});
-
 // Initialize database tables
 function initializeDatabase() {
   db.serialize(() => {
-    // Create users table
-    db.run(`CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT UNIQUE NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`);
-
     // Create tweets table
     db.run(`CREATE TABLE IF NOT EXISTS tweets (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL,
+      campaign_id INTEGER,
       content TEXT NOT NULL,
+      media_urls TEXT,
+      scheduled_for DATETIME,
+      published_at DATETIME,
       likes INTEGER DEFAULT 0,
       retweets INTEGER DEFAULT 0,
+      replies INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users (id)
+      FOREIGN KEY (campaign_id) REFERENCES campaigns (id)
     )`);
 
-    // Create followers table
-    db.run(`CREATE TABLE IF NOT EXISTS followers (
+    // Create campaigns table
+    db.run(`CREATE TABLE IF NOT EXISTS campaigns (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      follower_id INTEGER NOT NULL,
-      following_id INTEGER NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (follower_id) REFERENCES users (id),
-      FOREIGN KEY (following_id) REFERENCES users (id),
-      UNIQUE(follower_id, following_id)
+      title TEXT NOT NULL,
+      description TEXT,
+      status TEXT DEFAULT 'draft',
+      start_date DATETIME,
+      end_date DATETIME,
+      auto_generated BOOLEAN DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
-    console.log('Database tables initialized');
+    // Create agent logs table
+    db.run(`CREATE TABLE IF NOT EXISTS agent_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      campaign_id INTEGER,
+      action_type TEXT NOT NULL,
+      thought_process TEXT,
+      result TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (campaign_id) REFERENCES campaigns (id)
+    )`);
+
+    // Create agent thoughts table
+    db.run(`CREATE TABLE IF NOT EXISTS agent_thoughts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL,
+      content TEXT NOT NULL,
+      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+      model_name TEXT,
+      campaign_id INTEGER,
+      FOREIGN KEY (campaign_id) REFERENCES campaigns (id)
+    )`);
+
+    // Create agent configuration table
+    db.run(`CREATE TABLE IF NOT EXISTS agent_config (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      is_running BOOLEAN DEFAULT 0,
+      personality TEXT,
+      frequency INTEGER DEFAULT 3600000,
+      last_run DATETIME,
+      model_name TEXT DEFAULT 'meta-llama/Meta-Llama-3-8B-Instruct',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
+    // Insert default agent configuration if not exists
+    db.get('SELECT * FROM agent_config WHERE id = 1', [], (err, row) => {
+      if (err) {
+        console.error('Error checking agent config:', err.message);
+        return;
+      }
+      
+      if (!row) {
+        db.run(`INSERT INTO agent_config (
+          is_running, personality, frequency, model_name
+        ) VALUES (?, ?, ?, ?)`, 
+        [
+          0, 
+          'You are a helpful DevRel agent for Base L2 network. Your goal is to create engaging content about Web3 developments and post bounties for content creators.',
+          3600000, // 1 hour in milliseconds
+          'meta-llama/Meta-Llama-3-8B-Instruct'
+        ]);
+      }
+    });
   });
 }
 
@@ -70,17 +115,21 @@ app.get('/', (req, res) => {
   res.send('Twitter DevRel Agent API is running');
 });
 
-// User routes
-const userRoutes = require('./server/routes/users');
-app.use('/api/users', userRoutes);
+// Import route modules
+import tweetRoutes from './routes/tweets.js';
+import analyticsRoutes from './routes/analytics.js';
+import campaignRoutes from './routes/campaigns.js';
+import agentRoutes from './routes/agent.js';
 
-// Tweet routes
-const tweetRoutes = require('./server/routes/tweets');
+// Use routes
 app.use('/api/tweets', tweetRoutes);
-
-// Analytics routes
-const analyticsRoutes = require('./server/routes/analytics');
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/campaigns', campaignRoutes);
+app.use('/api/agent', agentRoutes);
+
+// Initialize agent brain service
+console.log('Initializing agent brain service...');
+// The service will self-initialize when imported
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -98,4 +147,4 @@ app.listen(PORT, () => {
 });
 
 // Export the database connection for use in other files
-module.exports = db; 
+export default db; 

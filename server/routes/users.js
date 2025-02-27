@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import db from '../server.js';
+
 const router = express.Router();
-const db = require('../../server');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
@@ -51,6 +52,7 @@ router.post('/register', async (req, res) => {
       res.status(201).json({
         message: 'User registered successfully',
         userId: this.lastID,
+        username,
         token
       });
     });
@@ -61,41 +63,36 @@ router.post('/register', async (req, res) => {
 
 // Login user
 router.post('/login', (req, res) => {
-  try {
-    const { username, password } = req.body;
-    
-    if (!username || !password) {
-      return res.status(400).json({ message: 'Username and password are required' });
-    }
-    
-    // Find the user
-    const sql = `SELECT * FROM users WHERE username = ?`;
-    
-    db.get(sql, [username], async (err, user) => {
-      if (err) return res.status(500).json({ message: err.message });
-      if (!user) return res.status(404).json({ message: 'User not found' });
-      
-      // Compare passwords
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) return res.status(401).json({ message: 'Invalid password' });
-      
-      // Generate JWT token
-      const token = jwt.sign(
-        { id: user.id, username: user.username },
-        process.env.JWT_SECRET || 'your_jwt_secret',
-        { expiresIn: '24h' }
-      );
-      
-      res.json({
-        message: 'Login successful',
-        userId: user.id,
-        username: user.username,
-        token
-      });
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  const { username, password } = req.body;
+  
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Username and password are required' });
   }
+  
+  const sql = `SELECT * FROM users WHERE username = ?`;
+  
+  db.get(sql, [username], async (err, user) => {
+    if (err) return res.status(500).json({ message: err.message });
+    if (!user) return res.status(401).json({ message: 'Invalid username or password' });
+    
+    // Compare password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) return res.status(401).json({ message: 'Invalid username or password' });
+    
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user.id, username: user.username },
+      process.env.JWT_SECRET || 'your_jwt_secret',
+      { expiresIn: '24h' }
+    );
+    
+    res.json({
+      message: 'Login successful',
+      userId: user.id,
+      username: user.username,
+      token
+    });
+  });
 });
 
 // Get user profile
@@ -112,46 +109,10 @@ router.get('/profile', authenticateToken, (req, res) => {
   });
 });
 
-// Get user's followers
-router.get('/:userId/followers', (req, res) => {
-  const userId = req.params.userId;
-  
-  const sql = `
-    SELECT u.id, u.username, u.email, f.created_at as followed_at
-    FROM users u
-    JOIN followers f ON u.id = f.follower_id
-    WHERE f.following_id = ?
-  `;
-  
-  db.all(sql, [userId], (err, followers) => {
-    if (err) return res.status(500).json({ message: err.message });
-    
-    res.json(followers);
-  });
-});
-
-// Get users being followed by a user
-router.get('/:userId/following', (req, res) => {
-  const userId = req.params.userId;
-  
-  const sql = `
-    SELECT u.id, u.username, u.email, f.created_at as followed_at
-    FROM users u
-    JOIN followers f ON u.id = f.following_id
-    WHERE f.follower_id = ?
-  `;
-  
-  db.all(sql, [userId], (err, following) => {
-    if (err) return res.status(500).json({ message: err.message });
-    
-    res.json(following);
-  });
-});
-
 // Follow a user
-router.post('/follow', authenticateToken, (req, res) => {
+router.post('/follow/:followingId', authenticateToken, (req, res) => {
   const followerId = req.user.id;
-  const { followingId } = req.body;
+  const followingId = req.params.followingId;
   
   if (followerId === parseInt(followingId)) {
     return res.status(400).json({ message: 'You cannot follow yourself' });
@@ -192,4 +153,4 @@ router.delete('/unfollow/:followingId', authenticateToken, (req, res) => {
   });
 });
 
-module.exports = router; 
+export default router; 
